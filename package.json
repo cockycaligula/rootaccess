@@ -1,5 +1,5 @@
 {
-  "name": "airsense-diwali",
+  "name": "vaayuvision-diwali",
   "version": "0.1.0",
   "private": true,
   "description": "AI-powered neighborhood-level air pollution prediction around Diwali",
@@ -8,13 +8,13 @@
     "apps/*"
   ],
   "scripts": {
-    "build:shared": "npm run build -w @airsense/shared",
-    "build": "npm run build:shared && npm run build -w @airsense/api && npm run build -w @airsense/web",
-    "dev": "npm run build:shared && concurrently -n api,web -c cyan,magenta \"npm run dev -w @airsense/api\" \"npm run dev -w @airsense/web\"",
-    "start": "npm run start -w @airsense/api",
-    "evaluate": "npm run build:shared && npm run evaluate -w @airsense/api",
-    "test": "npm run build:shared && npm run test -w @airsense/api",
-    "typecheck": "npm run build:shared && npm run typecheck -w @airsense/api && npm run typecheck -w @airsense/web"
+    "build:shared": "npm run build -w @vaayuvision/shared",
+    "build": "npm run build:shared && npm run build -w @vaayuvision/api && npm run build -w @vaayuvision/web",
+    "dev": "npm run build:shared && concurrently -n api,web -c cyan,magenta \"npm run dev -w @vaayuvision/api\" \"npm run dev -w @vaayuvision/web\"",
+    "start": "npm run start -w @vaayuvision/api",
+    "evaluate": "npm run build:shared && npm run evaluate -w @vaayuvision/api",
+    "test": "npm run build:shared && npm run test -w @vaayuvision/api",
+    "typecheck": "npm run build:shared && npm run typecheck -w @vaayuvision/api && npm run typecheck -w @vaayuvision/web"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

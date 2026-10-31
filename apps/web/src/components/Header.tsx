@@ -1,4 +1,4 @@
-import type { Meta } from '@airsense/shared';
+import type { Meta } from '@vaayuvision/shared';
 import { formatDate } from '../format';
 
 const PHASE_TEXT: Record<Meta['phase'], string> = {
@@ -19,7 +19,7 @@ export function Header({ meta }: { meta: Meta }) {
     <header className="header">
       <div>
         <h1>
-          <span className="logo">🪔</span> AirSense <span className="muted">· Diwali Air Quality Forecast</span>
+          VaayuVision <span className="muted">· Patiala Diwali Air Quality Forecast</span>
         </h1>
         <p className="muted">AI-powered, neighborhood-level PM2.5 / AQI prediction for Patiala, Punjab</p>
       </div>

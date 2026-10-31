@@ -10,9 +10,9 @@ import {
   type DailyObservation,
   type DayConditions,
   type Neighborhood,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 import type { AirQualityDataSource } from './source.js';
-import { DELHI_NEIGHBORHOODS, type NeighborhoodProfile } from './neighborhoods.js';
+import { PATIALA_NEIGHBORHOODS, type NeighborhoodProfile } from './neighborhoods.js';
 import { clamp, gaussian, hashSeed, mulberry32 } from './rng.js';
 
 interface SimRow {
@@ -25,7 +25,7 @@ interface SimRow {
 const FIREWORKS_LOAD: Record<number, number> = { [-1]: 25, 0: 150, 1: 110, 2: 30 };
 
 /**
- * Seeded physical-ish simulation of daily PM2.5 for Delhi neighborhoods.
+ * Seeded physical-ish simulation of daily PM2.5 for Patiala neighborhoods.
  *
  * PM2.5 = persistence + base × season × stagnation(wind, mixing height) × traffic
  *         × stubble smoke × rain washout + Diwali fireworks spike.
@@ -43,7 +43,7 @@ export class SyntheticDataSource implements AirQualityDataSource {
     readonly today: string,
     private readonly seed = 42,
     start = '2022-01-01',
-    private readonly profiles: NeighborhoodProfile[] = DELHI_NEIGHBORHOODS,
+    private readonly profiles: NeighborhoodProfile[] = PATIALA_NEIGHBORHOODS,
   ) {
     this.start = start;
     this.lastObserved = addDays(today, -1);

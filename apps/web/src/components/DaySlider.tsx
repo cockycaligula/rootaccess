@@ -1,4 +1,4 @@
-import type { ForecastPoint } from '@airsense/shared';
+import type { ForecastPoint } from '@vaayuvision/shared';
 import { formatDate, phaseLabel } from '../format';
 
 interface Props {

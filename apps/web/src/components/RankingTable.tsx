@@ -1,4 +1,4 @@
-import { aqiColor, type NeighborhoodForecast } from '@airsense/shared';
+import { aqiColor, type NeighborhoodForecast } from '@vaayuvision/shared';
 
 interface Props {
   forecasts: NeighborhoodForecast[];

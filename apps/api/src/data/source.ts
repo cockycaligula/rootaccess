@@ -1,4 +1,4 @@
-import type { DailyObservation, DayConditions, Neighborhood } from '@airsense/shared';
+import type { DailyObservation, DayConditions, Neighborhood } from '@vaayuvision/shared';
 
 /**
  * Abstraction over where air-quality, weather and traffic data come from.

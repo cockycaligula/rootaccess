@@ -5,7 +5,7 @@ import {
   type DiwaliOutlook,
   type ForecastPoint,
   type NeighborhoodForecast,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 import { formatDate } from '../format';
 import { TrendChart } from './TrendChart';
 

@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { DailyObservation, ForecastPoint } from '@airsense/shared';
+import type { DailyObservation, ForecastPoint } from '@vaayuvision/shared';
 import { formatDate } from '../format';
 
 interface Props {
@@ -59,7 +59,7 @@ export function TrendChart({ history, points, simulatedPoints, selectedDate, diw
           {[100, 200, 300, 400].map((y) => (
             <ReferenceLine key={y} y={y} stroke="#3a4252" strokeDasharray="2 4" />
           ))}
-          <ReferenceLine x={diwaliDate} stroke="#ffb347" label={{ value: '🪔 Diwali', fill: '#ffb347', fontSize: 11, position: 'top' }} />
+          <ReferenceLine x={diwaliDate} stroke="#ffb347" label={{ value: 'Diwali', fill: '#ffb347', fontSize: 11, position: 'top' }} />
           <ReferenceLine x={selectedDate} stroke="#ffffff" strokeOpacity={0.5} />
           <Area dataKey="band" name="80% range" stroke="none" fill="#7c9cff" fillOpacity={0.2} />
           <Line dataKey="observed" name="Observed AQI" stroke="#e2e8f0" dot={false} strokeWidth={2} />

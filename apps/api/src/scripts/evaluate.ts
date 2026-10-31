@@ -4,7 +4,7 @@
  *
  *   npm run evaluate
  */
-import { DIWALI_DATES, addDays } from '@airsense/shared';
+import { DIWALI_DATES, addDays } from '@vaayuvision/shared';
 import { config } from '../config.js';
 import { SyntheticDataSource } from '../data/synthetic.js';
 import { evaluate } from '../model/train.js';

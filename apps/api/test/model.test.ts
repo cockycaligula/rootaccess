@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { aqiCategory, daysFromDiwali, diwaliPhase, pm25ToAqi } from '@airsense/shared';
+import { aqiCategory, daysFromDiwali, diwaliPhase, pm25ToAqi } from '@vaayuvision/shared';
 import { RidgeRegression } from '../src/model/ridge.js';
 import { SyntheticDataSource } from '../src/data/synthetic.js';
 import { PredictionService } from '../src/service.js';

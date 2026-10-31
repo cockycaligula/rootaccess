@@ -7,7 +7,7 @@ import type {
   ModelInfo,
   NeighborhoodForecast,
   SimulationResult,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 import { api } from './api';
 import { Header } from './components/Header';
 import { AqiMap } from './components/AqiMap';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import L from 'leaflet';
 import { Circle, CircleMarker, MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet';
-import { AQI_COLORS, aqiColor, type AqiCategory, type NeighborhoodForecast } from '@airsense/shared';
+import { AQI_COLORS, aqiColor, type AqiCategory, type NeighborhoodForecast } from '@vaayuvision/shared';
 
 interface Props {
   forecasts: NeighborhoodForecast[];
@@ -61,7 +61,7 @@ export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
           className={`map-chip ${showPlumes ? 'active' : ''}`}
           onClick={() => setShowPlumes((v) => !v)}
         >
-          {showPlumes ? '🔥 Plume Halo: ON' : 'Plume Halo: OFF'}
+          {showPlumes ? 'Plume Halo: ON' : 'Plume Halo: OFF'}
         </button>
       </div>
 

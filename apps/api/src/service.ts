@@ -16,7 +16,7 @@ import {
   type NeighborhoodSummary,
   type PhaseOutlook,
   type SimulationResult,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 import type { AirQualityDataSource } from './data/source.js';
 import { FEATURES } from './model/features.js';
 import { forecastNeighborhood } from './model/forecast.js';

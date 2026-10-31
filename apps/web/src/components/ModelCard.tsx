@@ -1,4 +1,4 @@
-import type { ModelInfo } from '@airsense/shared';
+import type { ModelInfo } from '@vaayuvision/shared';
 import { formatDate } from '../format';
 
 export function ModelCard({ model }: { model: ModelInfo }) {

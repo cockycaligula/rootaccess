@@ -8,7 +8,7 @@ import {
   type Driver,
   type ForecastPoint,
   type InterventionScenario,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 import type { AirQualityDataSource } from '../data/source.js';
 import { FEATURES, GROUP_LABELS, MIN_HISTORY, buildFeatures, type FeatureGroup, type NeighborhoodContext } from './features.js';
 import type { RidgeRegression } from './ridge.js';

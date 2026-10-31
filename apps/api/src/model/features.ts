@@ -1,4 +1,4 @@
-import { dayOfYear, daysFromDiwali, type DayConditions } from '@airsense/shared';
+import { dayOfYear, daysFromDiwali, type DayConditions } from '@vaayuvision/shared';
 
 export type FeatureGroup =
   | 'persistence'

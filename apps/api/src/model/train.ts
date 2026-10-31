@@ -5,7 +5,7 @@ import {
   diffDays,
   type DailyObservation,
   type EvaluationMetrics,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 import type { AirQualityDataSource } from '../data/source.js';
 import { MIN_HISTORY, buildFeatures, type NeighborhoodContext } from './features.js';
 import { RidgeRegression } from './ridge.js';

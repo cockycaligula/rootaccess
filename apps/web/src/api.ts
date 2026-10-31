@@ -7,7 +7,7 @@ import type {
   NeighborhoodForecast,
   NeighborhoodSummary,
   SimulationResult,
-} from '@airsense/shared';
+} from '@vaayuvision/shared';
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`/api${path}`);

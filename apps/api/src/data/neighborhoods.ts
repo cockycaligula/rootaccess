@@ -1,4 +1,4 @@
-import type { Neighborhood } from '@airsense/shared';
+import type { Neighborhood } from '@vaayuvision/shared';
 
 /**
  * Hidden "ground truth" characteristics used only by the synthetic simulator.
@@ -25,5 +25,3 @@ export const PATIALA_NEIGHBORHOODS: NeighborhoodProfile[] = [
   { id: 'punjabi-uni', name: 'Punjabi University', zone: 'East Campus', lat: 30.3585, lng: 76.447, base: 72, traffic: 0.85, fireworks: 0.75, stubbleExposure: 0.9 },
   { id: 'baradari-gardens', name: 'Baradari Gardens', zone: 'Central Green', lat: 30.337, lng: 76.392, base: 66, traffic: 0.8, fireworks: 0.7, stubbleExposure: 0.8 },
 ];
-
-export const DELHI_NEIGHBORHOODS = PATIALA_NEIGHBORHOODS;

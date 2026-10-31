@@ -1,4 +1,4 @@
-import { aqiColor, type InterventionScenario, type SimulationResult } from '@airsense/shared';
+import { aqiColor, type InterventionScenario, type SimulationResult } from '@vaayuvision/shared';
 
 interface Props {
   neighborhoodName: string;
@@ -37,9 +37,9 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
     <div className="simulator">
       <div className="sim-header">
         <div>
-          <h3>🧪 What-If Policy Simulator · {neighborhoodName}</h3>
+          <h3>What-If Policy Simulator · {neighborhoodName}</h3>
           <p className="muted small">
-            Simulate interventions before Diwali and see how the recursive 21-day forecast responds in real time.
+            Simulate interventions in Patiala before Diwali and see how the recursive 21-day forecast responds in real time.
           </p>
         </div>
         <div className="preset-row">
@@ -54,7 +54,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
       <div className="sim-controls">
         <label className="sim-slider">
           <div className="sim-label-row">
-            <span>🧨 Firecracker Reduction</span>
+            <span>Firecracker Reduction</span>
             <strong>{scenario.fireworksReductionPct}%</strong>
           </div>
           <input
@@ -70,7 +70,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
 
         <label className="sim-slider">
           <div className="sim-label-row">
-            <span>🚗 Traffic & Truck Curbs</span>
+            <span>Traffic & Bazaar Curbs</span>
             <strong>{scenario.trafficReductionPct}%</strong>
           </div>
           <input
@@ -81,12 +81,12 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
             value={scenario.trafficReductionPct}
             onChange={(e) => onChange({ ...scenario, trafficReductionPct: Number(e.target.value) })}
           />
-          <span className="muted small">Odd-Even scheme, commercial truck ban, WFH mandate</span>
+          <span className="muted small">Bazaar vehicle restrictions, commercial truck ban</span>
         </label>
 
         <label className="sim-slider">
           <div className="sim-label-row">
-            <span>🌾 Stubble Smoke Control</span>
+            <span>Malwa Stubble Smoke Control</span>
             <strong>{scenario.stubbleReductionPct}%</strong>
           </div>
           <input
@@ -107,7 +107,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
             onChange={(e) => onChange({ ...scenario, artificialRain: e.target.checked })}
           />
           <div>
-            <strong>🌧️ Artificial Rain / Heavy Smog-Gun Misting</strong>
+            <strong>Artificial Rain / Smog-Gun Misting</strong>
             <div className="muted small">Wet deposition washout across Diwali ±1 day</div>
           </div>
         </label>

@@ -17,7 +17,7 @@ const service = new PredictionService(source, {
 }).init();
 const ev = service.model().evaluation;
 console.log(
-  `[airsense] model trained in ${Date.now() - t0} ms on ${service.model().trainRows} rows` +
+  `[vaayuvision] model trained in ${Date.now() - t0} ms on ${service.model().trainRows} rows` +
     (ev ? ` | holdout MAE ${ev.mae.toFixed(1)} vs persistence ${ev.persistenceMae.toFixed(1)} µg/m³` : ''),
 );
 
@@ -33,5 +33,5 @@ if (existsSync(webDist)) {
 }
 
 app.listen(config.port, () => {
-  console.log(`[airsense] API on http://localhost:${config.port}/api (today=${config.today})`);
+  console.log(`[vaayuvision] API on http://localhost:${config.port}/api (today=${config.today})`);
 });
