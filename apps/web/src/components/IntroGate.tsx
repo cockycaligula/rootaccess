@@ -1,22 +1,18 @@
 import { useEffect, useState } from 'react';
-import { aqiColor, type Meta, type NeighborhoodForecast } from '@vaayuvision/shared';
-import { formatDate } from '../format';
+import { aqiColor, type NeighborhoodForecast } from '@vaayuvision/shared';
 
 interface Props {
-  meta: Meta;
-  forecasts: NeighborhoodForecast[];
+  gpsForecast: NeighborhoodForecast;
+  gpsCoords: { lat: number; lng: number; live: boolean };
   onEnter: () => void;
 }
 
-export function IntroGate({ meta, forecasts, onEnter }: Props) {
+export function IntroGate({ gpsForecast, gpsCoords, onEnter }: Props) {
   const [exiting, setExiting] = useState(false);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
 
-  const diwaliIdx = Math.max(0, forecasts[0]?.points.findIndex((p) => p.daysFromDiwali === 0) ?? 0);
-  const worstOnDiwali = [...forecasts].sort(
-    (a, b) => (b.points[diwaliIdx]?.pm25 ?? 0) - (a.points[diwaliIdx]?.pm25 ?? 0),
-  )[0];
-  const peakPoint = worstOnDiwali?.points[diwaliIdx];
+  // Current day's AQI data (index 0 = today's live AQI, not Diwali peak)
+  const currentPoint = gpsForecast.points[0];
 
   const triggerEnter = () => {
     if (exiting) return;
@@ -61,7 +57,10 @@ export function IntroGate({ meta, forecasts, onEnter }: Props) {
       <div className="gate-content">
         <div className="gate-topbar">
           <span className="gate-mono">Patiala, Punjab</span>
-          <span className="gate-mono">AI Air Quality &amp; Health Guide</span>
+          <span className="gate-mono">
+            {gpsCoords.live ? 'Live GPS Location Active' : 'GPS Area: Patiala'} · {gpsCoords.lat.toFixed(4)}° N,{' '}
+            {gpsCoords.lng.toFixed(4)}° E
+          </span>
         </div>
 
         <div className="gate-center">
@@ -101,31 +100,28 @@ export function IntroGate({ meta, forecasts, onEnter }: Props) {
           </div>
 
           <p className="gate-sub">
-            AI-powered air quality predictions using neighborhood traffic, firecracker, and weather data — personalized to your health profile.
+            Live air quality &amp; health guidance for your current GPS location using neighborhood traffic, firecracker, and weather data.
           </p>
 
-          {peakPoint && worstOnDiwali && (
+          {currentPoint && (
             <div className="gate-telemetry-strip">
               <div className="gate-tel-item">
-                <span className="gate-mono">Diwali Peak ({formatDate(meta.diwaliDate)})</span>
-                <strong style={{ color: aqiColor(peakPoint.aqi) }}>AQI {peakPoint.aqi}</strong>
+                <span className="gate-mono">Current GPS Area ({gpsCoords.lat.toFixed(3)}°N, {gpsCoords.lng.toFixed(3)}°E)</span>
+                <strong>{gpsForecast.neighborhood.name}</strong>
               </div>
               <div className="gate-tel-divider" />
               <div className="gate-tel-item">
-                <span className="gate-mono">Hotspot Area</span>
-                <strong>{worstOnDiwali.neighborhood.name}</strong>
-              </div>
-              <div className="gate-tel-divider" />
-              <div className="gate-tel-item">
-                <span className="gate-mono">AI Forecast</span>
-                <strong>21 Days</strong>
+                <span className="gate-mono">Current Live AQI</span>
+                <strong style={{ color: aqiColor(currentPoint.aqi) }}>
+                  AQI {currentPoint.aqi} ({currentPoint.category}) · {currentPoint.pm25} µg/m³
+                </strong>
               </div>
             </div>
           )}
 
           <div className="gate-action-area">
             <button type="button" className="gate-enter-btn" onClick={triggerEnter}>
-              <span className="gate-enter-text">Enter &amp; Personalize Your Forecast</span>
+              <span className="gate-enter-text">Enter &amp; Personalize Health Guide</span>
               <span className="gate-enter-arrow">→</span>
             </button>
           </div>
