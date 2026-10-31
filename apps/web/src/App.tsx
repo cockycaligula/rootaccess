@@ -19,6 +19,9 @@ import { ModelCard } from './components/ModelCard';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { CommunityHub } from './components/CommunityHub';
 import { IntroGate } from './components/IntroGate';
+import { HealthPreferenceModal } from './components/HealthPreferenceModal';
+import { AQIAssistant } from './components/AQIAssistant';
+import { useUserPreferences } from './context/UserPreferencesContext';
 
 type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
 
@@ -49,6 +52,14 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
   const [stage, setStage] = useState<ViewStage>('radar');
+  const { onboarded, openModal } = useUserPreferences();
+
+  const handleGateEnter = () => {
+    setGateOpen(true);
+    if (!onboarded) {
+      window.setTimeout(() => openModal(), 450);
+    }
+  };
 
   useEffect(() => {
     Promise.all([api.meta(), api.model(), api.forecasts()])
@@ -114,7 +125,14 @@ export function App() {
 
   return (
     <>
-      {!gateOpen && <IntroGate meta={meta} forecasts={forecasts} onEnter={() => setGateOpen(true)} />}
+      {!gateOpen && <IntroGate meta={meta} forecasts={forecasts} onEnter={handleGateEnter} />}
+      <HealthPreferenceModal />
+      {gateOpen && selected && (
+        <AQIAssistant
+          neighborhood={selected.neighborhood}
+          point={(simResult?.simulated ?? selected.points)[dayIndex] ?? selected.points[0]}
+        />
+      )}
 
       <div className={`app ${gateOpen ? 'app-revealed' : 'app-gated'}`}>
         <Header meta={meta} onLockGate={() => setGateOpen(false)} />

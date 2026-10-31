@@ -1,5 +1,7 @@
 import type {
   AlertSubscription,
+  AssistantChatRequest,
+  AssistantChatResponse,
   CitizenReport,
   CommunityFeed,
   DailyObservation,
@@ -59,4 +61,5 @@ export const api = {
     organization: string;
     thresholdAqi: number;
   }) => post<AlertSubscription>('/community/subscriptions', input),
+  assistantChat: (req: AssistantChatRequest) => post<AssistantChatResponse>('/assistant/chat', req),
 };

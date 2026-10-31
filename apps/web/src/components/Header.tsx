@@ -1,5 +1,6 @@
 import type { Meta } from '@vaayuvision/shared';
 import { formatDate } from '../format';
+import { useUserPreferences } from '../context/UserPreferencesContext';
 
 const PHASE_TEXT: Record<Meta['phase'], string> = {
   normal: 'Regular season',
@@ -14,12 +15,20 @@ interface Props {
 }
 
 export function Header({ meta, onLockGate }: Props) {
+  const { profile, openModal } = useUserPreferences();
   const countdown =
     meta.daysToDiwali > 0
       ? `Diwali in ${meta.daysToDiwali} day${meta.daysToDiwali === 1 ? '' : 's'}`
       : meta.daysToDiwali === 0
         ? 'Diwali is today'
         : `${-meta.daysToDiwali} days since Diwali`;
+
+  const profileLabel = profile.name
+    ? `${profile.name}${profile.conditions.length ? ` (${profile.conditions.length})` : ''}`
+    : profile.conditions.length
+      ? `Health Profile (${profile.conditions.length})`
+      : 'Health Profile';
+
   return (
     <header className="header">
       <div>
@@ -29,6 +38,9 @@ export function Header({ meta, onLockGate }: Props) {
         <p className="muted">AI-powered, neighborhood-level PM2.5 / AQI prediction for Patiala, Punjab</p>
       </div>
       <div className="header-right">
+        <button type="button" className="btn-secondary" onClick={openModal}>
+          {profileLabel}
+        </button>
         {onLockGate && (
           <button type="button" className="btn-secondary" onClick={onLockGate}>
             Intro Screen

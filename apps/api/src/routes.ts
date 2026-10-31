@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
-import type { ReportIssueType } from '@vaayuvision/shared';
+import { HEALTH_CONDITIONS, aqiCategory, pm25ToAqi, type HealthCondition, type ReportIssueType } from '@vaayuvision/shared';
+import { generateAssistantResponse } from './assistant.js';
 import { SupabaseCommunityStore } from './data/supabase.js';
 import type { PredictionService } from './service.js';
 
@@ -119,6 +120,47 @@ export function createRouter(service: PredictionService): Router {
     const thresholdAqi = intParam(body.thresholdAqi, 300, 100, 500);
     const created = await community.addSubscription({ neighborhoodId, contact, organization, thresholdAqi });
     res.status(201).json(created);
+  });
+
+  r.post('/assistant/chat', async (req, res) => {
+    const body = req.body ?? {};
+    const message = String(body.message ?? '').trim().slice(0, 600);
+    if (!message) {
+      res.status(400).json({ error: 'message is required' });
+      return;
+    }
+    const rawProfile = body.profile ?? {};
+    const validSet = new Set<string>(HEALTH_CONDITIONS);
+    const conditions = Array.isArray(rawProfile.conditions)
+      ? (rawProfile.conditions.filter((c: unknown) => typeof c === 'string' && validSet.has(c)) as HealthCondition[])
+      : [];
+    const profile = {
+      name: String(rawProfile.name ?? '').trim().slice(0, 60),
+      conditions,
+    };
+
+    const rawCtx = body.context ?? {};
+    const pm25 = Math.max(1, Number(rawCtx.pm25) || 120);
+    const aqi = Number(rawCtx.aqi) || pm25ToAqi(pm25);
+    const context = {
+      wardId: String(rawCtx.wardId ?? 'adalat-bazar'),
+      wardName: String(rawCtx.wardName ?? 'Adalat Bazar & Qila Mubarak'),
+      zone: String(rawCtx.zone ?? 'Old City'),
+      date: String(rawCtx.date ?? service.meta().today),
+      aqi,
+      category: aqiCategory(aqi),
+      pm25: Math.round(pm25 * 10) / 10,
+      pm10: Math.round((Number(rawCtx.pm10) || pm25 * 1.55) * 10) / 10,
+      no2: Math.round((Number(rawCtx.no2) || 45) * 10) / 10,
+      windSpeed: Number(rawCtx.windSpeed) || 1.8,
+      mixingHeightM: Number(rawCtx.mixingHeightM) || 420,
+      humidity: Number(rawCtx.humidity) || 60,
+      daysFromDiwali: Number(rawCtx.daysFromDiwali) || 0,
+    };
+
+    const history = Array.isArray(body.history) ? body.history.slice(-6) : [];
+    const result = await generateAssistantResponse({ message, profile, context, history });
+    res.json(result);
   });
 
   return r;

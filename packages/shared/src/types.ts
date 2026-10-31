@@ -175,4 +175,61 @@ export interface CommunityFeed {
   recentSubscriptions: AlertSubscription[];
 }
 
+export type HealthCondition =
+  | 'Asthma'
+  | 'Chronic Obstructive Pulmonary Disease (COPD)'
+  | 'Allergic Rhinitis / Hay Fever'
+  | 'Cardiovascular Disease'
+  | 'Sensitive Skin/Eyes';
+
+export const HEALTH_CONDITIONS: readonly HealthCondition[] = [
+  'Asthma',
+  'Chronic Obstructive Pulmonary Disease (COPD)',
+  'Allergic Rhinitis / Hay Fever',
+  'Cardiovascular Disease',
+  'Sensitive Skin/Eyes',
+] as const;
+
+export interface UserHealthProfile {
+  name: string;
+  conditions: HealthCondition[];
+}
+
+export interface PollutantMetrics {
+  wardId: string;
+  wardName: string;
+  zone: string;
+  date: string;
+  aqi: number;
+  category: AqiCategory;
+  pm25: number;
+  pm10: number;
+  no2: number;
+  windSpeed: number;
+  mixingHeightM: number;
+  humidity: number;
+  daysFromDiwali: number;
+}
+
+export interface AssistantChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
+export interface AssistantChatRequest {
+  message: string;
+  profile: UserHealthProfile;
+  context: PollutantMetrics;
+  history?: AssistantChatMessage[];
+}
+
+export interface AssistantChatResponse {
+  reply: string;
+  systemPromptUsed: string;
+  mode: 'llm-api' | 'clinical-engine';
+  safetyLevel: 'safe' | 'caution' | 'high-risk' | 'critical';
+}
+
+
 
