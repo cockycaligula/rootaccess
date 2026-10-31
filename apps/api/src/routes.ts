@@ -46,5 +46,17 @@ export function createRouter(service: PredictionService): Router {
     if (id) res.json(service.forecast(id, intParam(req.query.days, horizon, 1, horizon)));
   });
 
+  r.get('/simulate/:id', (req, res) => {
+    const id = requireNeighborhood(req, res);
+    if (!id) return;
+    const scenario = {
+      fireworksReductionPct: intParam(req.query.fireworks, 0, 0, 100),
+      trafficReductionPct: intParam(req.query.traffic, 0, 0, 60),
+      stubbleReductionPct: intParam(req.query.stubble, 0, 0, 100),
+      artificialRain: req.query.rain === '1' || req.query.rain === 'true',
+    };
+    res.json(service.simulate(id, scenario));
+  });
+
   return r;
 }

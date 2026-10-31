@@ -9,11 +9,13 @@ import {
   pm25ToAqi,
   type DailyObservation,
   type DiwaliOutlook,
+  type InterventionScenario,
   type Meta,
   type ModelInfo,
   type NeighborhoodForecast,
   type NeighborhoodSummary,
   type PhaseOutlook,
+  type SimulationResult,
 } from '@airsense/shared';
 import type { AirQualityDataSource } from './data/source.js';
 import { FEATURES } from './model/features.js';
@@ -122,6 +124,41 @@ export class PredictionService {
 
   allForecasts(days = this.opts.horizonDays): NeighborhoodForecast[] {
     return [...this.forecasts.keys()].map((id) => this.forecast(id, days)!);
+  }
+
+  simulate(id: string, scenario: InterventionScenario): SimulationResult | undefined {
+    const baseFc = this.forecasts.get(id);
+    const ctx = this.trained.contexts.get(id);
+    if (!baseFc || !ctx) return undefined;
+    const baseline = baseFc.points;
+    const simulated = forecastNeighborhood(
+      this.trained.model,
+      this.source,
+      id,
+      ctx,
+      this.opts.today,
+      this.opts.horizonDays,
+      this.info.residualStdLog,
+      scenario,
+    );
+    const diwaliWindow = baseline
+      .map((_, i) => i)
+      .filter((i) => baseline[i].daysFromDiwali === 0 || baseline[i].daysFromDiwali === 1);
+    const idxs = diwaliWindow.length ? diwaliWindow : baseline.map((_, i) => i);
+    const basePeakIdx = idxs.reduce((best, i) => (baseline[i].pm25 > baseline[best].pm25 ? i : best), idxs[0]);
+    const baseSum = baseline.reduce((s, p) => s + p.pm25, 0);
+    const simSum = simulated.reduce((s, p) => s + p.pm25, 0);
+
+    return {
+      neighborhoodId: id,
+      scenario,
+      baseline,
+      simulated,
+      diwaliPeakBaselineAqi: baseline[basePeakIdx].aqi,
+      diwaliPeakSimulatedAqi: simulated[basePeakIdx].aqi,
+      diwaliPeakPm25Saved: Math.round((baseline[basePeakIdx].pm25 - simulated[basePeakIdx].pm25) * 10) / 10,
+      avgPm25SavedPct: baseSum > 0 ? Math.round(((baseSum - simSum) / baseSum) * 1000) / 10 : 0,
+    };
   }
 
   /** Before / during / after Diwali summary for the current season, blending observations and forecasts. */

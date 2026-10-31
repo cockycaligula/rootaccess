@@ -15,6 +15,7 @@ import { formatDate } from '../format';
 interface Props {
   history: DailyObservation[];
   points: ForecastPoint[];
+  simulatedPoints?: ForecastPoint[] | null;
   selectedDate: string;
   diwaliDate: string;
 }
@@ -23,14 +24,25 @@ interface Row {
   date: string;
   observed?: number;
   forecast?: number;
+  simulated?: number;
   band?: [number, number];
 }
 
-export function TrendChart({ history, points, selectedDate, diwaliDate }: Props) {
+export function TrendChart({ history, points, simulatedPoints, selectedDate, diwaliDate }: Props) {
   const data: Row[] = history.map((h) => ({ date: h.date, observed: h.aqi }));
   // Connect the observed line to the forecast line.
-  if (data.length && points.length) data[data.length - 1].forecast = data[data.length - 1].observed;
-  for (const p of points) data.push({ date: p.date, forecast: p.aqi, band: [p.aqiLow, p.aqiHigh] });
+  if (data.length && points.length) {
+    data[data.length - 1].forecast = data[data.length - 1].observed;
+    if (simulatedPoints?.length) data[data.length - 1].simulated = data[data.length - 1].observed;
+  }
+  points.forEach((p, i) => {
+    data.push({
+      date: p.date,
+      forecast: p.aqi,
+      simulated: simulatedPoints?.[i]?.aqi,
+      band: [p.aqiLow, p.aqiHigh],
+    });
+  });
 
   return (
     <div className="chart">
@@ -51,7 +63,10 @@ export function TrendChart({ history, points, selectedDate, diwaliDate }: Props)
           <ReferenceLine x={selectedDate} stroke="#ffffff" strokeOpacity={0.5} />
           <Area dataKey="band" name="80% range" stroke="none" fill="#7c9cff" fillOpacity={0.2} />
           <Line dataKey="observed" name="Observed AQI" stroke="#e2e8f0" dot={false} strokeWidth={2} />
-          <Line dataKey="forecast" name="Forecast AQI" stroke="#7c9cff" dot={false} strokeWidth={2} strokeDasharray="5 3" />
+          <Line dataKey="forecast" name="Baseline Forecast" stroke="#7c9cff" dot={false} strokeWidth={2} strokeDasharray="5 3" />
+          {simulatedPoints?.length ? (
+            <Line dataKey="simulated" name="With Policy Intervention" stroke="#4fb38a" dot={false} strokeWidth={2.5} />
+          ) : null}
         </ComposedChart>
       </ResponsiveContainer>
     </div>

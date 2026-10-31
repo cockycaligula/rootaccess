@@ -37,7 +37,21 @@ code { background: #222a38; padding: 2px 6px; border-radius: 4px; }
 
 .grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
 @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+.full-span { grid-column: 1 / -1; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+
+.sim-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.sim-header h3 { margin: 0 0 4px; }
+.preset-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-secondary { background: #1b2230; color: var(--text); border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.sim-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .sim-controls { grid-template-columns: 1fr 1fr; } }
+.sim-slider, .sim-toggle { display: flex; flex-direction: column; gap: 6px; background: #11161e; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.sim-toggle { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
+.sim-label-row { display: flex; justify-content: space-between; font-size: 0.85rem; }
+.sim-slider input[type="range"] { width: 100%; accent-color: #4fb38a; }
+.sim-impact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
 .map-card { display: flex; flex-direction: column; gap: 12px; }
 .map { height: 560px; border-radius: 8px; }
 

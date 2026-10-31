@@ -1,10 +1,12 @@
 import type {
   DailyObservation,
   DiwaliOutlook,
+  InterventionScenario,
   Meta,
   ModelInfo,
   NeighborhoodForecast,
   NeighborhoodSummary,
+  SimulationResult,
 } from '@airsense/shared';
 
 async function get<T>(path: string): Promise<T> {
@@ -20,4 +22,8 @@ export const api = {
   forecasts: () => get<NeighborhoodForecast[]>('/forecast'),
   history: (id: string, days = 45) => get<DailyObservation[]>(`/neighborhoods/${id}/history?days=${days}`),
   outlook: (id: string) => get<DiwaliOutlook>(`/neighborhoods/${id}/outlook`),
+  simulate: (id: string, s: InterventionScenario) =>
+    get<SimulationResult>(
+      `/simulate/${id}?fireworks=${s.fireworksReductionPct}&traffic=${s.trafficReductionPct}&stubble=${s.stubbleReductionPct}&rain=${s.artificialRain ? 1 : 0}`,
+    ),
 };

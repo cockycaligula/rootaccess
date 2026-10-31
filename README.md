@@ -21,6 +21,7 @@ stagnant air, stubble smoke, traffic and so on).
 | 🪔 **Diwali phase outlook** | Average and peak AQI for **Before (−7…−1d)**, **During (Diwali + next day)** and **After (+2…+7d)**. It mixes observed and forecast days. |
 | 🧠 **Explainable AI** | Each prediction is broken down into drivers such as *Diwali fireworks +180%*, *Low wind/mixing +40%* and *Stubble smoke +35%*. |
 | 🏆 **Ranking** | Ranks neighborhoods from worst to best for any day, to help plan targeted interventions (water sprinkling, traffic diversion, advisories). |
+| 🧪 **What-if policy simulator** | Interactive sliders for **firecracker reduction %**, **traffic curbs (Odd-Even)**, **upwind stubble control**, and **artificial rain / misting**, plotting the counterfactual 21-day AQI curve in real time. |
 | ✅ **Honest evaluation** | A time-based holdout on the last full Diwali season, compared against a persistence baseline. This includes a separate score for the Diwali ±3-day window. |
 | 🩺 **Health advice** | CPCB category-specific guidance for every forecast. |
 
@@ -58,7 +59,7 @@ flowchart LR
   SH["packages/shared<br/>types, AQI calc, Diwali calendar"] -.-> API & WEB
 ```
 
-More detail on the model and data flow is in [docs/architecture.md](docs/architecture.md).
+More detail on the model and data flow is in [docs/architecture.md](docs/architecture.md), and the 4-slide pitch deck + 3-minute demo flow is in [docs/pitch-deck.md](docs/pitch-deck.md).
 
 ## 🧠 How the model works
 
@@ -104,6 +105,7 @@ AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwa
 | GET | `/api/neighborhoods/:id/outlook` | Before / during / after Diwali summary |
 | GET | `/api/forecast?days=21` | Forecasts for every neighborhood |
 | GET | `/api/forecast/:id` | Forecast for one neighborhood, with drivers and intervals |
+| GET | `/api/simulate/:id?fireworks=60&traffic=35&stubble=40&rain=1` | Counterfactual 21-day forecast under policy interventions |
 | GET | `/api/model` | Algorithm, holdout metrics and feature weights |
 
 ## 📁 Repository layout
@@ -137,11 +139,11 @@ Planned real sources: **CPCB CAAQMS / OpenAQ** (PM2.5), **Open-Meteo** (historic
 - [x] Round 1: Problem scoping, architecture, repo, and skeleton with a working pipeline
 - [x] Core: Synthetic data, feature engineering, ridge model, evaluation, recursive forecast, explainability
 - [x] Dashboard: Map, day slider, trend + band, Diwali outlook, ranking, model card
+- [x] What-if simulator: interactive sliders + presets for firecracker reduction, traffic curbs, stubble control, and artificial rain
 - [ ] Real data adapters (OpenAQ + Open-Meteo + FIRMS)
 - [ ] Gradient-boosted model / LightGBM via ONNX, with hourly resolution for Diwali night
 - [ ] Spatial interpolation (kriging / IDW) for wards without monitors
 - [ ] Alerts: SMS / WhatsApp advisories for schools and hospitals when AQI is expected to exceed 300
-- [ ] What-if simulator: "green crackers only" or a "50% traffic restriction" scenario
 
 ## 👥 Team
 

@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import type {
   DailyObservation,
   DiwaliOutlook,
+  InterventionScenario,
   Meta,
   ModelInfo,
   NeighborhoodForecast,
+  SimulationResult,
 } from '@airsense/shared';
 import { api } from './api';
 import { Header } from './components/Header';
@@ -13,6 +15,7 @@ import { DaySlider } from './components/DaySlider';
 import { NeighborhoodPanel } from './components/NeighborhoodPanel';
 import { RankingTable } from './components/RankingTable';
 import { ModelCard } from './components/ModelCard';
+import { WhatIfSimulator } from './components/WhatIfSimulator';
 
 export function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -22,6 +25,13 @@ export function App() {
   const [dayIndex, setDayIndex] = useState(0);
   const [history, setHistory] = useState<DailyObservation[]>([]);
   const [outlook, setOutlook] = useState<DiwaliOutlook | null>(null);
+  const [scenario, setScenario] = useState<InterventionScenario>({
+    fireworksReductionPct: 0,
+    trafficReductionPct: 0,
+    stubbleReductionPct: 0,
+    artificialRain: false,
+  });
+  const [simResult, setSimResult] = useState<SimulationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,6 +59,23 @@ export function App() {
       })
       .catch((e: Error) => setError(e.message));
   }, [selectedId]);
+
+  const isSimActive =
+    scenario.fireworksReductionPct > 0 ||
+    scenario.trafficReductionPct > 0 ||
+    scenario.stubbleReductionPct > 0 ||
+    scenario.artificialRain;
+
+  useEffect(() => {
+    if (!selectedId || !isSimActive) {
+      setSimResult(null);
+      return;
+    }
+    api
+      .simulate(selectedId, scenario)
+      .then(setSimResult)
+      .catch((e: Error) => setError(e.message));
+  }, [selectedId, scenario, isSimActive]);
 
   const dates = forecasts[0]?.points.map((p) => p.date) ?? [];
   const selected = useMemo(() => forecasts.find((f) => f.neighborhood.id === selectedId) ?? null, [forecasts, selectedId]);
@@ -78,6 +105,7 @@ export function App() {
           {selected && (
             <NeighborhoodPanel
               forecast={selected}
+              simulatedPoints={simResult?.simulated ?? null}
               history={history}
               outlook={outlook}
               dayIndex={dayIndex}
@@ -85,6 +113,16 @@ export function App() {
             />
           )}
         </section>
+        {selected && (
+          <section className="card full-span">
+            <WhatIfSimulator
+              neighborhoodName={selected.neighborhood.name}
+              scenario={scenario}
+              onChange={setScenario}
+              result={simResult}
+            />
+          </section>
+        )}
         <section className="card">
           <RankingTable forecasts={forecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
         </section>

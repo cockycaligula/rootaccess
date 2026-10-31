@@ -123,3 +123,22 @@ export interface Meta {
   dataSource: string;
   horizonDays: number;
 }
+
+export interface InterventionScenario {
+  fireworksReductionPct: number; // 0..100
+  trafficReductionPct: number; // 0..60
+  stubbleReductionPct: number; // 0..100
+  artificialRain: boolean;
+}
+
+export interface SimulationResult {
+  neighborhoodId: string;
+  scenario: InterventionScenario;
+  baseline: ForecastPoint[];
+  simulated: ForecastPoint[];
+  diwaliPeakBaselineAqi: number;
+  diwaliPeakSimulatedAqi: number;
+  diwaliPeakPm25Saved: number;
+  avgPm25SavedPct: number;
+}
+

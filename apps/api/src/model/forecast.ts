@@ -4,8 +4,10 @@ import {
   daysFromDiwali,
   diwaliPhase,
   pm25ToAqi,
+  type DayConditions,
   type Driver,
   type ForecastPoint,
+  type InterventionScenario,
 } from '@airsense/shared';
 import type { AirQualityDataSource } from '../data/source.js';
 import { FEATURES, GROUP_LABELS, MIN_HISTORY, buildFeatures, type FeatureGroup, type NeighborhoodContext } from './features.js';
@@ -32,6 +34,35 @@ export function explain(model: RidgeRegression, x: number[], top = 5): Driver[] 
     .slice(0, top);
 }
 
+function applyScenario(
+  cond: DayConditions,
+  ctx: NeighborhoodContext,
+  off: number,
+  scenario?: InterventionScenario,
+): { cond: DayConditions; ctx: NeighborhoodContext; fireworksScale: number } {
+  if (!scenario) return { cond, ctx, fireworksScale: 1 };
+  const fwScale = Math.max(0, Math.min(1, 1 - scenario.fireworksReductionPct / 100));
+  const trScale = Math.max(0.2, Math.min(1, 1 - scenario.trafficReductionPct / 100));
+  const stScale = Math.max(0, Math.min(1, 1 - scenario.stubbleReductionPct / 100));
+  const seedRain = scenario.artificialRain && off >= -1 && off <= 2;
+
+  return {
+    cond: {
+      weather: {
+        ...cond.weather,
+        rainMm: seedRain ? Math.max(cond.weather.rainMm, 5) : cond.weather.rainMm,
+      },
+      trafficIndex: cond.trafficIndex * trScale,
+      fireCount: Math.round(cond.fireCount * stScale),
+    },
+    ctx: {
+      ...ctx,
+      diwaliUplift: ctx.diwaliUplift * fwScale,
+    },
+    fireworksScale: fwScale,
+  };
+}
+
 /**
  * Recursive multi-day forecast: each day's prediction feeds the lag features of the next.
  * Uncertainty grows with lead time.
@@ -44,6 +75,7 @@ export function forecastNeighborhood(
   issuedOn: string,
   days: number,
   residualStdLog: number,
+  scenario?: InterventionScenario,
 ): ForecastPoint[] {
   const obs = source.observations(neighborhoodId);
   if (obs.length < MIN_HISTORY) return [];
@@ -52,8 +84,15 @@ export function forecastNeighborhood(
   const points: ForecastPoint[] = [];
   for (let h = 0; h < days; h++) {
     const date = addDays(issuedOn, h);
-    const cond = source.conditionsForecast(neighborhoodId, date, issuedOn);
-    const x = buildFeatures(date, logs, cond, ctx);
+    const off = daysFromDiwali(date);
+    const rawCond = source.conditionsForecast(neighborhoodId, date, issuedOn);
+    const { cond, ctx: adjCtx, fireworksScale } = applyScenario(rawCond, ctx, off, scenario);
+    const x = buildFeatures(date, logs, cond, adjCtx);
+    if (fireworksScale < 1) {
+      FEATURES.forEach((f, j) => {
+        if (f.group === 'diwali') x[j] *= fireworksScale;
+      });
+    }
     const yLog = model.predict(x);
     const sigma = residualStdLog * Math.sqrt(1 + 0.35 * h);
 
@@ -61,7 +100,6 @@ export function forecastNeighborhood(
     const pm25Low = Math.exp(yLog - Z80 * sigma);
     const pm25High = Math.exp(yLog + Z80 * sigma);
     const aqi = pm25ToAqi(pm25);
-    const off = daysFromDiwali(date);
 
     points.push({
       date,

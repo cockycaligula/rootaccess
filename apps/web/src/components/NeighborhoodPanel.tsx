@@ -3,6 +3,7 @@ import {
   aqiColor,
   type DailyObservation,
   type DiwaliOutlook,
+  type ForecastPoint,
   type NeighborhoodForecast,
 } from '@airsense/shared';
 import { formatDate } from '../format';
@@ -10,6 +11,7 @@ import { TrendChart } from './TrendChart';
 
 interface Props {
   forecast: NeighborhoodForecast;
+  simulatedPoints?: ForecastPoint[] | null;
   history: DailyObservation[];
   outlook: DiwaliOutlook | null;
   dayIndex: number;
@@ -18,7 +20,7 @@ interface Props {
 
 const PHASE_TITLES = { before: 'Before (−7…−1d)', during: 'During (Diwali + next day)', after: 'After (+2…+7d)' };
 
-export function NeighborhoodPanel({ forecast, history, outlook, dayIndex, diwaliDate }: Props) {
+export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook, dayIndex, diwaliDate }: Props) {
   const { neighborhood: n, points } = forecast;
   const p = points[dayIndex];
   if (!p) return null;
@@ -40,7 +42,13 @@ export function NeighborhoodPanel({ forecast, history, outlook, dayIndex, diwali
         PM2.5 ≈ <strong>{p.pm25}</strong> µg/m³ (80% range {p.pm25Low}–{p.pm25High}). {AQI_ADVICE[p.category]}
       </p>
 
-      <TrendChart history={history} points={points} selectedDate={p.date} diwaliDate={diwaliDate} />
+      <TrendChart
+        history={history}
+        points={points}
+        simulatedPoints={simulatedPoints}
+        selectedDate={p.date}
+        diwaliDate={diwaliDate}
+      />
 
       {outlook && (
         <div className="outlook">
