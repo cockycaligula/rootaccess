@@ -205,10 +205,8 @@ export function WhatIfSimulator({
     <div className="simulator ai-analyzer">
       <div className="sim-header">
         <div>
-          <h3>AI Neighborhood Predictor · {area.name}</h3>
-          <p className="muted small">
-            Select your neighborhood below. Click any card to inspect the demo data and AI predictions inside a dialog box.
-          </p>
+          <span className="section-kicker">SECTION 03 · AI HOTSPOT &amp; DEMO DATA INSPECTOR</span>
+          <h3>{area.name} · AI Insights</h3>
         </div>
       </div>
 
@@ -234,40 +232,29 @@ export function WhatIfSimulator({
         })}
       </div>
 
-      {/* Main Conversational AI Prediction Banner */}
-      <div className="ai-synthesis-box">
-        <div className="ai-synthesis-left">
-          <div className="dataset-tag">AI PREDICTION BASED ON {area.name.toUpperCase()} DEMO DATA</div>
-          <p className="ai-diagnosis-text">
-            {userName ? `${userName}, ` : ''}
-            {profile.aiDiagnosis}
-          </p>
-        </div>
+      {/* 3 Clickable Cards that open Dialog Boxes — No Long Descriptions on Main Page */}
+      <div className="clickable-cards-grid three-col">
+        <button type="button" className="hub-action-card" onClick={() => setDialog('demo')}>
+          <span className="dataset-tag">1. NEIGHBORHOOD DEMO DATA</span>
+          <strong>Traffic ({profile.trafficVehiclesPerHr}/hr) &amp; Firecrackers</strong>
+          <span className="muted small">Click to open →</span>
+        </button>
 
-        {/* 3 Clickable Cards that open Dialog Boxes */}
-        <div className="clickable-cards-grid three-col">
-          <button type="button" className="hub-action-card" onClick={() => setDialog('demo')}>
-            <span className="dataset-tag">1. NEIGHBORHOOD DEMO DATA</span>
-            <strong>Traffic ({profile.trafficVehiclesPerHr}/hr) &amp; Firecrackers</strong>
-            <span className="muted small">Click to open demo data dialog →</span>
-          </button>
+        <button type="button" className="hub-action-card" onClick={() => setDialog('prediction')}>
+          <span className="dataset-tag">2. WHY &amp; AI ACTION PLAN</span>
+          <strong>
+            {activeSim
+              ? `AQI ${activeSim.diwaliPeakBaselineAqi} → ${activeSim.diwaliPeakSimulatedAqi}`
+              : `Current AQI ${point.aqi}`}
+          </strong>
+          <span className="muted small">Click to open →</span>
+        </button>
 
-          <button type="button" className="hub-action-card" onClick={() => setDialog('prediction')}>
-            <span className="dataset-tag">2. AI PREDICTION RESULT</span>
-            <strong>
-              {activeSim
-                ? `Peak AQI ${activeSim.diwaliPeakBaselineAqi} → ${activeSim.diwaliPeakSimulatedAqi}`
-                : `Forecast AQI ${point.aqi}`}
-            </strong>
-            <span className="muted small">Click to open AI prediction dialog →</span>
-          </button>
-
-          <button type="button" className="hub-action-card" onClick={() => setDialog('all-areas')}>
-            <span className="dataset-tag">3. ALL 12 AREAS DEMO TABLE</span>
-            <strong>Compare Traffic &amp; Firecracker Data</strong>
-            <span className="muted small">Click to open 12-area table →</span>
-          </button>
-        </div>
+        <button type="button" className="hub-action-card" onClick={() => setDialog('all-areas')}>
+          <span className="dataset-tag">3. ALL 12 AREAS COMPARISON</span>
+          <strong>Compare Traffic &amp; AQI</strong>
+          <span className="muted small">Click to open →</span>
+        </button>
       </div>
 
       {/* Dialog Box for Demo Data / AI Prediction / 12-Area Table */}
@@ -328,8 +315,8 @@ export function WhatIfSimulator({
             {dialog === 'prediction' && activeSim && (
               <div className="dialog-body">
                 <p className="verdict-lead">
-                  According to your neighborhood data in <strong>{area.name}</strong>, here are my AI predictions and
-                  recommended actions:
+                  {userName ? `${userName}, ` : ''}
+                  {profile.aiDiagnosis}
                 </p>
                 <div className="sim-impact">
                   <div className="metric">

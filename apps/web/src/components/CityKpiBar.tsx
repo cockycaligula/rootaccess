@@ -1,197 +1,244 @@
 import { useState } from 'react';
-import { aqiCategory, aqiColor, pm25ToAqi, type NeighborhoodForecast } from '@vaayuvision/shared';
-import { formatDate } from '../format';
+import { aqiColor, type NeighborhoodForecast } from '@vaayuvision/shared';
+import { buildPollutantMetrics } from '../context/UserPreferencesContext';
 
 interface Props {
   baselineForecasts: NeighborhoodForecast[];
   activeForecasts: NeighborhoodForecast[];
-  isSimActive: boolean;
   dayIndex: number;
+  gpsCoords: { lat: number; lng: number; live: boolean };
   onSelectWard: (id: string) => void;
 }
 
-type KpiDialog = 'city' | 'hotspot' | 'cleanest' | null;
+type InspectModal = 'best' | 'worst' | null;
+
+/** Haversine distance in kilometers between two GPS coordinates. */
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+const GOOD_REASONS: Record<string, string[]> = {
+  'baradari-gardens': [
+    'Dense heritage botanical canopy absorbs fine particulates (PM2.5 & PM10) via natural dry deposition.',
+    'Low vehicle traffic (~820 vehicles/hr) keeps nitrogen dioxide (NO₂) exhaust minimal.',
+    'Strict green-buffer zone prevents heavy firecracker and industrial smoke accumulation.',
+    'Open park geometry allows stronger wind flow to flush out evening air stagnation.',
+  ],
+  'punjabi-uni': [
+    'Large institutional green campus acts as a natural buffer against city traffic fumes.',
+    'Low internal vehicle density (~980 vehicles/hr) and wide tree-lined avenues.',
+    'Minimal firecracker activity (0.75× index) compared to dense commercial markets.',
+    'Higher afternoon boundary-layer ventilation keeps surface air fresh.',
+  ],
+};
+
+const BAD_REASONS: Record<string, string[]> = {
+  'adalat-bazar': [
+    'Narrow Old-City bazaar street canyons trap smoke and prevent wind from dispersing pollutants.',
+    'Heavy festive shopper & two-wheeler congestion (~2,300 vehicles/hr) releases high NO₂ and soot.',
+    'Highest firecracker bursting intensity in Patiala (1.35× index) spikes evening PM2.5.',
+    'Low night-time mixing height traps commercial and residential emissions near ground level.',
+  ],
+  'focal-point': [
+    'Continuous industrial foundry emissions and heavy diesel freight trucks (~2,100/hr).',
+    'High resuspended road dust drives severe coarse PM10 and fine PM2.5 concentrations.',
+    'Direct northeast exposure to upwind Malwa paddy-stubble smoke plumes (1.05× index).',
+    'Evening temperature inversion traps industrial exhaust close to the surface.',
+  ],
+  tripuri: [
+    'High-density residential rooftop firecracker bursting (1.30× index) during festival nights.',
+    'Heavy market corridor congestion (~1,950 vehicles/hr) along Tripuri Main Road.',
+    'Direct inflow of northern Sirhind bypass agricultural crop-residue smoke.',
+    'Slow morning wind speeds delay dispersion of overnight smoke buildup.',
+  ],
+};
 
 export function CityKpiBar({
   baselineForecasts,
   activeForecasts,
-  isSimActive,
   dayIndex,
+  gpsCoords,
   onSelectWard,
 }: Props) {
-  const [dialog, setDialog] = useState<KpiDialog>(null);
+  const [modal, setModal] = useState<InspectModal>(null);
 
   const rows = activeForecasts
-    .map((f, idx) => ({
-      n: f.neighborhood,
-      p: f.points[dayIndex],
-      baseP: baselineForecasts[idx]?.points[dayIndex],
-    }))
-    .filter((r) => r.p && r.baseP);
+    .map((f, idx) => {
+      const dist = distanceKm(gpsCoords.lat, gpsCoords.lng, f.neighborhood.lat, f.neighborhood.lng);
+      return {
+        n: f.neighborhood,
+        p: f.points[dayIndex] ?? f.points[0],
+        baseP: baselineForecasts[idx]?.points[dayIndex] ?? baselineForecasts[idx]?.points[0],
+        distKm: dist,
+      };
+    })
+    .filter((r) => r.p && r.baseP && r.distKm <= 50);
 
   if (!rows.length) return null;
 
-  const avgPm25 = rows.reduce((s, r) => s + r.p.pm25, 0) / rows.length;
-  const baseAvgPm25 = rows.reduce((s, r) => s + r.baseP.pm25, 0) / rows.length;
-  const cityAqi = pm25ToAqi(avgPm25);
-  const baseCityAqi = pm25ToAqi(baseAvgPm25);
-  const cityCat = aqiCategory(cityAqi);
+  const sortedByWorst = [...rows].sort((a, b) => b.p.aqi - a.p.aqi);
+  const worst = sortedByWorst[0];
+  const best = sortedByWorst[sortedByWorst.length - 1];
 
-  const sorted = [...rows].sort((a, b) => b.p.aqi - a.p.aqi);
-  const worst = sorted[0];
-  const median = sorted[Math.floor(sorted.length / 2)];
-  const cleanest = sorted[sorted.length - 1];
-  const sample = worst.p;
+  const bestMetrics = buildPollutantMetrics(best.n, best.p);
+  const worstMetrics = buildPollutantMetrics(worst.n, worst.p);
+
+  const whyGoodList = GOOD_REASONS[best.n.id] ?? [
+    `Lower traffic congestion (${best.p.trafficIndex.toFixed(2)}×) reduces vehicular NO₂ (${bestMetrics.no2} µg/m³).`,
+    `Higher green cover and open layout allow better wind dispersion (${best.p.weather.windSpeed.toFixed(1)} m/s).`,
+    `${Math.round(worst.p.pm25 - best.p.pm25)} µg/m³ lower PM2.5 particulate load than the worst hotspot.`,
+    `Lower local firecracker and industrial emission density within 50 km of your GPS.`,
+  ];
+
+  const whyBadList = BAD_REASONS[worst.n.id] ?? [
+    `High traffic congestion (${worst.p.trafficIndex.toFixed(2)}×) and vehicular NO₂ exhaust (${worstMetrics.no2} µg/m³).`,
+    `Upwind Malwa crop-fire smoke (${worst.p.fireCount} fires) combines with local festival emissions.`,
+    `Shallow mixing height (${Math.round(worst.p.weather.mixingHeightM)} m) traps particulates near the ground.`,
+    `PM2.5 is ${worst.p.pm25} µg/m³ (${Math.round(worst.p.pm25 - best.p.pm25)} µg/m³ higher than ${best.n.name}).`,
+  ];
 
   return (
     <div className="kpi-section">
-      <section className="kpi-bar">
-        <div
-          className="kpi-card clickable"
+      <div className="section-label-row">
+        <span className="section-kicker">SECTION 01 · 50 KM GPS RADIUS SCAN</span>
+        <span className="muted small">
+          Your GPS: {gpsCoords.lat.toFixed(3)}°N, {gpsCoords.lng.toFixed(3)}°E · Click either card to see why
+        </span>
+      </div>
+
+      {/* Only Best and Worst Area Cards — Clean & Clickable */}
+      <section className="kpi-bar two-col">
+        <button
+          type="button"
+          className="kpi-card clickable best-card"
           onClick={() => {
-            onSelectWard(median.n.id);
-            setDialog('city');
+            onSelectWard(best.n.id);
+            setModal('best');
           }}
         >
           <div className="kpi-top">
-            <span className="muted small">Patiala Average · {formatDate(sample.date)}</span>
-            <span className="kpi-pill" style={{ background: aqiColor(cityAqi), color: '#1a120e' }}>
-              {cityCat}
+            <span className="dataset-tag" style={{ color: '#74c69d' }}>
+              BEST AQI WITHIN 50 KM ({best.distKm.toFixed(1)} KM AWAY)
+            </span>
+            <span className="kpi-pill" style={{ background: aqiColor(best.p.aqi), color: '#18100c' }}>
+              AQI {best.p.aqi} · {best.p.category}
             </span>
           </div>
           <div className="kpi-main">
-            <strong style={{ color: aqiColor(cityAqi) }}>AQI {cityAqi}</strong>
-            <span className="muted small">({avgPm25.toFixed(0)} µg/m³)</span>
+            <strong>{best.n.name}</strong>
           </div>
-          <span className="small muted">
-            {isSimActive && baseCityAqi > cityAqi
-              ? `Improved from AQI ${baseCityAqi} · Click to open dialog`
-              : 'Click to open city summary dialog →'}
-          </span>
-        </div>
+          <span className="small muted">Click to see why it is good →</span>
+        </button>
 
-        <div
-          className="kpi-card clickable"
+        <button
+          type="button"
+          className="kpi-card clickable worst-card"
           onClick={() => {
             onSelectWard(worst.n.id);
-            setDialog('hotspot');
+            setModal('worst');
           }}
         >
           <div className="kpi-top">
-            <span className="muted small">Highest Pollution Area</span>
-            <span className="kpi-pill" style={{ background: aqiColor(worst.p.aqi), color: '#1a120e' }}>
-              AQI {worst.p.aqi}
+            <span className="dataset-tag" style={{ color: '#ff9b80' }}>
+              WORST AQI WITHIN 50 KM ({worst.distKm.toFixed(1)} KM AWAY)
+            </span>
+            <span className="kpi-pill" style={{ background: aqiColor(worst.p.aqi), color: '#18100c' }}>
+              AQI {worst.p.aqi} · {worst.p.category}
             </span>
           </div>
           <div className="kpi-main">
             <strong>{worst.n.name}</strong>
           </div>
-          <span className="small muted">Click to view top hotspots in dialog →</span>
-        </div>
-
-        <div
-          className="kpi-card clickable"
-          onClick={() => {
-            onSelectWard(cleanest.n.id);
-            setDialog('cleanest');
-          }}
-        >
-          <div className="kpi-top">
-            <span className="muted small">Cleanest Green Area</span>
-            <span className="kpi-pill" style={{ background: aqiColor(cleanest.p.aqi), color: '#1a120e' }}>
-              AQI {cleanest.p.aqi}
-            </span>
-          </div>
-          <div className="kpi-main">
-            <strong>{cleanest.n.name}</strong>
-          </div>
-          <span className="small muted">Click to view cleanest areas in dialog →</span>
-        </div>
+          <span className="small muted">Click to see why it is bad →</span>
+        </button>
       </section>
 
-      {dialog && (
-        <div className="pref-modal-backdrop" onClick={() => setDialog(null)} role="dialog" aria-modal="true">
+      {/* Dialog Box Explaining Why It Is Good / Why It Is Bad */}
+      {modal && (
+        <div className="pref-modal-backdrop" onClick={() => setModal(null)} role="dialog" aria-modal="true">
           <div className="pref-modal detail-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="pref-modal-header">
               <div>
-                <span className="pref-kicker">PATIALA SNAPSHOT · {formatDate(sample.date, true).toUpperCase()}</span>
+                <span className="pref-kicker">
+                  {modal === 'best'
+                    ? `BEST AQI WITHIN 50 KM · ${best.distKm.toFixed(1)} KM FROM YOUR GPS`
+                    : `WORST AQI WITHIN 50 KM · ${worst.distKm.toFixed(1)} KM FROM YOUR GPS`}
+                </span>
                 <h2>
-                  {dialog === 'city' && 'Patiala City-Wide Air Quality Summary'}
-                  {dialog === 'hotspot' && 'Highest-Pollution Areas Today'}
-                  {dialog === 'cleanest' && 'Cleanest Green Areas Today'}
+                  {modal === 'best'
+                    ? `Why ${best.n.name} Has Good Air Quality (AQI ${best.p.aqi})`
+                    : `Why ${worst.n.name} Has Bad Air Quality (AQI ${worst.p.aqi})`}
                 </h2>
               </div>
-              <button type="button" className="btn-secondary" onClick={() => setDialog(null)}>
+              <button type="button" className="btn-secondary" onClick={() => setModal(null)}>
                 Close ✕
               </button>
             </div>
 
-            {dialog === 'city' && (
+            {modal === 'best' && (
               <div className="dialog-body">
                 <div className="dialog-grid-2">
                   <div className="dialog-stat-card">
-                    <span className="dataset-tag">12-AREA AVERAGE AQI</span>
-                    <strong style={{ color: aqiColor(cityAqi) }}>
-                      AQI {cityAqi} ({cityCat})
-                    </strong>
-                    <span className="small muted">Average PM2.5: {avgPm25.toFixed(1)} µg/m³</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">WEATHER &amp; CROP FIRES</span>
-                    <strong>
-                      Wind {sample.weather.windSpeed.toFixed(1)} m/s · {sample.fireCount} Fires
+                    <span className="dataset-tag" style={{ color: '#74c69d' }}>CURRENT AIR QUALITY</span>
+                    <strong style={{ color: aqiColor(best.p.aqi), fontSize: '1.25rem' }}>
+                      AQI {best.p.aqi} ({best.p.category})
                     </strong>
                     <span className="small muted">
-                      Humidity {Math.round(sample.weather.humidity)}% · Temp {sample.weather.tempC.toFixed(1)} °C
+                      PM2.5: {bestMetrics.pm25} µg/m³ · PM10: {bestMetrics.pm10} µg/m³ · NO₂: {bestMetrics.no2} µg/m³
+                    </span>
+                  </div>
+                  <div className="dialog-stat-card">
+                    <span className="dataset-tag">DISTANCE FROM YOUR GPS</span>
+                    <strong>{best.distKm.toFixed(1)} km away (Within 50 km radius)</strong>
+                    <span className="small muted">
+                      {Math.round(worst.p.pm25 - best.p.pm25)} µg/m³ cleaner than {worst.n.name}
                     </span>
                   </div>
                 </div>
+
+                <h3>Why It Is Good:</h3>
+                <ul className="reason-list good-list">
+                  {whyGoodList.map((reason, idx) => (
+                    <li key={idx}>{reason}</li>
+                  ))}
+                </ul>
               </div>
             )}
 
-            {dialog === 'hotspot' && (
+            {modal === 'worst' && (
               <div className="dialog-body">
                 <div className="dialog-grid-2">
-                  {sorted.slice(0, 4).map((r, i) => (
-                    <div
-                      key={r.n.id}
-                      className="dialog-stat-card clickable"
-                      onClick={() => {
-                        onSelectWard(r.n.id);
-                        setDialog(null);
-                      }}
-                    >
-                      <span className="dataset-tag">#{i + 1} HOTSPOT · {r.n.zone.toUpperCase()}</span>
-                      <strong style={{ color: aqiColor(r.p.aqi) }}>
-                        {r.n.name} · AQI {r.p.aqi}
-                      </strong>
-                      <span className="small muted">PM2.5 {r.p.pm25} µg/m³ · Click to select on map</span>
-                    </div>
-                  ))}
+                  <div className="dialog-stat-card">
+                    <span className="dataset-tag" style={{ color: '#ff9b80' }}>CURRENT AIR QUALITY</span>
+                    <strong style={{ color: aqiColor(worst.p.aqi), fontSize: '1.25rem' }}>
+                      AQI {worst.p.aqi} ({worst.p.category})
+                    </strong>
+                    <span className="small muted">
+                      PM2.5: {worstMetrics.pm25} µg/m³ · PM10: {worstMetrics.pm10} µg/m³ · NO₂: {worstMetrics.no2} µg/m³
+                    </span>
+                  </div>
+                  <div className="dialog-stat-card">
+                    <span className="dataset-tag">DISTANCE FROM YOUR GPS</span>
+                    <strong>{worst.distKm.toFixed(1)} km away (Within 50 km radius)</strong>
+                    <span className="small muted">
+                      Zone: {worst.n.zone} · Traffic: {worst.p.trafficIndex.toFixed(2)}×
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {dialog === 'cleanest' && (
-              <div className="dialog-body">
-                <div className="dialog-grid-2">
-                  {[...sorted].reverse().slice(0, 4).map((r, i) => (
-                    <div
-                      key={r.n.id}
-                      className="dialog-stat-card clickable"
-                      onClick={() => {
-                        onSelectWard(r.n.id);
-                        setDialog(null);
-                      }}
-                    >
-                      <span className="dataset-tag">#{i + 1} CLEANEST · {r.n.zone.toUpperCase()}</span>
-                      <strong style={{ color: aqiColor(r.p.aqi) }}>
-                        {r.n.name} · AQI {r.p.aqi}
-                      </strong>
-                      <span className="small muted">PM2.5 {r.p.pm25} µg/m³ · Click to select on map</span>
-                    </div>
+                <h3>Why It Is Bad:</h3>
+                <ul className="reason-list bad-list">
+                  {whyBadList.map((reason, idx) => (
+                    <li key={idx}>{reason}</li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
           </div>
