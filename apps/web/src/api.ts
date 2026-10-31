@@ -26,4 +26,8 @@ export const api = {
     get<SimulationResult>(
       `/simulate/${id}?fireworks=${s.fireworksReductionPct}&traffic=${s.trafficReductionPct}&stubble=${s.stubbleReductionPct}&rain=${s.artificialRain ? 1 : 0}`,
     ),
+  simulateAll: (s: InterventionScenario) =>
+    get<NeighborhoodForecast[]>(
+      `/simulate?fireworks=${s.fireworksReductionPct}&traffic=${s.trafficReductionPct}&stubble=${s.stubbleReductionPct}&rain=${s.artificialRain ? 1 : 0}`,
+    ),
 };

@@ -10,6 +10,7 @@ import type {
 } from '@vaayuvision/shared';
 import { api } from './api';
 import { Header } from './components/Header';
+import { CityKpiBar } from './components/CityKpiBar';
 import { AqiMap } from './components/AqiMap';
 import { DaySlider } from './components/DaySlider';
 import { NeighborhoodPanel } from './components/NeighborhoodPanel';
@@ -21,6 +22,7 @@ export function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [model, setModel] = useState<ModelInfo | null>(null);
   const [forecasts, setForecasts] = useState<NeighborhoodForecast[]>([]);
+  const [simForecasts, setSimForecasts] = useState<NeighborhoodForecast[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
   const [history, setHistory] = useState<DailyObservation[]>([]);
@@ -69,14 +71,18 @@ export function App() {
   useEffect(() => {
     if (!selectedId || !isSimActive) {
       setSimResult(null);
+      setSimForecasts(null);
       return;
     }
-    api
-      .simulate(selectedId, scenario)
-      .then(setSimResult)
+    Promise.all([api.simulate(selectedId, scenario), api.simulateAll(scenario)])
+      .then(([res, allSim]) => {
+        setSimResult(res);
+        setSimForecasts(allSim);
+      })
       .catch((e: Error) => setError(e.message));
   }, [selectedId, scenario, isSimActive]);
 
+  const activeForecasts = simForecasts ?? forecasts;
   const dates = forecasts[0]?.points.map((p) => p.date) ?? [];
   const selected = useMemo(() => forecasts.find((f) => f.neighborhood.id === selectedId) ?? null, [forecasts, selectedId]);
 
@@ -96,10 +102,17 @@ export function App() {
   return (
     <div className="app">
       <Header meta={meta} />
+      <CityKpiBar
+        baselineForecasts={forecasts}
+        activeForecasts={activeForecasts}
+        isSimActive={isSimActive}
+        dayIndex={dayIndex}
+        onSelectWard={setSelectedId}
+      />
       <main className="grid">
         <section className="card map-card">
-          <DaySlider dates={dates} points={forecasts[0].points} index={dayIndex} onChange={setDayIndex} />
-          <AqiMap forecasts={forecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
+          <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
+          <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
         </section>
         <section className="card detail-card">
           {selected && (
@@ -124,7 +137,14 @@ export function App() {
           </section>
         )}
         <section className="card">
-          <RankingTable forecasts={forecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
+          <RankingTable
+            forecasts={activeForecasts}
+            baselineForecasts={forecasts}
+            isSimActive={isSimActive}
+            dayIndex={dayIndex}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+          />
         </section>
         <section className="card">{model && <ModelCard model={model} />}</section>
       </main>

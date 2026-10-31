@@ -126,6 +126,23 @@ export class PredictionService {
     return [...this.forecasts.keys()].map((id) => this.forecast(id, days)!);
   }
 
+  simulateAll(scenario: InterventionScenario): NeighborhoodForecast[] {
+    return this.source.neighborhoods().map((n) => ({
+      neighborhood: n,
+      issuedOn: this.opts.today,
+      points: forecastNeighborhood(
+        this.trained.model,
+        this.source,
+        n.id,
+        this.trained.contexts.get(n.id)!,
+        this.opts.today,
+        this.opts.horizonDays,
+        this.info.residualStdLog,
+        scenario,
+      ),
+    }));
+  }
+
   simulate(id: string, scenario: InterventionScenario): SimulationResult | undefined {
     const baseFc = this.forecasts.get(id);
     const ctx = this.trained.contexts.get(id);
