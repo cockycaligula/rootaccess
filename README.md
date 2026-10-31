@@ -4,7 +4,7 @@
 > Predict neighborhood-level air pollution **before, during and after Diwali** using historical air-quality data,
 > weather conditions, traffic patterns and other environmental indicators.
 
-**VaayuSense** forecasts daily **PM2.5 and Indian AQI for each Patiala neighborhood up to 21 days ahead**. It shows
+**VaayuVision** forecasts daily **PM2.5 and Indian AQI for each Patiala neighborhood up to 21 days ahead**. It shows
 a **before / during / after Diwali outlook** and explains **why** each day's air will deteriorate (fireworks,
 stagnant boundary-layer air, Malwa paddy-stubble smoke, festive bazaar traffic, and meteorology).
 
@@ -92,7 +92,7 @@ npm run build      # type-check & build shared + api + web
 npm start          # serve API + built dashboard on http://localhost:4000
 npm test           # unit + model sanity tests
 npm run evaluate   # backtest every past Diwali season vs persistence
-AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwali)
+VAAYUVISION_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwali)
 ```
 
 ## REST API
