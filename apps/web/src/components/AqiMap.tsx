@@ -27,18 +27,36 @@ const LEGEND_ITEMS: Array<{ cat: AqiCategory; range: string }> = [
   { cat: 'Severe', range: '401–500' },
 ];
 
-function MapAutoBounds({ forecasts, resetTrigger }: { forecasts: NeighborhoodForecast[]; resetTrigger: number }) {
+function MapAutoBounds({
+  forecasts,
+  resetTrigger,
+  wheelZoom,
+}: {
+  forecasts: NeighborhoodForecast[];
+  resetTrigger: number;
+  wheelZoom: boolean;
+}) {
   const map = useMap();
   useEffect(() => {
     if (!forecasts.length) return;
     const bounds = L.latLngBounds(forecasts.map((f) => [f.neighborhood.lat, f.neighborhood.lng] as [number, number]));
     map.fitBounds(bounds.pad(0.18), { animate: true });
   }, [map, forecasts.length, resetTrigger]);
+
+  useEffect(() => {
+    if (wheelZoom) {
+      map.scrollWheelZoom.enable();
+    } else {
+      map.scrollWheelZoom.disable();
+    }
+  }, [map, wheelZoom]);
+
   return null;
 }
 
 export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
   const [showPlumes, setShowPlumes] = useState(true);
+  const [wheelZoom, setWheelZoom] = useState(false);
   const [resetTrigger, setResetTrigger] = useState(0);
 
   return (
@@ -58,18 +76,25 @@ export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
         >
           {showPlumes ? 'Plume Halo: ON' : 'Plume Halo: OFF'}
         </button>
+        <button
+          type="button"
+          className={`map-chip ${wheelZoom ? 'active' : ''}`}
+          onClick={() => setWheelZoom((v) => !v)}
+        >
+          {wheelZoom ? 'Map Scroll Zoom: ON' : 'Map Scroll Zoom: OFF'}
+        </button>
       </div>
 
       <MapContainer
         center={PATIALA_CENTER}
         zoom={PATIALA_ZOOM}
         className="map"
-        scrollWheelZoom
+        scrollWheelZoom={false}
         attributionControl={false}
       >
         <TileLayer url={SATELLITE_URL} />
         <TileLayer url={LABELS_URL} />
-        <MapAutoBounds forecasts={forecasts} resetTrigger={resetTrigger} />
+        <MapAutoBounds forecasts={forecasts} resetTrigger={resetTrigger} wheelZoom={wheelZoom} />
 
         {forecasts.map(({ neighborhood: n, points }) => {
           const p = points[dayIndex];
