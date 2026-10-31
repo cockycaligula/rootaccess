@@ -59,7 +59,7 @@ flowchart LR
   SH["packages/shared<br/>types, AQI calc, Diwali calendar"] -.-> API & WEB
 ```
 
-More detail on the model and data flow is in [docs/architecture.md](docs/architecture.md), and the 4-slide pitch deck + 3-minute demo flow is in [docs/pitch-deck.md](docs/pitch-deck.md).
+More detail on the model and data flow is in [docs/architecture.md](docs/architecture.md)
 
 ## How the model works
 
