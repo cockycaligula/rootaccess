@@ -26,11 +26,10 @@ import { useUserPreferences } from './context/UserPreferencesContext';
 type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
 
 const STAGES: Array<{ id: ViewStage; code: string; label: string; sub: string }> = [
-  { id: 'radar', code: '01', label: 'SPATIAL RADAR & FORECAST', sub: 'Satellite Map & 21d Telemetry' },
-  { id: 'simulator', code: '02', label: 'AI MULTI-DATASET ANALYZER', sub: '5 Datasets & Auto-Mitigation' },
-  { id: 'matrix', code: '03', label: 'AREA MATRIX & AI ENGINE', sub: '12-Area Ranking & ML Pipeline' },
-  { id: 'community', code: '04', label: 'CITIZEN TELEMETRY', sub: 'Live Reports & Early Alerts' },
-  { id: 'all', code: 'ALL', label: 'FULL OVERVIEW', sub: 'All Modules on One Page' },
+  { id: 'radar', code: '01', label: 'Map & Forecast', sub: 'Live Map & Daily Air Quality' },
+  { id: 'simulator', code: '02', label: 'AI Hotspot Insights', sub: 'Area Analysis & Expected Improvement' },
+  { id: 'matrix', code: '03', label: 'Area Comparison & AI', sub: '12-Area Ranking & How AI Works' },
+  { id: 'community', code: '04', label: 'Community Alerts', sub: 'Local Reports & Alert Signup' },
 ];
 
 export function App() {
@@ -52,13 +51,12 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
   const [stage, setStage] = useState<ViewStage>('radar');
-  const { onboarded, openModal } = useUserPreferences();
+  const { openModal } = useUserPreferences();
 
   const handleGateEnter = () => {
     setGateOpen(true);
-    if (!onboarded) {
-      window.setTimeout(() => openModal(), 450);
-    }
+    // Always prompt for user name and medical info when entering the website
+    window.setTimeout(() => openModal(), 320);
   };
 
   useEffect(() => {
@@ -246,7 +244,7 @@ export function App() {
         </main>
 
         <footer className="footer">
-          Data: {meta.dataSource} · Last observation {meta.lastObserved} · Forecast issued {meta.today}
+          VaayuVision · Patiala Air Quality &amp; Health Guide
         </footer>
       </div>
     </>

@@ -3,11 +3,11 @@ import { HEALTH_CONDITIONS, type HealthCondition } from '@vaayuvision/shared';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 
 const CONDITION_DESCRIPTIONS: Record<HealthCondition, string> = {
-  Asthma: 'Tighter PM2.5 (<=35 µg/m³) & NO2 thresholds; rescue inhaler & N95 alerts.',
-  'Chronic Obstructive Pulmonary Disease (COPD)': 'Strict indoor HEPA & SpO2 monitoring guidance when AQI > 90.',
-  'Allergic Rhinitis / Hay Fever': 'Coarse PM10 & Malwa crop-ash protection, nasal rinse & window-sealing alerts.',
-  'Cardiovascular Disease': 'Ultrafine PM2.5 & traffic NO2 vascular strain limits for outdoor cardio.',
-  'Sensitive Skin/Eyes': 'Ocular tear-film & skin barrier protection during smoke and inversion spikes.',
+  Asthma: 'Stricter safe-air limits & inhaler / N95 mask alerts.',
+  'Chronic Obstructive Pulmonary Disease (COPD)': 'Indoor air-filtration & breathing protection alerts.',
+  'Allergic Rhinitis / Hay Fever': 'Protection from dust, pollen & crop-smoke irritation.',
+  'Cardiovascular Disease': 'Safer outdoor exercise & heart-friendly air thresholds.',
+  'Sensitive Skin/Eyes': 'Eye & skin protection during evening smoke spikes.',
 };
 
 export function HealthPreferenceModal() {
@@ -38,36 +38,34 @@ export function HealthPreferenceModal() {
   };
 
   return (
-    <div className="pref-modal-backdrop" onClick={closeModal} role="dialog" aria-modal="true" aria-label="Health Profile Setup">
+    <div className="pref-modal-backdrop" onClick={closeModal} role="dialog" aria-modal="true" aria-label="Your Health Profile">
       <div className="pref-modal" onClick={(e) => e.stopPropagation()}>
         <div className="pref-modal-header">
           <div>
-            <span className="pref-kicker">PERSONALIZED CLINICAL THRESHOLDS</span>
-            <h2>Health Profile &amp; Airborne Sensitivity Setup</h2>
+            <span className="pref-kicker">WELCOME TO VAAYUVISION</span>
+            <h2>Tell Us About You &amp; Your Health</h2>
             <p className="muted small">
-              Tailors VaayuVision AI recommendations (outdoor running, N95 masks, ventilation windows) to your respiratory &amp; cardiovascular profile.
+              Enter your name and select any health sensitivities so we can personalize your air-quality advice and safety alerts.
             </p>
           </div>
-          <button type="button" className="btn-secondary" onClick={closeModal}>
-            Close
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="pref-form">
           <label className="pref-field">
-            <span className="pref-label">Your Name (optional)</span>
+            <span className="pref-label">Your Name</span>
             <input
               type="text"
               className="form-input"
-              placeholder="e.g., Rohan"
+              placeholder="Enter your name (e.g., Rohan)"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               maxLength={50}
+              autoFocus
             />
           </label>
 
           <div className="pref-field">
-            <span className="pref-label">Pre-Existing Airborne Health Conditions (Select all that apply)</span>
+            <span className="pref-label">Select Any Health Conditions or Sensitivities</span>
             <div className="pref-conditions-grid">
               {HEALTH_CONDITIONS.map((cond) => {
                 const active = selected.includes(cond);
@@ -96,7 +94,7 @@ export function HealthPreferenceModal() {
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
             />
-            <span>Save my health preferences in this browser (localStorage) so I don&apos;t have to re-enter them</span>
+            <span>Pre-fill my choices next time</span>
           </label>
 
           <div className="pref-actions">
@@ -108,10 +106,10 @@ export function HealthPreferenceModal() {
                 skipOnboarding();
               }}
             >
-              Skip (Use Generic Safe Mode)
+              Continue as Guest
             </button>
             <button type="submit" className="btn">
-              Save Health Profile
+              Continue to Dashboard →
             </button>
           </div>
         </form>

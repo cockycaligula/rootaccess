@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import {
   HEALTH_CONDITIONS,
   type ForecastPoint,
@@ -14,7 +14,6 @@ interface StoredPreferences {
   name: string;
   conditions: HealthCondition[];
   rememberInStorage: boolean;
-  onboarded: boolean;
 }
 
 interface UserPreferencesContextValue {
@@ -34,7 +33,7 @@ function loadStoredPreferences(): StoredPreferences {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      return { name: '', conditions: [], rememberInStorage: true, onboarded: false };
+      return { name: '', conditions: [], rememberInStorage: true };
     }
     const parsed = JSON.parse(raw) as Partial<StoredPreferences>;
     const validSet = new Set<string>(HEALTH_CONDITIONS);
@@ -45,10 +44,9 @@ function loadStoredPreferences(): StoredPreferences {
       name: typeof parsed.name === 'string' ? parsed.name : '',
       conditions,
       rememberInStorage: parsed.rememberInStorage ?? true,
-      onboarded: Boolean(parsed.onboarded),
     };
   } catch {
-    return { name: '', conditions: [], rememberInStorage: true, onboarded: false };
+    return { name: '', conditions: [], rememberInStorage: true };
   }
 }
 
@@ -57,21 +55,9 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
   const [name, setName] = useState(initial.name);
   const [conditions, setConditions] = useState<HealthCondition[]>(initial.conditions);
   const [rememberInStorage, setRememberInStorage] = useState(initial.rememberInStorage);
-  const [onboarded, setOnboarded] = useState(initial.onboarded);
+  // Always start with onboarded = false on each visit so the app prompts for user input & medical info every time
+  const [onboarded, setOnboarded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (rememberInStorage && onboarded) {
-      try {
-        window.localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ name, conditions, rememberInStorage, onboarded }),
-        );
-      } catch {
-        // Ignore storage quota errors
-      }
-    }
-  }, [name, conditions, rememberInStorage, onboarded]);
 
   const savePreferences = (next: { name: string; conditions: HealthCondition[]; remember: boolean }) => {
     const cleanName = next.name.trim();
@@ -88,7 +74,6 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
             name: cleanName,
             conditions: next.conditions,
             rememberInStorage: true,
-            onboarded: true,
           }),
         );
       } else {
@@ -128,11 +113,6 @@ export function useUserPreferences(): UserPreferencesContextValue {
   return ctx;
 }
 
-/**
- * Derive full multi-pollutant metrics (PM2.5, PM10, NO2) for a Patiala neighborhood & forecast point.
- * - PM10 scales with PM2.5 + coarse road/stubble dust (amplified when rainMm == 0)
- * - NO2 scales with local trafficIndex, boundary-layer stagnation, and Diwali combustion
- */
 export function buildPollutantMetrics(neighborhood: Neighborhood, p: ForecastPoint): PollutantMetrics {
   const dustFactor = p.weather.rainMm > 1 ? 1.28 : 1.58 + Math.min(0.25, p.fireCount / 4000);
   const pm10 = Math.round(p.pm25 * dustFactor * 10) / 10;
