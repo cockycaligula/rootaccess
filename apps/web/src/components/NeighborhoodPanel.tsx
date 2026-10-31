@@ -170,15 +170,15 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         </p>
         <div className="verdict-highlights">
           <div className="verdict-pill">
-            <span className="muted small">Selected Day AQI</span>
+            <span className="muted small">Current Area AQI ({n.lat.toFixed(3)}°N, {n.lng.toFixed(3)}°E)</span>
             <strong style={{ color: aqiColor(activeP.aqi) }}>
               AQI {activeP.aqi} ({activeP.pm25} µg/m³)
             </strong>
           </div>
           <div className="verdict-pill">
-            <span className="muted small">Diwali Night Peak</span>
-            <strong style={{ color: aqiColor(diwaliPoint.aqi) }}>
-              AQI {diwaliPoint.aqi} ({diwaliPoint.pm25} µg/m³)
+            <span className="muted small">Particulate &amp; Traffic Load</span>
+            <strong>
+              PM10 {metrics.pm10} · NO₂ {metrics.no2} µg/m³
             </strong>
           </div>
           <div className="verdict-pill">
@@ -198,9 +198,9 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         </button>
 
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('ai-predictions')}>
-          <span className="dataset-tag">AI FORECAST</span>
-          <strong>Before, During &amp; After Diwali Predictions</strong>
-          <span className="muted small">Click to view 3-phase AI breakdown →</span>
+          <span className="dataset-tag">DIWALI BREAKDOWN</span>
+          <strong>Before, During &amp; After Diwali</strong>
+          <span className="muted small">Click to view 3-phase breakdown →</span>
         </button>
 
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('charts')}>

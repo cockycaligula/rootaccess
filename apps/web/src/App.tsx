@@ -51,6 +51,12 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
   const [stage, setStage] = useState<ViewStage>('radar');
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; live: boolean }>({
+    lat: 30.354,
+    lng: 76.3685,
+    live: false,
+  });
+  const [gpsAreaId, setGpsAreaId] = useState<string>('thapar-prem-nagar');
   const { openModal } = useUserPreferences();
 
   const handleGateEnter = () => {
@@ -65,11 +71,37 @@ export function App() {
         setMeta(m);
         setModel(mi);
         setForecasts(f);
-        const diwaliIdx = f[0]?.points.findIndex((p) => p.daysFromDiwali === 0) ?? -1;
-        const idx = diwaliIdx >= 0 ? diwaliIdx : 0;
-        setDayIndex(idx);
-        const worst = [...f].sort((a, b) => (b.points[idx]?.aqi ?? 0) - (a.points[idx]?.aqi ?? 0))[0];
-        setSelectedId(worst?.neighborhood.id ?? null);
+        // Always start on Day 0 (Today's Current Live AQI, not Diwali Peak)
+        setDayIndex(0);
+        const defaultArea = f.find((item) => item.neighborhood.id === 'thapar-prem-nagar') ?? f[0];
+        if (defaultArea) {
+          setSelectedId(defaultArea.neighborhood.id);
+          setGpsAreaId(defaultArea.neighborhood.id);
+          setGpsCoords({ lat: defaultArea.neighborhood.lat, lng: defaultArea.neighborhood.lng, live: false });
+        }
+
+        // Detect user's current live GPS coordinates and match to the closest Patiala area
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const { latitude, longitude } = pos.coords;
+              const nearest = [...f].sort((a, b) => {
+                const dA = Math.hypot(a.neighborhood.lat - latitude, a.neighborhood.lng - longitude);
+                const dB = Math.hypot(b.neighborhood.lat - latitude, b.neighborhood.lng - longitude);
+                return dA - dB;
+              })[0];
+              if (nearest) {
+                setGpsCoords({ lat: latitude, lng: longitude, live: true });
+                setGpsAreaId(nearest.neighborhood.id);
+                setSelectedId(nearest.neighborhood.id);
+              }
+            },
+            () => {
+              // Keep default Patiala GPS area if browser location permission is denied
+            },
+            { enableHighAccuracy: true, timeout: 6000 },
+          );
+        }
       })
       .catch((e: Error) => setError(e.message));
   }, []);
@@ -107,6 +139,10 @@ export function App() {
   const activeForecasts = simForecasts ?? forecasts;
   const dates = forecasts[0]?.points.map((p) => p.date) ?? [];
   const selected = useMemo(() => forecasts.find((f) => f.neighborhood.id === selectedId) ?? null, [forecasts, selectedId]);
+  const gpsForecast = useMemo(
+    () => forecasts.find((f) => f.neighborhood.id === gpsAreaId) ?? selected ?? forecasts[0],
+    [forecasts, gpsAreaId, selected],
+  );
 
   if (error) {
     return (
@@ -123,7 +159,9 @@ export function App() {
 
   return (
     <>
-      {!gateOpen && <IntroGate meta={meta} forecasts={forecasts} onEnter={handleGateEnter} />}
+      {!gateOpen && gpsForecast && (
+        <IntroGate gpsForecast={gpsForecast} gpsCoords={gpsCoords} onEnter={handleGateEnter} />
+      )}
       <HealthPreferenceModal />
       {gateOpen && selected && (
         <AQIAssistant
