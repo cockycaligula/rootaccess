@@ -18,6 +18,17 @@ import { RankingTable } from './components/RankingTable';
 import { ModelCard } from './components/ModelCard';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { CommunityHub } from './components/CommunityHub';
+import { IntroGate } from './components/IntroGate';
+
+type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
+
+const STAGES: Array<{ id: ViewStage; code: string; label: string }> = [
+  { id: 'radar', code: '01', label: 'SPATIAL RADAR & FORECAST' },
+  { id: 'simulator', code: '02', label: 'WHAT-IF POLICY SIMULATOR' },
+  { id: 'matrix', code: '03', label: 'WARD MATRIX & AI ENGINE' },
+  { id: 'community', code: '04', label: 'CITIZEN TELEMETRY (SUPABASE)' },
+  { id: 'all', code: 'ALL', label: 'FULL OVERVIEW' },
+];
 
 export function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -36,6 +47,8 @@ export function App() {
   });
   const [simResult, setSimResult] = useState<SimulationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [stage, setStage] = useState<ViewStage>('radar');
 
   useEffect(() => {
     Promise.all([api.meta(), api.model(), api.forecasts()])
@@ -43,7 +56,6 @@ export function App() {
         setMeta(m);
         setModel(mi);
         setForecasts(f);
-        // Default to the worst neighborhood on Diwali night (or today).
         const diwaliIdx = f[0]?.points.findIndex((p) => p.daysFromDiwali === 0) ?? -1;
         const idx = diwaliIdx >= 0 ? diwaliIdx : 0;
         setDayIndex(idx);
@@ -98,69 +110,121 @@ export function App() {
       </div>
     );
   }
-  if (!meta || !forecasts.length) return <div className="center-message">Training model & loading forecasts…</div>;
+  if (!meta || !forecasts.length) return <div className="center-message">Training model &amp; loading forecasts…</div>;
 
   return (
-    <div className="app">
-      <Header meta={meta} />
-      <CityKpiBar
-        baselineForecasts={forecasts}
-        activeForecasts={activeForecasts}
-        isSimActive={isSimActive}
-        dayIndex={dayIndex}
-        onSelectWard={setSelectedId}
-      />
-      <main className="grid">
-        <section className="card map-card">
-          <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
-          <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
-        </section>
-        <section className="card detail-card">
-          {selected && (
-            <NeighborhoodPanel
-              forecast={selected}
-              simulatedPoints={simResult?.simulated ?? null}
-              history={history}
-              outlook={outlook}
-              dayIndex={dayIndex}
-              diwaliDate={meta.diwaliDate}
-            />
+    <>
+      {!gateOpen && <IntroGate meta={meta} forecasts={forecasts} onEnter={() => setGateOpen(true)} />}
+
+      <div className={`app ${gateOpen ? 'app-revealed' : 'app-gated'}`}>
+        <Header meta={meta} onLockGate={() => setGateOpen(false)} />
+
+        <CityKpiBar
+          baselineForecasts={forecasts}
+          activeForecasts={activeForecasts}
+          isSimActive={isSimActive}
+          dayIndex={dayIndex}
+          onSelectWard={setSelectedId}
+        />
+
+        <nav className="stage-dock" aria-label="Command Center Sections">
+          {STAGES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`stage-pill ${stage === s.id ? 'active' : ''}`}
+              onClick={() => setStage(s.id)}
+            >
+              <span className="stage-code">{s.code}</span>
+              <span>{s.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <main key={stage} className="grid stage-transition">
+          {(stage === 'radar' || stage === 'all') && (
+            <>
+              <section className="card map-card">
+                <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
+                <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
+              </section>
+              <section className="card detail-card">
+                {selected && (
+                  <NeighborhoodPanel
+                    forecast={selected}
+                    simulatedPoints={simResult?.simulated ?? null}
+                    history={history}
+                    outlook={outlook}
+                    dayIndex={dayIndex}
+                    diwaliDate={meta.diwaliDate}
+                  />
+                )}
+              </section>
+            </>
           )}
-        </section>
-        {selected && (
-          <section className="card full-span">
-            <WhatIfSimulator
-              neighborhoodName={selected.neighborhood.name}
-              scenario={scenario}
-              onChange={setScenario}
-              result={simResult}
-            />
-          </section>
-        )}
-        <section className="card">
-          <RankingTable
-            forecasts={activeForecasts}
-            baselineForecasts={forecasts}
-            isSimActive={isSimActive}
-            dayIndex={dayIndex}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-          />
-        </section>
-        <section className="card">{model && <ModelCard model={model} />}</section>
-        {selected && (
-          <section className="card full-span">
-            <CommunityHub
-              neighborhoods={forecasts.map((f) => f.neighborhood)}
-              selectedId={selected.neighborhood.id}
-              onSelectWard={setSelectedId}
-            />
-          </section>
-        )}
-      </main>
-      <footer className="footer">
-        Data: {meta.dataSource} · Last observation {meta.lastObserved} · Forecast issued {meta.today}
-      </footer>
-    </div>
+
+          {(stage === 'simulator' || stage === 'all') && selected && (
+            <>
+              <section className="card full-span">
+                <WhatIfSimulator
+                  neighborhoodName={selected.neighborhood.name}
+                  scenario={scenario}
+                  onChange={setScenario}
+                  result={simResult}
+                />
+              </section>
+              {stage === 'simulator' && (
+                <>
+                  <section className="card map-card">
+                    <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
+                    <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
+                  </section>
+                  <section className="card detail-card">
+                    <NeighborhoodPanel
+                      forecast={selected}
+                      simulatedPoints={simResult?.simulated ?? null}
+                      history={history}
+                      outlook={outlook}
+                      dayIndex={dayIndex}
+                      diwaliDate={meta.diwaliDate}
+                    />
+                  </section>
+                </>
+              )}
+            </>
+          )}
+
+          {(stage === 'matrix' || stage === 'all') && (
+            <>
+              <section className="card">
+                <RankingTable
+                  forecasts={activeForecasts}
+                  baselineForecasts={forecasts}
+                  isSimActive={isSimActive}
+                  dayIndex={dayIndex}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                />
+              </section>
+              <section className="card">{model && <ModelCard model={model} />}</section>
+            </>
+          )}
+
+          {(stage === 'community' || stage === 'all') && selected && (
+            <section className="card full-span">
+              <CommunityHub
+                neighborhoods={forecasts.map((f) => f.neighborhood)}
+                selectedId={selected.neighborhood.id}
+                onSelectWard={setSelectedId}
+              />
+            </section>
+          )}
+        </main>
+
+        <footer className="footer">
+          Data: {meta.dataSource} · Last observation {meta.lastObserved} · Forecast issued {meta.today}
+        </footer>
+      </div>
+    </>
   );
 }

@@ -8,7 +8,12 @@ const PHASE_TEXT: Record<Meta['phase'], string> = {
   after: 'Post-Diwali recovery',
 };
 
-export function Header({ meta }: { meta: Meta }) {
+interface Props {
+  meta: Meta;
+  onLockGate?: () => void;
+}
+
+export function Header({ meta, onLockGate }: Props) {
   const countdown =
     meta.daysToDiwali > 0
       ? `Diwali in ${meta.daysToDiwali} day${meta.daysToDiwali === 1 ? '' : 's'}`
@@ -24,6 +29,11 @@ export function Header({ meta }: { meta: Meta }) {
         <p className="muted">AI-powered, neighborhood-level PM2.5 / AQI prediction for Patiala, Punjab</p>
       </div>
       <div className="header-right">
+        {onLockGate && (
+          <button type="button" className="btn-secondary" onClick={onLockGate}>
+            Intro Screen
+          </button>
+        )}
         <span className={`phase-badge phase-${meta.phase}`}>{PHASE_TEXT[meta.phase]}</span>
         <div className="countdown">
           <strong>{countdown}</strong>
