@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import L from 'leaflet';
-import { Circle, CircleMarker, MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet';
+import { Circle, CircleMarker, MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import { AQI_COLORS, aqiColor, type AqiCategory, type NeighborhoodForecast } from '@vaayuvision/shared';
 
 interface Props {
@@ -10,23 +10,13 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
-type TileStyle = 'dark' | 'street' | 'satellite';
+const SATELLITE_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const LABELS_URL =
+  'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
-/** 100% free tile servers that require NO API key and never show a watermark. */
-const TILE_URLS: Record<TileStyle, { label: string; url: string }> = {
-  dark: {
-    label: 'Dark',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-  },
-  street: {
-    label: 'Streets',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  },
-  satellite: {
-    label: 'Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  },
-};
+const PATIALA_CENTER: [number, number] = [30.342, 76.402];
+const PATIALA_ZOOM = 13;
 
 const LEGEND_ITEMS: Array<{ cat: AqiCategory; range: string }> = [
   { cat: 'Good', range: '0–50' },
@@ -37,25 +27,30 @@ const LEGEND_ITEMS: Array<{ cat: AqiCategory; range: string }> = [
   { cat: 'Severe', range: '401–500' },
 ];
 
+function MapAutoBounds({ forecasts, resetTrigger }: { forecasts: NeighborhoodForecast[]; resetTrigger: number }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!forecasts.length) return;
+    const bounds = L.latLngBounds(forecasts.map((f) => [f.neighborhood.lat, f.neighborhood.lng] as [number, number]));
+    map.fitBounds(bounds.pad(0.18), { animate: true });
+  }, [map, forecasts.length, resetTrigger]);
+  return null;
+}
+
 export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
-  const [tileStyle, setTileStyle] = useState<TileStyle>('dark');
   const [showPlumes, setShowPlumes] = useState(true);
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   return (
     <div className="map-wrapper">
       <div className="map-controls-overlay">
-        <div className="map-style-switcher">
-          {(Object.keys(TILE_URLS) as TileStyle[]).map((k) => (
-            <button
-              key={k}
-              type="button"
-              className={`map-chip ${tileStyle === k ? 'active' : ''}`}
-              onClick={() => setTileStyle(k)}
-            >
-              {TILE_URLS[k].label}
-            </button>
-          ))}
-        </div>
+        <button
+          type="button"
+          className="map-chip"
+          onClick={() => setResetTrigger((n) => n + 1)}
+        >
+          Center Patiala
+        </button>
         <button
           type="button"
           className={`map-chip ${showPlumes ? 'active' : ''}`}
@@ -66,13 +61,15 @@ export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
       </div>
 
       <MapContainer
-        center={[30.34, 76.398]}
-        zoom={13}
+        center={PATIALA_CENTER}
+        zoom={PATIALA_ZOOM}
         className="map"
         scrollWheelZoom
         attributionControl={false}
       >
-        <TileLayer key={tileStyle} url={TILE_URLS[tileStyle].url} />
+        <TileLayer url={SATELLITE_URL} />
+        <TileLayer url={LABELS_URL} />
+        <MapAutoBounds forecasts={forecasts} resetTrigger={resetTrigger} />
 
         {forecasts.map(({ neighborhood: n, points }) => {
           const p = points[dayIndex];
@@ -94,12 +91,12 @@ export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
               {showPlumes && (
                 <Circle
                   center={[n.lat, n.lng]}
-                  radius={450 + p.aqi * 1.4}
+                  radius={380 + p.aqi * 1.1}
                   pathOptions={{
                     color,
                     weight: 0,
                     fillColor: color,
-                    fillOpacity: 0.18,
+                    fillOpacity: 0.22,
                   }}
                   eventHandlers={{ click: () => onSelect(n.id) }}
                 />
