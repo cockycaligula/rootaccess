@@ -8,20 +8,22 @@ export interface NeighborhoodProfile extends Neighborhood {
   base: number; // typical annual PM2.5 level
   traffic: number; // relative traffic load
   fireworks: number; // relative firecracker intensity on Diwali
-  stubbleExposure: number; // exposure to upwind crop-residue smoke
+  stubbleExposure: number; // exposure to surrounding Malwa paddy-stubble smoke
 }
 
-export const DELHI_NEIGHBORHOODS: NeighborhoodProfile[] = [
-  { id: 'anand-vihar', name: 'Anand Vihar', zone: 'East', lat: 28.6469, lng: 77.3164, base: 105, traffic: 1.25, fireworks: 1.0, stubbleExposure: 0.85 },
-  { id: 'ito', name: 'ITO', zone: 'Central', lat: 28.6289, lng: 77.241, base: 92, traffic: 1.3, fireworks: 0.8, stubbleExposure: 0.8 },
-  { id: 'rk-puram', name: 'R.K. Puram', zone: 'South', lat: 28.566, lng: 77.1767, base: 82, traffic: 1.0, fireworks: 1.1, stubbleExposure: 0.75 },
-  { id: 'punjabi-bagh', name: 'Punjabi Bagh', zone: 'West', lat: 28.6683, lng: 77.1167, base: 90, traffic: 1.1, fireworks: 1.35, stubbleExposure: 0.95 },
-  { id: 'dwarka', name: 'Dwarka Sec-8', zone: 'South West', lat: 28.571, lng: 77.0719, base: 80, traffic: 0.9, fireworks: 0.9, stubbleExposure: 0.9 },
-  { id: 'rohini', name: 'Rohini', zone: 'North West', lat: 28.7325, lng: 77.1199, base: 92, traffic: 1.0, fireworks: 1.2, stubbleExposure: 1.0 },
-  { id: 'okhla', name: 'Okhla Phase-2', zone: 'South East', lat: 28.5308, lng: 77.2713, base: 95, traffic: 1.05, fireworks: 0.9, stubbleExposure: 0.8 },
-  { id: 'lodhi-road', name: 'Lodhi Road', zone: 'Central', lat: 28.5918, lng: 77.2273, base: 68, traffic: 0.85, fireworks: 0.7, stubbleExposure: 0.7 },
-  { id: 'jahangirpuri', name: 'Jahangirpuri', zone: 'North', lat: 28.7328, lng: 77.1706, base: 108, traffic: 1.15, fireworks: 1.1, stubbleExposure: 1.05 },
-  { id: 'mundka', name: 'Mundka', zone: 'West', lat: 28.6823, lng: 77.0303, base: 104, traffic: 1.1, fireworks: 1.0, stubbleExposure: 1.1 },
-  { id: 'chandni-chowk', name: 'Chandni Chowk', zone: 'Old Delhi', lat: 28.6562, lng: 77.23, base: 98, traffic: 1.2, fireworks: 1.25, stubbleExposure: 0.85 },
-  { id: 'najafgarh', name: 'Najafgarh', zone: 'South West', lat: 28.57, lng: 76.9339, base: 78, traffic: 0.8, fireworks: 0.85, stubbleExposure: 1.1 },
+export const PATIALA_NEIGHBORHOODS: NeighborhoodProfile[] = [
+  { id: 'adalat-bazar', name: 'Adalat Bazar & Qila Mubarak', zone: 'Old City', lat: 30.3265, lng: 76.398, base: 98, traffic: 1.25, fireworks: 1.35, stubbleExposure: 0.95 },
+  { id: 'tripuri', name: 'Tripuri Town', zone: 'North', lat: 30.362, lng: 76.394, base: 94, traffic: 1.1, fireworks: 1.3, stubbleExposure: 1.0 },
+  { id: 'focal-point', name: 'Focal Point Industrial', zone: 'North East', lat: 30.371, lng: 76.418, base: 104, traffic: 1.2, fireworks: 1.0, stubbleExposure: 1.05 },
+  { id: 'leela-bhawan', name: 'Leela Bhawan Market', zone: 'Central', lat: 30.3385, lng: 76.3845, base: 90, traffic: 1.3, fireworks: 1.15, stubbleExposure: 0.9 },
+  { id: 'bus-stand', name: 'ISBT & Rajpura Road', zone: 'East Central', lat: 30.3375, lng: 76.404, base: 96, traffic: 1.3, fireworks: 1.0, stubbleExposure: 0.95 },
+  { id: 'model-town', name: 'Model Town', zone: 'Central West', lat: 30.3465, lng: 76.3765, base: 82, traffic: 1.0, fireworks: 1.2, stubbleExposure: 0.9 },
+  { id: 'urban-estate', name: 'Urban Estate Phase-2', zone: 'East', lat: 30.335, lng: 76.432, base: 84, traffic: 1.0, fireworks: 1.15, stubbleExposure: 1.0 },
+  { id: 'thapar-prem-nagar', name: 'Thapar / Prem Nagar', zone: 'North West', lat: 30.354, lng: 76.3685, base: 78, traffic: 0.95, fireworks: 0.9, stubbleExposure: 0.95 },
+  { id: 'ranjit-nagar', name: 'Ranjit Nagar & Bhadson Rd', zone: 'North West', lat: 30.366, lng: 76.374, base: 88, traffic: 1.05, fireworks: 1.1, stubbleExposure: 1.05 },
+  { id: 'sanaur-road', name: 'Sanaur Road Agri-Belt', zone: 'South', lat: 30.305, lng: 76.412, base: 92, traffic: 0.85, fireworks: 0.95, stubbleExposure: 1.2 },
+  { id: 'punjabi-uni', name: 'Punjabi University', zone: 'East Campus', lat: 30.3585, lng: 76.447, base: 72, traffic: 0.85, fireworks: 0.75, stubbleExposure: 0.9 },
+  { id: 'baradari-gardens', name: 'Baradari Gardens', zone: 'Central Green', lat: 30.337, lng: 76.392, base: 66, traffic: 0.8, fireworks: 0.7, stubbleExposure: 0.8 },
 ];
+
+export const DELHI_NEIGHBORHOODS = PATIALA_NEIGHBORHOODS;

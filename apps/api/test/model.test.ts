@@ -43,13 +43,13 @@ test('model beats persistence and forecasts a Diwali spike', () => {
   const ev = service.model().evaluation!;
   assert.ok(ev.mae < ev.persistenceMae, `model MAE ${ev.mae} should beat persistence ${ev.persistenceMae}`);
 
-  const f = service.forecast('punjabi-bagh')!;
+  const f = service.forecast('adalat-bazar')!;
   const diwali = f.points.find((p) => p.daysFromDiwali === 0)!;
   const weekBefore = f.points.find((p) => p.daysFromDiwali === -5)!;
   assert.ok(diwali.pm25 > weekBefore.pm25, 'Diwali night should be worse than the week before');
-  assert.equal(service.outlook('punjabi-bagh').phases.length, 3);
+  assert.equal(service.outlook('adalat-bazar').phases.length, 3);
 
-  const sim = service.simulate('punjabi-bagh', {
+  const sim = service.simulate('adalat-bazar', {
     fireworksReductionPct: 60,
     trafficReductionPct: 30,
     stubbleReductionPct: 50,

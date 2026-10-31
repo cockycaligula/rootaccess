@@ -34,7 +34,7 @@ const FIREWORKS_LOAD: Record<number, number> = { [-1]: 25, 0: 150, 1: 110, 2: 30
  * demoed offline, and it is replaceable by real feeds through AirQualityDataSource.
  */
 export class SyntheticDataSource implements AirQualityDataSource {
-  readonly name = 'Synthetic Delhi-NCR simulation (seeded)';
+  readonly name = 'Synthetic Patiala-Malwa simulation (seeded)';
   private readonly rows = new Map<string, SimRow[]>();
   private readonly start: string;
   readonly lastObserved: string;

@@ -30,7 +30,7 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         <div>
           <h2>{n.name}</h2>
           <span className="muted">
-            {n.zone} Delhi · {formatDate(p.date, true)}
+            {n.zone} · Patiala · {formatDate(p.date, true)}
           </span>
         </div>
         <div className="aqi-big" style={{ background: aqiColor(p.aqi) }}>

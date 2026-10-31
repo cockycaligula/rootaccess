@@ -10,7 +10,7 @@ interface Props {
 
 export function AqiMap({ forecasts, dayIndex, selectedId, onSelect }: Props) {
   return (
-    <MapContainer center={[28.64, 77.15]} zoom={11} className="map" scrollWheelZoom>
+    <MapContainer center={[30.34, 76.395]} zoom={13} className="map" scrollWheelZoom>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

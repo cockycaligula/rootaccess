@@ -4,9 +4,9 @@
 > Predict neighborhood-level air pollution **before, during and after Diwali** using historical air-quality data,
 > weather conditions, traffic patterns and other environmental indicators.
 
-AirSense forecasts daily **PM2.5 and Indian AQI for each Delhi neighborhood up to 21 days ahead**. It shows
+AirSense forecasts daily **PM2.5 and Indian AQI for each Patiala neighborhood up to 21 days ahead**. It shows
 a **before / during / after Diwali outlook** and explains **why** each day's air will be bad (fireworks,
-stagnant air, stubble smoke, traffic and so on).
+stagnant air, Malwa paddy-stubble smoke, traffic and so on).
 
 ![stack](https://img.shields.io/badge/TypeScript-5-blue) ![node](https://img.shields.io/badge/Node-22-green) ![react](https://img.shields.io/badge/React-18-61dafb)
 
@@ -16,7 +16,7 @@ stagnant air, stubble smoke, traffic and so on).
 
 | | |
 |---|---|
-| 🗺️ **Neighborhood map** | Interactive Leaflet map of 12 Delhi neighborhoods, color-coded by the CPCB AQI scale. A day slider and a *Jump to Diwali night* button let you move through the forecast. |
+| 🗺️ **Neighborhood map** | Interactive Leaflet map of 12 Patiala neighborhoods (Thapar/Prem Nagar, Model Town, Adalat Bazar, Leela Bhawan, Urban Estate, Tripuri, Focal Point, Baradari Gardens, etc.), color-coded by the CPCB AQI scale. A day slider and a *Jump to Diwali night* button let you move through the forecast. |
 | 📈 **Forecast + uncertainty** | 30 days of observed AQI plus a 21-day forecast with an 80% prediction band that widens with lead time. |
 | 🪔 **Diwali phase outlook** | Average and peak AQI for **Before (−7…−1d)**, **During (Diwali + next day)** and **After (+2…+7d)**. It mixes observed and forecast days. |
 | 🧠 **Explainable AI** | Each prediction is broken down into drivers such as *Diwali fireworks +180%*, *Low wind/mixing +40%* and *Stubble smoke +35%*. |

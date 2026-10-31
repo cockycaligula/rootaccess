@@ -21,7 +21,7 @@ export function Header({ meta }: { meta: Meta }) {
         <h1>
           <span className="logo">🪔</span> AirSense <span className="muted">· Diwali Air Quality Forecast</span>
         </h1>
-        <p className="muted">AI-powered, neighborhood-level PM2.5 / AQI prediction for Delhi</p>
+        <p className="muted">AI-powered, neighborhood-level PM2.5 / AQI prediction for Patiala, Punjab</p>
       </div>
       <div className="header-right">
         <span className={`phase-badge phase-${meta.phase}`}>{PHASE_TEXT[meta.phase]}</span>

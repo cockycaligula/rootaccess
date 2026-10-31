@@ -30,8 +30,8 @@ This is an npm workspaces TypeScript monorepo (`Node >= 20`, ESM):
 │   │   ├── config.ts               # PORT, AIRSENSE_TODAY, AIRSENSE_HORIZON (21d), ridgeLambda
 │   │   ├── data/
 │   │   │   ├── source.ts           # AirQualityDataSource interface (pluggable adapter contract)
-│   │   │   ├── neighborhoods.ts    # 12 Delhi neighborhoods (Anand Vihar, Punjabi Bagh, ITO, R.K. Puram, Lodhi Road, etc.)
-│   │   │   └── synthetic.ts        # SyntheticDataSource — seeded 2022–2026 physical-ish Delhi simulation
+│   │   │   ├── neighborhoods.ts    # 12 Patiala neighborhoods (Thapar/Prem Nagar, Model Town, Adalat Bazar, Leela Bhawan, Tripuri, etc.)
+│   │   │   └── synthetic.ts        # SyntheticDataSource — seeded 2022–2026 physical-ish Patiala-Malwa simulation
 │   │   ├── model/
 │   │   │   ├── features.ts         # 22 engineered features across 8 groups + NeighborhoodContext target encoding
 │   │   │   ├── ridge.ts            # Standardized L2-regularized RidgeRegression with per-feature contributions()
