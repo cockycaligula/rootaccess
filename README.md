@@ -1,4 +1,4 @@
-# 🪔 VaayuSense: Neighborhood-Level Diwali Air Quality Prediction for Patiala
+# VaayuSense: Neighborhood-Level Diwali Air Quality Prediction for Patiala
 
 > **root access hackathon — Problem statement:** *AI-Powered Neighborhood-Level Air Pollution Prediction System.*  
 > Predict neighborhood-level air pollution **before, during and after Diwali** using historical air-quality data,
@@ -12,20 +12,20 @@ stagnant boundary-layer air, Malwa paddy-stubble smoke, festive bazaar traffic, 
 
 ---
 
-## ✨ Features
+## Features
 
-| | |
+| Feature | Description |
 |---|---|
-| 🗺️ **Patiala neighborhood map** | Interactive watermark-free Leaflet map (Dark, Street & Satellite views) of 12 Patiala neighborhoods (*Adalat Bazar & Qila Mubarak, Tripuri Town, Focal Point Industrial, Leela Bhawan Market, ISBT & Rajpura Rd, Model Town, Urban Estate Phase-2, Thapar / Prem Nagar, Ranjit Nagar, Sanaur Road, Punjabi University, Baradari Gardens*), color-coded by the CPCB AQI scale with glowing plume halos, a day slider, and a *Jump to Diwali night* button. |
-| 📈 **Forecast + uncertainty** | 30 days of observed AQI plus a 21-day recursive forecast with an 80% prediction band that widens with lead time. |
-| 🪔 **Diwali phase outlook** | Average and peak AQI for **Before (−7…−1d)**, **During (Diwali + next day)** and **After (+2…+7d)** across Patiala wards, seamlessly blending observed and forecast days. |
-| 🧠 **Explainable AI** | Each prediction is broken down into causal drivers such as *Diwali fireworks +180%*, *Low wind/mixing height +40%* and *Stubble burning smoke +35%*. |
-| 🏆 **Hotspot ranking** | Ranks Patiala neighborhoods from worst to best for any selected day to help PPCB and Municipal Corporation Patiala plan targeted interventions (water sprinkling, bazaar traffic diversion, campus advisories). |
-| 🧪 **What-if policy simulator** | Interactive sliders for **firecracker reduction %**, **traffic curbs**, **upwind Malwa stubble control**, and **artificial rain / smog-gun misting**, plotting the counterfactual 21-day AQI curve in real time. |
-| ✅ **Honest evaluation** | A time-based holdout on the last full Diwali season compared against a persistence baseline, including a dedicated score for the critical Diwali ±3-day window. |
-| 🩺 **Health advice** | CPCB category-specific respiratory and outdoor-activity guidance for every forecast. |
+| **Patiala neighborhood map** | Interactive watermark-free Leaflet map (Dark, Street & Satellite views) of 12 Patiala neighborhoods (*Adalat Bazar & Qila Mubarak, Tripuri Town, Focal Point Industrial, Leela Bhawan Market, ISBT & Rajpura Rd, Model Town, Urban Estate Phase-2, Thapar / Prem Nagar, Ranjit Nagar, Sanaur Road, Punjabi University, Baradari Gardens*), color-coded by the CPCB AQI scale with glowing plume halos, a day slider, and a *Jump to Diwali night* button. |
+| **Forecast + uncertainty** | 30 days of observed AQI plus a 21-day recursive forecast with an 80% prediction band that widens with lead time. |
+| **Diwali phase outlook** | Average and peak AQI for **Before (−7…−1d)**, **During (Diwali + next day)** and **After (+2…+7d)** across Patiala wards, seamlessly blending observed and forecast days. |
+| **Explainable AI** | Each prediction is broken down into causal drivers such as *Diwali fireworks +180%*, *Low wind/mixing height +40%* and *Stubble burning smoke +35%*. |
+| **Hotspot ranking** | Ranks Patiala neighborhoods from worst to best for any selected day to help PPCB and Municipal Corporation Patiala plan targeted interventions (water sprinkling, bazaar traffic diversion, campus advisories). |
+| **What-if policy simulator** | Interactive sliders for **firecracker reduction %**, **traffic curbs**, **upwind Malwa stubble control**, and **artificial rain / smog-gun misting**, plotting the counterfactual 21-day AQI curve in real time. |
+| **Honest evaluation** | A time-based holdout on the last full Diwali season compared against a persistence baseline, including a dedicated score for the critical Diwali ±3-day window. |
+| **Health advice** | CPCB category-specific respiratory and outdoor-activity guidance for every forecast. |
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -61,7 +61,7 @@ flowchart LR
 
 More detail on the model and data flow is in [docs/architecture.md](docs/architecture.md), and the 4-slide pitch deck + 3-minute demo flow is in [docs/pitch-deck.md](docs/pitch-deck.md).
 
-## 🧠 How the model works
+## How the model works
 
 1. **Target:** next-day `log(PM2.5)` per Patiala neighborhood. Working in log space handles the heavy-tailed Diwali spikes and gives multiplicative, explainable effects.
 2. **Features (22):**
@@ -77,7 +77,7 @@ More detail on the model and data flow is in [docs/architecture.md](docs/archite
 4. **Forecasting:** recursive multi-day forecasting. Each predicted day feeds the next day's lag features while weather and traffic come from forecasts. Prediction intervals are calibrated from holdout residuals and widen with lead time.
 5. **Explainability:** contribution = coefficient × z-score. Contributions are aggregated into causal driver groups and reported as the % change in PM2.5 relative to average conditions.
 
-## 🚀 Quick start
+## Quick start
 
 ```bash
 # Requires Node ≥ 20
@@ -95,7 +95,7 @@ npm run evaluate   # backtest every past Diwali season vs persistence
 AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwali)
 ```
 
-## 🔌 REST API
+## REST API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -108,7 +108,7 @@ AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwa
 | GET | `/api/simulate/:id?fireworks=60&traffic=35&stubble=40&rain=1` | Counterfactual 21-day forecast under policy interventions |
 | GET | `/api/model` | Algorithm, holdout metrics and feature weights |
 
-## 📁 Repository layout
+## Repository layout
 
 ```
 .
@@ -123,7 +123,7 @@ AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwa
 └── docs/                    # architecture.md & pitch-deck.md
 ```
 
-## 📊 Data
+## Data
 
 > [!NOTE]
 > The MVP runs offline on a **seeded synthetic simulation** of Patiala & the surrounding Malwa region (2022 to today). It models winter temperature inversions,
@@ -134,6 +134,6 @@ AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwa
 Planned real sources: **PPCB / CPCB CAAQMS & OpenAQ** (PM2.5), **Open-Meteo / IMD** (historical and forecast weather for Patiala `30.34°N, 76.39°E`, including planetary boundary-layer height),
 **NASA FIRMS** (VIIRS/MODIS paddy-fire counts in Patiala/Sangrur), and **TomTom Traffic Index** (congestion).
 
-## 👥 Team
+## Team
 
 _Add team members here._
