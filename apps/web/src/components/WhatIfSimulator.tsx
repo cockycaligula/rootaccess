@@ -7,24 +7,12 @@ interface Props {
   result: SimulationResult | null;
 }
 
-const PRESETS: Array<{ label: string; value: InterventionScenario }> = [
-  {
-    label: 'Reset (Baseline)',
-    value: { fireworksReductionPct: 0, trafficReductionPct: 0, stubbleReductionPct: 0, artificialRain: false },
-  },
-  {
-    label: 'Green Crackers (60%)',
-    value: { fireworksReductionPct: 60, trafficReductionPct: 0, stubbleReductionPct: 0, artificialRain: false },
-  },
-  {
-    label: 'GRAP-IV + Odd-Even',
-    value: { fireworksReductionPct: 50, trafficReductionPct: 35, stubbleReductionPct: 40, artificialRain: false },
-  },
-  {
-    label: 'Full Clean-Air Action + Cloud Seeding',
-    value: { fireworksReductionPct: 80, trafficReductionPct: 45, stubbleReductionPct: 70, artificialRain: true },
-  },
-];
+const BASELINE: InterventionScenario = {
+  fireworksReductionPct: 0,
+  trafficReductionPct: 0,
+  stubbleReductionPct: 0,
+  artificialRain: false,
+};
 
 export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }: Props) {
   const isActive =
@@ -39,16 +27,14 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
         <div>
           <h3>What-If Policy Simulator · {neighborhoodName}</h3>
           <p className="muted small">
-            Simulate interventions in Patiala before Diwali and see how the recursive 21-day forecast responds in real time.
+            Adjust the sliders below to simulate pollution-control measures in Patiala and see how the 21-day forecast responds.
           </p>
         </div>
-        <div className="preset-row">
-          {PRESETS.map((p) => (
-            <button key={p.label} className="btn-secondary" onClick={() => onChange(p.value)}>
-              {p.label}
-            </button>
-          ))}
-        </div>
+        {isActive && (
+          <button className="btn-secondary" onClick={() => onChange(BASELINE)}>
+            Reset Sliders
+          </button>
+        )}
       </div>
 
       <div className="sim-controls">
@@ -65,7 +51,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
             value={scenario.fireworksReductionPct}
             onChange={(e) => onChange({ ...scenario, fireworksReductionPct: Number(e.target.value) })}
           />
-          <span className="muted small">Community laser shows / green-cracker enforcement</span>
+          <span className="muted small">Green-cracker enforcement & community shows</span>
         </label>
 
         <label className="sim-slider">
@@ -81,7 +67,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
             value={scenario.trafficReductionPct}
             onChange={(e) => onChange({ ...scenario, trafficReductionPct: Number(e.target.value) })}
           />
-          <span className="muted small">Bazaar vehicle restrictions, commercial truck ban</span>
+          <span className="muted small">Bazaar vehicle restrictions & heavy truck diversions</span>
         </label>
 
         <label className="sim-slider">
@@ -97,7 +83,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
             value={scenario.stubbleReductionPct}
             onChange={(e) => onChange({ ...scenario, stubbleReductionPct: Number(e.target.value) })}
           />
-          <span className="muted small">Upwind Pusa bio-decomposer & happy-seeder adoption</span>
+          <span className="muted small">Upwind crop-residue management in Patiala / Sangrur</span>
         </label>
 
         <label className="sim-toggle">
@@ -107,7 +93,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
             onChange={(e) => onChange({ ...scenario, artificialRain: e.target.checked })}
           />
           <div>
-            <strong>Artificial Rain / Smog-Gun Misting</strong>
+            <strong>Water Sprinkling / Smog-Gun Misting</strong>
             <div className="muted small">Wet deposition washout across Diwali ±1 day</div>
           </div>
         </label>
@@ -122,7 +108,7 @@ export function WhatIfSimulator({ neighborhoodName, scenario, onChange, result }
               {' → '}
               <span style={{ color: aqiColor(result.diwaliPeakSimulatedAqi) }}>{result.diwaliPeakSimulatedAqi}</span>
             </strong>
-            <span className="small down-text">Selected curve shown in green on chart</span>
+            <span className="small down-text">Simulated curve shown in green on chart</span>
           </div>
           <div className="metric">
             <span className="muted small">Diwali Peak PM2.5 Saved</span>
