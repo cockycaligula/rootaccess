@@ -1,0 +1,26 @@
+{
+  "name": "airsense-diwali",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-powered neighborhood-level air pollution prediction around Diwali",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build:shared": "npm run build -w @airsense/shared",
+    "build": "npm run build:shared && npm run build -w @airsense/api && npm run build -w @airsense/web",
+    "dev": "npm run build:shared && concurrently -n api,web -c cyan,magenta \"npm run dev -w @airsense/api\" \"npm run dev -w @airsense/web\"",
+    "start": "npm run start -w @airsense/api",
+    "evaluate": "npm run build:shared && npm run evaluate -w @airsense/api",
+    "test": "npm run build:shared && npm run test -w @airsense/api",
+    "typecheck": "npm run build:shared && npm run typecheck -w @airsense/api && npm run typecheck -w @airsense/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
