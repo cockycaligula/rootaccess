@@ -124,44 +124,42 @@ code { background: #2c201b; padding: 2px 6px; border-radius: 5px; font-size: 0.7
   align-items: center;
   gap: 20px;
 }
-.gate-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: rgba(244, 162, 97, 0.12);
-  border: 1px solid rgba(244, 162, 97, 0.35);
-  color: var(--diwali);
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-.gate-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--diwali);
-  box-shadow: 0 0 10px var(--diwali);
-}
-.gate-title {
-  font-size: clamp(3.2rem, 8vw, 6.2rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 0.96;
-  text-transform: uppercase;
+/* Refined Brand Emblem & Wordmark on Intro Page */
+.brand-hero {
   display: flex;
-  gap: 0.18em;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
-.gate-title-outline {
-  color: transparent;
-  -webkit-text-stroke: 2px rgba(250, 243, 236, 0.85);
+.brand-emblem {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 30% 30%, #33231c, #1c1310);
+  border: 1px solid rgba(244, 162, 97, 0.4);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 32px rgba(231, 111, 81, 0.22);
 }
-.gate-title-solid {
+.brand-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   color: var(--diwali);
-  text-shadow: 0 0 36px rgba(244, 162, 97, 0.3);
+  margin-top: 4px;
+}
+.brand-wordmark {
+  font-size: clamp(2.8rem, 6.5vw, 4.8rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  color: #faf3ec;
+  margin: 0;
+}
+.brand-wordmark span {
+  background: linear-gradient(135deg, #f8d49d 0%, #f4a261 50%, #e76f51 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .gate-sub {
   max-width: 620px;
@@ -530,6 +528,114 @@ code { background: #2c201b; padding: 2px 6px; border-radius: 5px; font-size: 0.7
   gap: 8px;
   font-size: 0.84rem;
   color: var(--diwali);
+}
+
+/* Conversational AI Neighborhood Prediction Box & Clickable Dialog Cards */
+.ai-neighborhood-verdict {
+  background: linear-gradient(145deg, #2d201a, #211713);
+  border: 1px solid rgba(244, 162, 97, 0.35);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.verdict-lead {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.verdict-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 700px) {
+  .verdict-highlights { grid-template-columns: 1fr; }
+}
+.verdict-pill {
+  background: var(--card-inner);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.clickable-hub-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.clickable-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.clickable-cards-grid.three-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 800px) {
+  .clickable-cards-grid,
+  .clickable-cards-grid.three-col {
+    grid-template-columns: 1fr;
+  }
+}
+.hub-action-card {
+  text-align: left;
+  background: var(--card-inner);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+.hub-action-card:hover {
+  border-color: var(--diwali);
+  background: #2c201b;
+  transform: translateY(-2px);
+}
+.hub-action-card strong {
+  font-size: 0.94rem;
+}
+
+.detail-dialog {
+  max-width: 720px;
+}
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dialog-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 650px) {
+  .dialog-grid-2 { grid-template-columns: 1fr; }
+}
+.dialog-stat-card {
+  background: var(--card-inner);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dialog-stat-card.clickable {
+  cursor: pointer;
+}
+.dialog-stat-card.clickable:hover {
+  border-color: var(--diwali);
+  background: #2c201b;
 }
 
 .collapsible-details {
