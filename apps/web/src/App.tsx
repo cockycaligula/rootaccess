@@ -25,12 +25,12 @@ import { useUserPreferences } from './context/UserPreferencesContext';
 
 type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
 
-const STAGES: Array<{ id: ViewStage; code: string; label: string }> = [
-  { id: 'radar', code: '01', label: 'SPATIAL RADAR & FORECAST' },
-  { id: 'simulator', code: '02', label: 'AI MULTI-DATASET HOTSPOT ANALYZER' },
-  { id: 'matrix', code: '03', label: 'AREA MATRIX & AI ENGINE' },
-  { id: 'community', code: '04', label: 'CITIZEN TELEMETRY (SUPABASE)' },
-  { id: 'all', code: 'ALL', label: 'FULL OVERVIEW' },
+const STAGES: Array<{ id: ViewStage; code: string; label: string; sub: string }> = [
+  { id: 'radar', code: '01', label: 'SPATIAL RADAR & FORECAST', sub: 'Satellite Map & 21d Telemetry' },
+  { id: 'simulator', code: '02', label: 'AI MULTI-DATASET ANALYZER', sub: '5 Datasets & Auto-Mitigation' },
+  { id: 'matrix', code: '03', label: 'AREA MATRIX & AI ENGINE', sub: '12-Area Ranking & ML Pipeline' },
+  { id: 'community', code: '04', label: 'CITIZEN TELEMETRY', sub: 'Live Reports & Early Alerts' },
+  { id: 'all', code: 'ALL', label: 'FULL OVERVIEW', sub: 'All Modules on One Page' },
 ];
 
 export function App() {
@@ -153,8 +153,11 @@ export function App() {
               className={`stage-pill ${stage === s.id ? 'active' : ''}`}
               onClick={() => setStage(s.id)}
             >
-              <span className="stage-code">{s.code}</span>
-              <span>{s.label}</span>
+              <div className="stage-pill-top">
+                <span className="stage-code">{s.code}</span>
+                <span>{s.label}</span>
+              </div>
+              <span className="stage-sub">{s.sub}</span>
             </button>
           ))}
         </nav>
