@@ -318,13 +318,141 @@ code { background: #222a38; padding: 2px 6px; border-radius: 4px; }
 .preset-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn-secondary { background: #1b2230; color: var(--text); border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; }
 .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-.sim-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-@media (max-width: 900px) { .sim-controls { grid-template-columns: 1fr 1fr; } }
-.sim-slider, .sim-toggle { display: flex; flex-direction: column; gap: 6px; background: #11161e; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
-.sim-toggle { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
-.sim-label-row { display: flex; justify-content: space-between; font-size: 0.85rem; }
-.sim-slider input[type="range"] { width: 100%; accent-color: #4fb38a; }
 .sim-impact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+@media (max-width: 900px) { .sim-impact { grid-template-columns: 1fr; } }
+
+/* Autonomous AI Multi-Dataset Hotspot Analyzer */
+.ai-engine-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--diwali);
+  margin-bottom: 4px;
+}
+.hotspot-pill-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 8px;
+  background: #0f141d;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.hotspot-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #161d29;
+  color: var(--muted);
+  border: 1px solid transparent;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.hotspot-pill:hover {
+  color: var(--text);
+  border-color: #3a4760;
+}
+.hotspot-pill.active {
+  background: #1d273b;
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 2px 10px rgba(124, 156, 255, 0.2);
+}
+.hotspot-pill-aqi {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  color: #9ba6b8;
+}
+.dataset-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.dataset-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+@media (max-width: 1150px) {
+  .dataset-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .dataset-grid { grid-template-columns: 1fr; }
+}
+.dataset-card {
+  background: #10151f;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dataset-card strong {
+  font-size: 0.92rem;
+}
+.dataset-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--diwali);
+}
+.ai-synthesis-box {
+  background: linear-gradient(135deg, rgba(24, 34, 52, 0.72), rgba(16, 21, 31, 0.95));
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ai-synthesis-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ai-diagnosis-text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #f0f6fc;
+}
+.ai-prescription-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.ai-param-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #142c24;
+  border: 1px solid #2d6a50;
+  color: #6fd3a8;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.ai-impact-cards {
+  margin-top: 2px;
+}
 .map-card { display: flex; flex-direction: column; gap: 12px; }
 .map-wrapper { position: relative; border-radius: 8px; overflow: hidden; }
 .map { height: 560px; border-radius: 8px; z-index: 1; }

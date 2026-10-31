@@ -80,8 +80,8 @@ export function CityKpiBar({
           </div>
           <span className="small muted">
             {isSimActive && baseCityAqi > cityAqi
-              ? `Policy: down from AQI ${baseCityAqi} (−${Math.round(baseAvgPm25 - avgPm25)} µg/m³) · Click to inspect`
-              : '12-ward Patiala mean · Click to inspect'}
+              ? `AI Mitigation: down from AQI ${baseCityAqi} (−${Math.round(baseAvgPm25 - avgPm25)} µg/m³) · Click to inspect`
+              : '12-area Patiala mean · Click to inspect'}
           </span>
         </div>
 
@@ -155,19 +155,19 @@ export function CityKpiBar({
           {activeTab === 'city' && (
             <div className="kpi-inspector-grid">
               <div className="kpi-stat">
-                <span className="muted small">12-Ward Mean PM2.5</span>
+                <span className="muted small">12-Area Mean PM2.5</span>
                 <strong>{avgPm25.toFixed(1)} µg/m³ (AQI {cityAqi})</strong>
                 <span className="small muted">Range: {cleanest.p.pm25} – {worst.p.pm25} µg/m³ across Patiala</span>
               </div>
               <div className="kpi-stat">
-                <span className="muted small">Severe Wards (AQI &gt; 400)</span>
-                <strong className="up-text">{severeCount} of 12 wards</strong>
-                <span className="small muted">Very Poor (301–400): {veryPoorCount} wards</span>
+                <span className="muted small">Severe Areas (AQI &gt; 400)</span>
+                <strong className="up-text">{severeCount} of 12 areas</strong>
+                <span className="small muted">Very Poor (301–400): {veryPoorCount} areas</span>
               </div>
               <div className="kpi-stat">
-                <span className="muted small">Moderate / Poor Wards (≤ 300)</span>
-                <strong className="down-text">{moderateOrBetterCount} of 12 wards</strong>
-                <span className="small muted">Median ward: {median.n.name} (AQI {median.p.aqi})</span>
+                <span className="muted small">Moderate / Poor Areas (≤ 300)</span>
+                <strong className="down-text">{moderateOrBetterCount} of 12 areas</strong>
+                <span className="small muted">Median area: {median.n.name} (AQI {median.p.aqi})</span>
               </div>
               <div className="kpi-stat">
                 <span className="muted small">City-Wide Advisory</span>

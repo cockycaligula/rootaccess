@@ -27,8 +27,8 @@ type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
 
 const STAGES: Array<{ id: ViewStage; code: string; label: string }> = [
   { id: 'radar', code: '01', label: 'SPATIAL RADAR & FORECAST' },
-  { id: 'simulator', code: '02', label: 'WHAT-IF POLICY SIMULATOR' },
-  { id: 'matrix', code: '03', label: 'WARD MATRIX & AI ENGINE' },
+  { id: 'simulator', code: '02', label: 'AI MULTI-DATASET HOTSPOT ANALYZER' },
+  { id: 'matrix', code: '03', label: 'AREA MATRIX & AI ENGINE' },
   { id: 'community', code: '04', label: 'CITIZEN TELEMETRY (SUPABASE)' },
   { id: 'all', code: 'ALL', label: 'FULL OVERVIEW' },
 ];
@@ -185,7 +185,10 @@ export function App() {
             <>
               <section className="card full-span">
                 <WhatIfSimulator
-                  neighborhoodName={selected.neighborhood.name}
+                  forecasts={forecasts}
+                  selectedId={selected.neighborhood.id}
+                  dayIndex={dayIndex}
+                  onSelectArea={setSelectedId}
                   scenario={scenario}
                   onChange={setScenario}
                   result={simResult}

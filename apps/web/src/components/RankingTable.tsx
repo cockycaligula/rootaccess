@@ -37,7 +37,7 @@ export function RankingTable({
       {selectedRow && compareRow && (
         <div className="compare-box">
           <div className="compare-head">
-            <strong>Ward-vs-Ward Comparison</strong>
+            <strong>Area-vs-Area Comparison</strong>
             <select
               className="compare-select"
               value={compareRow.n.id}

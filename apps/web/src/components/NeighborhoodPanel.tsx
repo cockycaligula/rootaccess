@@ -34,8 +34,8 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
   if (!baseP || !activeP) return null;
 
   const advisoryText = [
-    `VAAYUVISION PATIALA — WARD AIR QUALITY & HEALTH BULLETIN`,
-    `Ward: ${n.name} (${n.zone} Patiala) | Date: ${formatDate(activeP.date, true)}`,
+    `VAAYUVISION PATIALA — AREA AIR QUALITY & HEALTH BULLETIN`,
+    `Area: ${n.name} (${n.zone} Patiala) | Date: ${formatDate(activeP.date, true)}`,
     `Forecast AQI: ${activeP.aqi} (${activeP.category}) | 24h PM2.5: ${activeP.pm25} µg/m³ (80% CI: ${baseP.pm25Low}–${baseP.pm25High} µg/m³)`,
     `Meteorology: Wind ${activeP.weather.windSpeed.toFixed(1)} m/s | Mixing Height ${Math.round(activeP.weather.mixingHeightM)} m | RH ${Math.round(activeP.weather.humidity)}% | Upwind Malwa Fires: ${activeP.fireCount}`,
     `Primary Drivers: ${activeP.drivers.map((d) => `${d.label} (${d.impactPct >= 0 ? '+' : ''}${d.impactPct.toFixed(0)}%)`).join(', ')}`,
@@ -60,7 +60,7 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         </div>
         <div className="panel-head-right">
           <button type="button" className="btn-secondary" onClick={() => setShowAdvisory((v) => !v)}>
-            {showAdvisory ? 'Hide Ward Bulletin' : 'Generate Ward Advisory'}
+            {showAdvisory ? 'Hide Area Bulletin' : 'Generate Area Advisory'}
           </button>
           <div className="aqi-big" style={{ background: aqiColor(activeP.aqi) }}>
             <span className="aqi-value">{activeP.aqi}</span>
@@ -82,7 +82,7 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
       {showAdvisory && (
         <div className="advisory-box">
           <div className="advisory-head">
-            <strong>Official Ward Advisory Bulletin · {n.name}</strong>
+            <strong>Official Area Advisory Bulletin · {n.name}</strong>
             <div className="advisory-actions">
               <button type="button" className="btn-secondary" onClick={copyAdvisory}>
                 {copied ? 'Copied to Clipboard' : 'Copy Text'}

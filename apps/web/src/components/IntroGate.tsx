@@ -148,7 +148,7 @@ export function IntroGate({ meta, forecasts, onEnter }: Props) {
               </button>
             )}
             <span className="gate-mono gate-hint">
-              {ready ? 'PRESS [ENTER] OR CLICK TO UNLOCK LIVE TELEMETRY' : `TRAINING L2 RIDGE MODEL ON 21,084 WARD-DAYS... ${progress}%`}
+              {ready ? 'PRESS [ENTER] OR CLICK TO UNLOCK LIVE TELEMETRY' : `TRAINING L2 RIDGE MODEL ON 21,084 AREA-DAYS... ${progress}%`}
             </span>
           </div>
         </div>

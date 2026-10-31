@@ -93,7 +93,7 @@ export function CommunityHub({ neighborhoods, selectedId, onSelectWard }: Props)
             className="btn-secondary"
             onClick={() => setFilterSelectedOnly((v) => !v)}
           >
-            {filterSelectedOnly ? `Showing: ${selectedWard?.name} Only` : 'Showing: All 12 Patiala Wards'}
+            {filterSelectedOnly ? `Showing: ${selectedWard?.name} Only` : 'Showing: All 12 Patiala Areas'}
           </button>
           <span className={`storage-badge ${feed?.storageMode === 'supabase-cloud' ? 'cloud' : 'fallback'}`}>
             {feed?.storageMode === 'supabase-cloud'
@@ -202,7 +202,7 @@ export function CommunityHub({ neighborhoods, selectedId, onSelectWard }: Props)
                 required
               />
               <button type="submit" className="btn">
-                {subSaved ? 'Subscribed' : 'Subscribe Ward Alert'}
+                {subSaved ? 'Subscribed' : 'Subscribe Area Alert'}
               </button>
             </div>
           </form>
