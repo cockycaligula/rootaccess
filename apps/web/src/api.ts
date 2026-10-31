@@ -1,4 +1,7 @@
 import type {
+  AlertSubscription,
+  CitizenReport,
+  CommunityFeed,
   DailyObservation,
   DiwaliOutlook,
   InterventionScenario,
@@ -6,11 +9,22 @@ import type {
   ModelInfo,
   NeighborhoodForecast,
   NeighborhoodSummary,
+  ReportIssueType,
   SimulationResult,
 } from '@vaayuvision/shared';
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`/api${path}`);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${path}`);
+  return res.json() as Promise<T>;
+}
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${path}`);
   return res.json() as Promise<T>;
 }
@@ -30,4 +44,19 @@ export const api = {
     get<NeighborhoodForecast[]>(
       `/simulate?fireworks=${s.fireworksReductionPct}&traffic=${s.trafficReductionPct}&stubble=${s.stubbleReductionPct}&rain=${s.artificialRain ? 1 : 0}`,
     ),
+  community: (neighborhoodId?: string) =>
+    get<CommunityFeed>(`/community${neighborhoodId ? `?neighborhoodId=${encodeURIComponent(neighborhoodId)}` : ''}`),
+  createReport: (input: {
+    neighborhoodId: string;
+    issueType: ReportIssueType;
+    severity: 'low' | 'medium' | 'high';
+    note: string;
+    reporterName: string;
+  }) => post<CitizenReport>('/community/reports', input),
+  createSubscription: (input: {
+    neighborhoodId: string;
+    contact: string;
+    organization: string;
+    thresholdAqi: number;
+  }) => post<AlertSubscription>('/community/subscriptions', input),
 };

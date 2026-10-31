@@ -1,4 +1,6 @@
 import { Router, type Request, type Response } from 'express';
+import type { ReportIssueType } from '@vaayuvision/shared';
+import { SupabaseCommunityStore } from './data/supabase.js';
 import type { PredictionService } from './service.js';
 
 function intParam(v: unknown, def: number, min: number, max: number): number {
@@ -6,9 +8,18 @@ function intParam(v: unknown, def: number, min: number, max: number): number {
   return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n))) : def;
 }
 
+const VALID_ISSUES = new Set<ReportIssueType>([
+  'firecrackers',
+  'stubble_smoke',
+  'traffic_fumes',
+  'industrial_dust',
+  'waste_burning',
+]);
+
 export function createRouter(service: PredictionService): Router {
   const r = Router();
   const horizon = service.meta().horizonDays;
+  const community = new SupabaseCommunityStore();
 
   r.get('/health', (_req, res) => res.json({ ok: true }));
 
@@ -66,6 +77,48 @@ export function createRouter(service: PredictionService): Router {
       artificialRain: req.query.rain === '1' || req.query.rain === 'true',
     };
     res.json(service.simulate(id, scenario));
+  });
+
+  r.get('/community', async (req, res) => {
+    const ward = typeof req.query.neighborhoodId === 'string' && req.query.neighborhoodId ? req.query.neighborhoodId : undefined;
+    res.json(await community.getFeed(ward));
+  });
+
+  r.post('/community/reports', async (req, res) => {
+    const body = req.body ?? {};
+    const neighborhoodId = String(body.neighborhoodId ?? '');
+    if (!service.exists(neighborhoodId)) {
+      res.status(400).json({ error: 'Invalid neighborhoodId' });
+      return;
+    }
+    const issueType: ReportIssueType = VALID_ISSUES.has(body.issueType) ? body.issueType : 'firecrackers';
+    const severity = body.severity === 'low' || body.severity === 'high' ? body.severity : 'medium';
+    const note = String(body.note ?? '').trim().slice(0, 280);
+    if (!note) {
+      res.status(400).json({ error: 'Report note is required' });
+      return;
+    }
+    const reporterName = String(body.reporterName ?? 'Patiala Resident').trim().slice(0, 60) || 'Patiala Resident';
+    const created = await community.addReport({ neighborhoodId, issueType, severity, note, reporterName });
+    res.status(201).json(created);
+  });
+
+  r.post('/community/subscriptions', async (req, res) => {
+    const body = req.body ?? {};
+    const neighborhoodId = String(body.neighborhoodId ?? '');
+    if (!service.exists(neighborhoodId)) {
+      res.status(400).json({ error: 'Invalid neighborhoodId' });
+      return;
+    }
+    const contact = String(body.contact ?? '').trim().slice(0, 120);
+    if (!contact) {
+      res.status(400).json({ error: 'Contact email or phone is required' });
+      return;
+    }
+    const organization = String(body.organization ?? 'Patiala Citizen').trim().slice(0, 80) || 'Patiala Citizen';
+    const thresholdAqi = intParam(body.thresholdAqi, 300, 100, 500);
+    const created = await community.addSubscription({ neighborhoodId, contact, organization, thresholdAqi });
+    res.status(201).json(created);
   });
 
   return r;

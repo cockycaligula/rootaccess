@@ -142,3 +142,37 @@ export interface SimulationResult {
   avgPm25SavedPct: number;
 }
 
+export type ReportIssueType =
+  | 'firecrackers'
+  | 'stubble_smoke'
+  | 'traffic_fumes'
+  | 'industrial_dust'
+  | 'waste_burning';
+
+export interface CitizenReport {
+  id: string;
+  neighborhoodId: string;
+  issueType: ReportIssueType;
+  severity: 'low' | 'medium' | 'high';
+  note: string;
+  reporterName: string;
+  createdAt: string;
+}
+
+export interface AlertSubscription {
+  id: string;
+  neighborhoodId: string;
+  contact: string;
+  organization: string;
+  thresholdAqi: number;
+  createdAt: string;
+}
+
+export interface CommunityFeed {
+  storageMode: 'supabase-cloud' | 'local-fallback';
+  reports: CitizenReport[];
+  subscriptionsCount: number;
+  recentSubscriptions: AlertSubscription[];
+}
+
+

@@ -23,6 +23,7 @@ console.log(
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use('/api', createRouter(service));
 
 // In production, serve the built dashboard from the same origin.

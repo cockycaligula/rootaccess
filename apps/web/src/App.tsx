@@ -17,6 +17,7 @@ import { NeighborhoodPanel } from './components/NeighborhoodPanel';
 import { RankingTable } from './components/RankingTable';
 import { ModelCard } from './components/ModelCard';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
+import { CommunityHub } from './components/CommunityHub';
 
 export function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -147,6 +148,15 @@ export function App() {
           />
         </section>
         <section className="card">{model && <ModelCard model={model} />}</section>
+        {selected && (
+          <section className="card full-span">
+            <CommunityHub
+              neighborhoods={forecasts.map((f) => f.neighborhood)}
+              selectedId={selected.neighborhood.id}
+              onSelectWard={setSelectedId}
+            />
+          </section>
+        )}
       </main>
       <footer className="footer">
         Data: {meta.dataSource} · Last observation {meta.lastObserved} · Forecast issued {meta.today}
