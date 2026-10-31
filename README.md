@@ -1,14 +1,12 @@
-# 🪔 AirSense: Neighborhood-Level Diwali Air Quality Prediction
+# VayuVision Hyper Local AQI Prediction & Intervention
 
+> **Team:** Prompt and Pray | **Target:** Patiala, Punjab
 > **root access hackathon: Problem statement:** *AI-Powered Neighborhood-Level Air Pollution Prediction System.*
-> Predict neighborhood-level air pollution **before, during and after Diwali** using historical air-quality data,
-> weather conditions, traffic patterns and other environmental indicators.
+> Predict neighborhood-level air pollution **before, during, and after Diwali** using historical air-quality data, weather conditions, traffic patterns, and other environmental indicators.
 
-AirSense forecasts daily **PM2.5 and Indian AQI for each Delhi neighborhood up to 21 days ahead**. It shows
-a **before / during / after Diwali outlook** and explains **why** each day's air will be bad (fireworks,
-stagnant air, stubble smoke, traffic and so on).
+AirSense forecasts daily **PM2.5 and Indian AQI for specific Patiala neighborhoods up to 21 days ahead**. By isolating the baseline agricultural smoke (Parali burning) from localized Diwali firework emissions and traffic, it provides a **before / during / after Diwali outlook** and explains **why** the air will degrade using Explainable AI.
 
-![stack](https://img.shields.io/badge/TypeScript-5-blue) ![node](https://img.shields.io/badge/Node-22-green) ![react](https://img.shields.io/badge/React-18-61dafb)
+![react](https://img.shields.io/badge/React-18-61dafb) ![typescript](https://img.shields.io/badge/TypeScript-5-blue) ![python](https://img.shields.io/badge/Python-3.10-blue) ![fastapi](https://img.shields.io/badge/FastAPI-0.103-009688) ![ml](https://img.shields.io/badge/XGBoost_%2B_MLP-Ensemble-orange)
 
 ---
 
@@ -16,133 +14,44 @@ stagnant air, stubble smoke, traffic and so on).
 
 | | |
 |---|---|
-| 🗺️ **Neighborhood map** | Interactive Leaflet map of 12 Delhi neighborhoods, color-coded by the CPCB AQI scale. A day slider and a *Jump to Diwali night* button let you move through the forecast. |
-| 📈 **Forecast + uncertainty** | 30 days of observed AQI plus a 21-day forecast with an 80% prediction band that widens with lead time. |
-| 🪔 **Diwali phase outlook** | Average and peak AQI for **Before (−7…−1d)**, **During (Diwali + next day)** and **After (+2…+7d)**. It mixes observed and forecast days. |
-| 🧠 **Explainable AI** | Each prediction is broken down into drivers such as *Diwali fireworks +180%*, *Low wind/mixing +40%* and *Stubble smoke +35%*. |
-| 🏆 **Ranking** | Ranks neighborhoods from worst to best for any day, to help plan targeted interventions (water sprinkling, traffic diversion, advisories). |
-| ✅ **Honest evaluation** | A time-based holdout on the last full Diwali season, compared against a persistence baseline. This includes a separate score for the Diwali ±3-day window. |
-| 🩺 **Health advice** | CPCB category-specific guidance for every forecast. |
+| 🗺️ **Micro-Climate Map** | Interactive Leaflet map of Patiala neighborhoods, color-coded by the CPCB AQI scale. A day slider and *Jump to Diwali night* button let you move through the forecast. |
+| 📈 **Forecast + Uncertainty** | 30 days of observed AQI plus a 21-day recursive forecast with an 80% prediction band that widens with lead time. |
+| 🪔 **Diwali Phase Outlook** | Average and peak AQI for **Before (−7…−1d)**, **During (Diwali + next day)**, and **After (+2…+7d)**. |
+| 🌾 **Parali Tracking** | Integration of NASA FIRMS (Fire Radiative Power) and wind trajectories to calculate baseline agricultural smoke drifting into the city from the Malwa region. |
+| 🧠 **Explainable AI (XAI)** | Each prediction breaks down the drivers: *Diwali fireworks (+180%)*, *Stubble smoke (+35%)*, *Low wind/mixing (+40%)*. |
+| 🏆 **Ranking & Health** | Ranks neighborhoods from worst to best to help plan interventions, combined with CPCB category-specific health guidance for every forecast. |
+| 🚨 **Vulnerable Alerts** | SMS / WhatsApp advisory triggers designed to warn registered respiratory patients 12 hours before a forecasted hyper-local peak. |
+| 🎛️ **What-If Simulator** | Interactive toggles to see how interventions (e.g., "50% traffic reduction" or "Green crackers only") would alter the forecasted AQI curve. |
 
 ## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
-  subgraph Sources["Data sources (pluggable adapters)"]
-    AQ["Air quality<br/>CPCB / OpenAQ<br/>(PM2.5 per station)"]
-    WX["Weather<br/>Open-Meteo / IMD<br/>(wind, mixing height, RH, rain)"]
-    TR["Traffic<br/>TomTom / Google<br/>(congestion index)"]
-    FR["Farm fires<br/>NASA FIRMS<br/>(fire counts)"]
-    CAL["Festival calendar<br/>(Diwali dates)"]
+  subgraph Sources["Data Sources (Pluggable Adapters)"]
+    AQ["Air quality<br/>CPCB (PM2.5)"]
+    WX["Weather<br/>Open-Meteo<br/>(wind, mixing height)"]
+    TR["Traffic<br/>Google Maps API<br/>(live routing)"]
+    FR["Farm fires<br/>NASA FIRMS<br/>(fire counts/FRP)"]
+    CAL["Calendar<br/>(Diwali phase flags)"]
   end
 
-  subgraph API["apps/api - Node + Express + TypeScript"]
-    DS["AirQualityDataSource<br/>interface"]
-    FE["Feature engineering<br/>lags, stagnation, fires,<br/>Diwali calendar, local context"]
-    ML["Ridge regression<br/>on log PM2.5"]
+  subgraph API["apps/api - Python + FastAPI"]
+    DS["Data Ingestion Adapters"]
+    FE["Feature Engineering<br/>(Traffic Index, Upwind Math, Lags)"]
+    ML["Log-Space Ensemble<br/>XGBoost + MLP"]
     EV["Time-based evaluation<br/>vs persistence baseline"]
-    FC["Recursive 21-day forecaster<br/>+ prediction intervals<br/>+ driver attribution"]
-    REST["REST API /api/*"]
+    XAI["SHAP Explainer<br/>(Driver Attribution)"]
+    REST["FastAPI REST API /api/*"]
   end
 
-  subgraph WEB["apps/web - React + Vite + TypeScript"]
-    MAP["Leaflet AQI map"]
-    CH["Recharts trend + band"]
-    OUT["Before / During / After cards"]
-    XAI["Drivers + model metrics"]
+  subgraph WEB["apps/web - React + Vite + TS"]
+    MAP["Leaflet Spatial Map"]
+    CH["Recharts Trend & Band"]
+    OUT["Phase Outlook & Metrics"]
+    SIM["What-If Simulator"]
   end
 
-  AQ & WX & TR & FR & CAL --> DS --> FE --> ML --> FC --> REST
+  AQ & WX & TR & FR & CAL --> DS --> FE --> ML --> REST
   ML --> EV --> REST
-  REST --> MAP & CH & OUT & XAI
-  SH["packages/shared<br/>types, AQI calc, Diwali calendar"] -.-> API & WEB
-```
-
-More detail on the model and data flow is in [docs/architecture.md](docs/architecture.md).
-
-## 🧠 How the model works
-
-1. **Target:** next-day `log(PM2.5)` per neighborhood. Working in log space handles the heavy-tailed Diwali spikes and gives multiplicative, explainable effects.
-2. **Features (22):**
-   - **Persistence:** PM2.5 yesterday, two days ago and the 7-day mean.
-   - **Meteorology:** wind speed, boundary-layer mixing height, humidity, rain and temperature.
-   - **Traffic:** a congestion index, including the pre-Diwali shopping surge and the Diwali-night lull.
-   - **Stubble burning:** upwind fire counts, plus fires × calm-wind.
-   - **Season:** day-of-year sine and cosine.
-   - **Diwali calendar:** pre-festive week, eve, night, day after and +2 days.
-   - **Neighborhood context, learned from history:** baseline pollution level and the **historical Diwali uplift** for that neighborhood. Some localities burst far more crackers than others.
-   - **Interactions:** Diwali night × local uplift and Diwali night × low wind.
-3. **Algorithm:** ridge regression on standardised features, implemented from scratch in TypeScript with no ML dependencies. It's fast (trains in under 1 s) and fully interpretable.
-4. **Forecasting:** recursive multi-day forecasting. Each predicted day feeds the next day's lag features, and weather and traffic come from forecasts. Prediction intervals come from holdout residuals and widen with lead time.
-5. **Explainability:** contribution = coefficient × z-score. These are summed into 8 driver groups and reported as the % change in PM2.5 against average conditions.
-
-## 🚀 Quick start
-
-```bash
-# Requires Node ≥ 20
-npm install
-npm run dev        # API → http://localhost:4000/api, dashboard → http://localhost:5173
-```
-
-Other scripts:
-
-```bash
-npm run build      # type-check & build shared + api + web
-npm start          # serve API + built dashboard on http://localhost:4000
-npm test           # unit + model sanity tests
-npm run evaluate   # backtest every past Diwali season vs persistence
-AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwali)
-```
-
-## 🔌 REST API
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/meta` | Today, the upcoming Diwali date, the countdown and the current phase |
-| GET | `/api/neighborhoods` | All neighborhoods with their latest observation and today's forecast |
-| GET | `/api/neighborhoods/:id/history?days=60` | Observed daily PM2.5/AQI, weather, traffic and fires |
-| GET | `/api/neighborhoods/:id/outlook` | Before / during / after Diwali summary |
-| GET | `/api/forecast?days=21` | Forecasts for every neighborhood |
-| GET | `/api/forecast/:id` | Forecast for one neighborhood, with drivers and intervals |
-| GET | `/api/model` | Algorithm, holdout metrics and feature weights |
-
-## 📁 Repository layout
-
-```
-.
-├── apps/
-│   ├── api/                 # Express API + ML pipeline
-│   │   ├── src/data/        # AirQualityDataSource interface, synthetic simulator, neighborhoods
-│   │   ├── src/model/       # features, ridge regression, training/evaluation, forecaster
-│   │   ├── src/service.ts   # trains at startup, caches forecasts, Diwali outlook
-│   │   └── test/            # node:test unit + model sanity tests
-│   └── web/                 # React + Vite dashboard (Leaflet map, Recharts)
-├── packages/shared/         # shared types, CPCB AQI conversion, Diwali calendar
-└── docs/architecture.md
-```
-
-## 📊 Data
-
-> [!NOTE]
-> The MVP runs offline on a **seeded synthetic simulation** of Delhi NCR (2022 to today). It models seasonality,
-> wind and mixing-height stagnation, rain washout, traffic (weekday effects and the festive surge), stubble-fire smoke and
-> neighborhood-specific Diwali fireworks spikes. The model never sees the simulator's hidden parameters; it has to learn them.
-> Real feeds plug in by implementing `AirQualityDataSource` (see `apps/api/src/data/source.ts`).
-
-Planned real sources: **CPCB CAAQMS / OpenAQ** (PM2.5), **Open-Meteo** (historical and forecast weather, including boundary-layer height),
-**NASA FIRMS** (fire counts), and **TomTom Traffic Index** (congestion).
-
-## 🗺️ Roadmap
-
-- [x] Round 1: Problem scoping, architecture, repo, and skeleton with a working pipeline
-- [x] Core: Synthetic data, feature engineering, ridge model, evaluation, recursive forecast, explainability
-- [x] Dashboard: Map, day slider, trend + band, Diwali outlook, ranking, model card
-- [ ] Real data adapters (OpenAQ + Open-Meteo + FIRMS)
-- [ ] Gradient-boosted model / LightGBM via ONNX, with hourly resolution for Diwali night
-- [ ] Spatial interpolation (kriging / IDW) for wards without monitors
-- [ ] Alerts: SMS / WhatsApp advisories for schools and hospitals when AQI is expected to exceed 300
-- [ ] What-if simulator: "green crackers only" or a "50% traffic restriction" scenario
-
-## 👥 Team
-
-_Add team members here._
+  ML --> XAI --> REST
+  REST --> MAP & CH & OUT & SIM
