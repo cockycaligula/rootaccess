@@ -134,16 +134,7 @@ AIRSENSE_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's Diwa
 Planned real sources: **CPCB CAAQMS / OpenAQ** (PM2.5), **Open-Meteo** (historical and forecast weather, including boundary-layer height),
 **NASA FIRMS** (fire counts), and **TomTom Traffic Index** (congestion).
 
-## 🗺️ Roadmap
 
-- [x] Round 1: Problem scoping, architecture, repo, and skeleton with a working pipeline
-- [x] Core: Synthetic data, feature engineering, ridge model, evaluation, recursive forecast, explainability
-- [x] Dashboard: Map, day slider, trend + band, Diwali outlook, ranking, model card
-- [x] What-if simulator: interactive sliders + presets for firecracker reduction, traffic curbs, stubble control, and artificial rain
-- [ ] Real data adapters (OpenAQ + Open-Meteo + FIRMS)
-- [ ] Gradient-boosted model / LightGBM via ONNX, with hourly resolution for Diwali night
-- [ ] Spatial interpolation (kriging / IDW) for wards without monitors
-- [ ] Alerts: SMS / WhatsApp advisories for schools and hospitals when AQI is expected to exceed 300
 
 ## 👥 Team
 
