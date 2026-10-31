@@ -120,7 +120,7 @@ VAAYUVISION_TODAY=2025-10-12 npm run dev   # replay any date (e.g. last year's D
 │   │   └── test/            # node:test unit + model sanity tests
 │   └── web/                 # React + Vite dashboard (Leaflet Patiala map, Recharts, What-If simulator)
 ├── packages/shared/         # shared types, CPCB AQI conversion, Diwali calendar
-└── docs/architecture.md
+└── docs/                    # architecture.md & pitch-deck.md
 ```
 
 ## Data
