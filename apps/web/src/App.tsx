@@ -176,8 +176,8 @@ export function App() {
         <CityKpiBar
           baselineForecasts={forecasts}
           activeForecasts={activeForecasts}
-          isSimActive={isSimActive}
           dayIndex={dayIndex}
+          gpsCoords={gpsCoords}
           onSelectWard={setSelectedId}
         />
 

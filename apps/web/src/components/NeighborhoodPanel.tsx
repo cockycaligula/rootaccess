@@ -21,7 +21,7 @@ interface Props {
   diwaliDate: string;
 }
 
-type DialogType = 'demo-data' | 'ai-predictions' | 'charts' | 'health' | null;
+type DialogType = 'why-area' | 'demo-data' | 'ai-predictions' | 'charts' | 'health' | null;
 
 const PHASE_TITLES = {
   before: 'Before Diwali (7 Days Prior)',
@@ -136,18 +136,19 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
   const activeP = simP ?? baseP;
   if (!baseP || !activeP) return null;
 
-  const diwaliPoint = points.find((p) => p.daysFromDiwali === 0) ?? activeP;
   const demo = AREA_DEMO_PROFILE[n.id] ?? AREA_DEMO_PROFILE['thapar-prem-nagar'];
   const metrics = buildPollutantMetrics(n, activeP);
   const userName = profile.name.trim();
+  const isGoodAqi = activeP.aqi <= 180;
 
   return (
     <div className="panel">
-      {/* Clean Area Header */}
+      {/* Clean Area Header — Zero Paragraph Clutter on Main Page */}
       <div className="panel-head">
         <div>
+          <span className="section-kicker">SELECTED AREA</span>
           <h2>{n.name}</h2>
-          <span className="muted">
+          <span className="muted small">
             {n.zone} · {formatDate(activeP.date, true)}
           </span>
         </div>
@@ -159,62 +160,47 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         </div>
       </div>
 
-      {/* Conversational AI Prediction Box grounded in Neighborhood Demo Data */}
-      <div className="ai-neighborhood-verdict">
-        <div className="dataset-tag">AI NEIGHBORHOOD PREDICTION · {n.name.toUpperCase()}</div>
-        <p className="verdict-lead">
-          {userName ? `Hi ${userName}, according` : 'According'} to your neighborhood demo data for{' '}
-          <strong>{n.name}</strong> (Traffic: <strong>{activeP.trafficIndex.toFixed(2)}×</strong>, Crop Fires:{' '}
-          <strong>{activeP.fireCount}</strong>, Firecracker Profile: <strong>{demo.crackerPct}</strong>), here are my AI
-          predictions:
-        </p>
-        <div className="verdict-highlights">
-          <div className="verdict-pill">
-            <span className="muted small">Current Area AQI ({n.lat.toFixed(3)}°N, {n.lng.toFixed(3)}°E)</span>
-            <strong style={{ color: aqiColor(activeP.aqi) }}>
-              AQI {activeP.aqi} ({activeP.pm25} µg/m³)
-            </strong>
-          </div>
-          <div className="verdict-pill">
-            <span className="muted small">Particulate &amp; Traffic Load</span>
-            <strong>
-              PM10 {metrics.pm10} · NO₂ {metrics.no2} µg/m³
-            </strong>
-          </div>
-          <div className="verdict-pill">
-            <span className="muted small">Safest Outdoor Window</span>
-            <strong style={{ color: '#74c69d' }}>1:00 PM – 4:00 PM</strong>
-          </div>
+      {/* Primary Clickable Banner: Why is this area Good / Bad? */}
+      <button
+        type="button"
+        className={`why-trigger-card ${isGoodAqi ? 'good-border' : 'bad-border'}`}
+        onClick={() => setActiveDialog('why-area')}
+      >
+        <div>
+          <span className="dataset-tag">
+            {isGoodAqi ? 'CLEANER ZONE ANALYSIS' : 'POLLUTION CAUSE ANALYSIS'}
+          </span>
+          <strong>
+            Why {n.name} is {activeP.category} (AQI {activeP.aqi}) Today
+          </strong>
         </div>
-      </div>
+        <span className="why-cta">Click to see why →</span>
+      </button>
 
-      {/* Clean Clickable Cards — Click any card to inspect inside a Dialog Box */}
-      <div className="clickable-hub-label">Click any card below to open its full details in a dialog box:</div>
-      <div className="clickable-cards-grid">
+      {/* 4 Clean Clickable Section Tiles — No Long Text on Main Page */}
+      <div className="clickable-cards-grid" style={{ marginTop: 12 }}>
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('demo-data')}>
-          <span className="dataset-tag">DEMO DATA</span>
-          <strong>Traffic, Firecrackers &amp; Weather Data</strong>
-          <span className="muted small">Click to view {n.name} inputs →</span>
+          <span className="dataset-tag">SECTION A · DEMO DATA</span>
+          <strong>Traffic &amp; Firecracker Data</strong>
+          <span className="muted small">Click to open →</span>
         </button>
 
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('ai-predictions')}>
-          <span className="dataset-tag">DIWALI BREAKDOWN</span>
+          <span className="dataset-tag">SECTION B · DIWALI PHASES</span>
           <strong>Before, During &amp; After Diwali</strong>
-          <span className="muted small">Click to view 3-phase breakdown →</span>
+          <span className="muted small">Click to open →</span>
         </button>
 
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('charts')}>
-          <span className="dataset-tag">INTERACTIVE CHARTS</span>
-          <strong>21-Day Trend &amp; 24-Hour Safe Window</strong>
-          <span className="muted small">Click to view forecast graphs →</span>
+          <span className="dataset-tag">SECTION C · CHARTS</span>
+          <strong>21-Day &amp; 24-Hour Graphs</strong>
+          <span className="muted small">Click to open →</span>
         </button>
 
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('health')}>
-          <span className="dataset-tag">HEALTH GUIDE</span>
-          <strong>
-            {userName ? `${userName}’s Health & Mask Advice` : 'Personalized Health & Mask Advice'}
-          </strong>
-          <span className="muted small">Click to view medical guidance →</span>
+          <span className="dataset-tag">SECTION D · HEALTH GUIDE</span>
+          <strong>{userName ? `${userName}’s Health Advice` : 'Personal Health Advice'}</strong>
+          <span className="muted small">Click to open →</span>
         </button>
       </div>
 
@@ -231,6 +217,7 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
               <div>
                 <span className="pref-kicker">{n.name.toUpperCase()} · {formatDate(activeP.date, true).toUpperCase()}</span>
                 <h2>
+                  {activeDialog === 'why-area' && `Why ${n.name} Has AQI ${activeP.aqi} (${activeP.category})`}
                   {activeDialog === 'demo-data' && `Neighborhood Demo Data · ${n.name}`}
                   {activeDialog === 'ai-predictions' && `AI Predictions · ${n.name}`}
                   {activeDialog === 'charts' && `21-Day & 24-Hour Forecast Charts · ${n.name}`}
@@ -242,12 +229,49 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
               </button>
             </div>
 
+            {activeDialog === 'why-area' && (
+              <div className="dialog-body">
+                <div className="personal-advice-card">
+                  <strong>AI Explanation for {n.name}:</strong>
+                  <span className="small muted">{demo.corridorNote}</span>
+                </div>
+                <div className="dialog-grid-2">
+                  <div className="dialog-stat-card">
+                    <span className="dataset-tag">POLLUTANT BREAKDOWN</span>
+                    <strong>
+                      PM2.5: {metrics.pm25} · PM10: {metrics.pm10} · NO₂: {metrics.no2} µg/m³
+                    </strong>
+                    <span className="small muted">Indian CPCB Category: {activeP.category}</span>
+                  </div>
+                  <div className="dialog-stat-card">
+                    <span className="dataset-tag">SAFEST OUTDOOR WINDOW</span>
+                    <strong style={{ color: '#74c69d' }}>1:00 PM – 4:00 PM IST</strong>
+                    <span className="small muted">Afternoon sunlight lifts the boundary layer</span>
+                  </div>
+                </div>
+                <h3>Top Factors Driving AQI in {n.name}</h3>
+                <ul className="drivers">
+                  {activeP.drivers.slice(0, 5).map((d) => (
+                    <li key={d.key}>
+                      <span>{d.label}</span>
+                      <span className="bar-wrap">
+                        <span
+                          className={`bar ${d.impactPct >= 0 ? 'up' : 'down'}`}
+                          style={{ width: `${Math.min(100, Math.abs(d.impactPct) / 2)}%` }}
+                        />
+                      </span>
+                      <span className={d.impactPct >= 0 ? 'up-text' : 'down-text'}>
+                        {d.impactPct >= 0 ? '+' : ''}
+                        {d.impactPct.toFixed(0)}%
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {activeDialog === 'demo-data' && (
               <div className="dialog-body">
-                <p className="muted small">
-                  Live &amp; historical neighborhood demo datasets used by our AI to predict air quality in{' '}
-                  <strong>{n.name}</strong>:
-                </p>
                 <div className="dialog-grid-2">
                   <div className="dialog-stat-card">
                     <span className="dataset-tag">1. TRAFFIC &amp; CORRIDOR DEMO DATA</span>
@@ -277,21 +301,13 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
                     </span>
                   </div>
                 </div>
-                <div className="personal-advice-card" style={{ marginTop: 12, marginBottom: 0 }}>
-                  <strong>AI Observation for {n.name}:</strong>
-                  <span className="small muted">{demo.corridorNote}</span>
-                </div>
               </div>
             )}
 
             {activeDialog === 'ai-predictions' && (
               <div className="dialog-body">
-                <p className="verdict-lead" style={{ marginBottom: 12 }}>
-                  According to the traffic, firecracker, crop-smoke, and weather data in <strong>{n.name}</strong>, here
-                  is how air quality will behave Before, During, and After Diwali:
-                </p>
                 {outlook && (
-                  <div className="outlook" style={{ marginBottom: 16 }}>
+                  <div className="outlook">
                     {outlook.phases.map((ph) => (
                       <div key={ph.phase} className="outlook-card" style={{ borderColor: aqiColor(ph.avgAqi) }}>
                         <span className="muted small">{PHASE_TITLES[ph.phase]}</span>
@@ -303,24 +319,6 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
                     ))}
                   </div>
                 )}
-                <h3>What Causes Today’s Prediction in {n.name}?</h3>
-                <ul className="drivers">
-                  {activeP.drivers.slice(0, 5).map((d) => (
-                    <li key={d.key}>
-                      <span>{d.label}</span>
-                      <span className="bar-wrap">
-                        <span
-                          className={`bar ${d.impactPct >= 0 ? 'up' : 'down'}`}
-                          style={{ width: `${Math.min(100, Math.abs(d.impactPct) / 2)}%` }}
-                        />
-                      </span>
-                      <span className={d.impactPct >= 0 ? 'up-text' : 'down-text'}>
-                        {d.impactPct >= 0 ? '+' : ''}
-                        {d.impactPct.toFixed(0)}%
-                      </span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
 
