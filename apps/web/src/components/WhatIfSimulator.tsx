@@ -30,6 +30,95 @@ interface HotspotDatasetProfile {
   aiActionSummary: string;
 }
 
+interface DatasetSpec {
+  id: string;
+  code: string;
+  title: string;
+  provider: string;
+  cadence: string;
+  spatialResolution: string;
+  variables: string[];
+  modelFeatures: string[];
+  methodology: string;
+}
+
+const DATASET_SPECS: DatasetSpec[] = [
+  {
+    id: 'cpcb',
+    code: 'DATASET 01',
+    title: 'CPCB & PPCB Ground-Station Particulate Archive',
+    provider: 'Punjab Pollution Control Board (Vatavaran Bhawan) & CPCB CAAQMS / NAMP',
+    cadence: 'Hourly & 24-Hour Gravimetric / Beta-Attenuation',
+    spatialResolution: '12 Patiala Area Receptors (2022–2026 · 21,084 area-days)',
+    variables: ['PM2.5 (µg/m³)', 'PM10 (µg/m³)', 'SO2 (µg/m³)', 'CPCB Piecewise AQI (0–500)'],
+    modelFeatures: ['lag1_log', 'lag2_log', 'roll7_log', 'nb_base (Out-of-fold area baseline)'],
+    methodology:
+      'Provides the log-transformed target variable log(PM2.5) and short-term autoregressive memory lags (t-1, t-2, and 7-day rolling mean) to capture multi-day particulate accumulation across Patiala.',
+  },
+  {
+    id: 'viirs',
+    code: 'DATASET 02',
+    title: 'NASA FIRMS VIIRS 375m Thermal Anomaly & Stubble Plume Feed',
+    provider: 'NASA / NOAA Suomi-NPP & NOAA-20 VIIRS I-Band (375m)',
+    cadence: 'Twice-Daily Satellite Overpass (13:30 & 01:30 IST)',
+    spatialResolution: 'Upwind Malwa Agricultural Box (29.8°N–31.1°N, 75.2°E–76.6°E)',
+    variables: ['Active Paddy-Residue Fire Count (fires/day)', 'Fire Radiative Power (MW)', 'NW-SE Plume Receptor Index'],
+    modelFeatures: ['fires_log: ln(1 + fireCount / 50)'],
+    methodology:
+      'Quantifies upwind Kharif paddy-stubble burning across Sangrur, Barnala, Nabha, and rural Patiala. Log-scaling captures diminishing marginal saturation during extreme (>450 fires/day) biomass plume events.',
+  },
+  {
+    id: 'meteo',
+    code: 'DATASET 03',
+    title: 'IMD Patiala Observatory & ERA5 Boundary-Layer Reanalysis',
+    provider: 'India Meteorological Department (IMD Patiala) & Open-Meteo ECMWF ERA5',
+    cadence: 'Hourly Vertical Profile & Surface Synoptic Assimilation',
+    spatialResolution: '0.1° × 0.1° (~9 km) Boundary-Layer Grid over Patiala',
+    variables: [
+      'Planetary Boundary-Layer Height H_mix (m)',
+      '10m Surface Wind Speed u_10 (m/s)',
+      'Ventilation Coefficient V_c = u_10 × H_mix (m²/s)',
+      'Relative Humidity (%) & Surface Temp (°C)',
+      'Precipitation Washout (mm)',
+    ],
+    modelFeatures: ['wind', 'inv_mix (500 / H_mix)', 'temp', 'humidity', 'rain_log', 'stagnation_x_diwali'],
+    methodology:
+      'Models vertical atmospheric trapping. When post-monsoon night temperatures drop, H_mix collapses from ~950 m to <280 m, compressing emissions into a shallow surface layer and spiking PM2.5.',
+  },
+  {
+    id: 'traffic',
+    code: 'DATASET 04',
+    title: 'Patiala Municipal Corridor Mobility & NO₂ Combustion Grid',
+    provider: 'Patiala Urban Traffic Telemetry & Sentinel-5P TROPOMI NO₂ Column',
+    cadence: 'Hourly Corridor Congestion Index & Diurnal Rush Profile',
+    spatialResolution: 'Street-Canyon & Highway Receptor Corridors (NH-7, Bhadson Rd, Old City)',
+    variables: ['Corridor Traffic Multiplier (0.75×–1.55×)', 'Surface NO₂ (µg/m³)', 'Weekend / Festive Surge Factor'],
+    modelFeatures: ['traffic (Corridor Index)', 'nb_traffic (Area Traffic Prior)', 'weekend'],
+    methodology:
+      'Captures primary vehicular tailpipe exhaust, diesel bus/truck resuspension dust, and pre-Diwali (D-5 to D-1) commercial bazaar gridlock around Adalat Bazar and Leela Bhawan.',
+  },
+  {
+    id: 'diwali',
+    code: 'DATASET 05',
+    title: 'Historical Diwali Pyrotechnic & Inversion Carryover Archive',
+    provider: 'CPCB / PPCB Festival Monitoring Campaigns (2022–2025 Seasons)',
+    cadence: 'Daily & Intraday (18:00–03:00 IST Peak Window)',
+    spatialResolution: 'Area-Specific Pyrotechnic Sensitivity & Street-Canyon Trapping',
+    variables: ['Diwali Night Uplift Multiplier', 'Gaussian Festive Kernels (D-7 to D+7)', 'Post-Diwali Decay Rate'],
+    modelFeatures: [
+      'diwali_gauss',
+      'pre_build',
+      'post_tail',
+      'is_diwali_eve',
+      'is_diwali_day',
+      'is_day_after',
+      'diwali_x_sens',
+    ],
+    methodology:
+      'Models the sharp non-linear barium/strontium/sulfur aerosol burst on Diwali night (D=0) and the 48-hour post-Diwali carryover (D+1, D+2) before atmospheric dispersion restores baseline levels.',
+  },
+];
+
 const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
   'thapar-prem-nagar': {
     stationCode: 'PPCB-PTL-NW08 (Thapar Campus & Prem Nagar)',
@@ -61,7 +150,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'Narrow street-canyon geometry in Old City causes extreme trapping of Diwali pyrotechnic barium/sulfur aerosols (1.35x uplift) and festive shopper vehicular exhaust.',
+      'Narrow street-canyon geometry in Old City causes extreme trapping of Diwali pyrotechnic barium/sulfur aerosols (1.35× uplift) and festive shopper vehicular exhaust.',
     aiActionSummary:
       'AI prescribes 80% Old-City firecracker curb, 50% pedestrianization of Adalat Bazar & Anardana Chowk, 55% regional stubble smoke control, and high-pressure smog-gun washout.',
   },
@@ -78,7 +167,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'High residential rooftop firecracker density (1.30x) combined with northern Sirhind bypass stubble inflow creates severe post-Diwali morning carryover.',
+      'High residential rooftop firecracker density (1.30×) combined with northern Sirhind bypass stubble inflow creates severe post-Diwali morning carryover.',
     aiActionSummary:
       'AI prescribes 75% community firecracker abatement, 40% Tripuri main-market traffic diversion, 60% northern belt stubble management, and nocturnal water sprinkling.',
   },
@@ -112,7 +201,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'Patiala’s highest commercial traffic multiplier (1.30x) drives elevated NO2 combustion plumes that react with evening humidity to form secondary nitrate particulates.',
+      'Patiala’s highest commercial traffic multiplier (1.30×) drives elevated NO₂ combustion plumes that react with evening humidity to form secondary nitrate particulates.',
     aiActionSummary:
       'AI prescribes 50% commercial parking & vehicle throttling around Leela Bhawan Chowk, 65% cracker reduction, 50% stubble interception, and evening corridor misting.',
   },
@@ -129,7 +218,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'Diesel bus idling at ISBT and inter-city Rajpura Road traffic generate persistent black-carbon and NO2 spikes throughout morning and evening rush hours.',
+      'Diesel bus idling at ISBT and inter-city Rajpura Road traffic generate persistent black-carbon and NO₂ spikes throughout morning and evening rush hours.',
     aiActionSummary:
       'AI prescribes 55% diesel bus idling/highway freight regulation, 55% cracker & stubble abatement, and continuous dust-suppression sprinkling at ISBT.',
   },
@@ -146,7 +235,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'Moderate baseline particulates spike sharply on Diwali night due to concentrated residential firecracker bursting (1.20x) under calm winds.',
+      'Moderate baseline particulates spike sharply on Diwali night due to concentrated residential firecracker bursting (1.20×) under calm winds.',
     aiActionSummary:
       'AI prescribes 70% transition to designated community green-cracker zones, 55% Malwa smoke control, 35% through-traffic calming, and targeted misting.',
   },
@@ -180,7 +269,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'Direct proximity to NW agricultural fields yields 1.05x VIIRS stubble-smoke exposure compounded by unpaved peri-urban road dust.',
+      'Direct proximity to NW agricultural fields yields 1.05× VIIRS stubble-smoke exposure compounded by unpaved peri-urban road dust.',
     aiActionSummary:
       'AI prescribes 75% NW paddy-stubble Happy Seeder/bio-decomposer deployment, 60% firework control, 40% Bhadson Rd heavy-vehicle curb, and dust misting.',
   },
@@ -197,7 +286,7 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
       artificialRain: true,
     },
     aiDiagnosis:
-      'Highest VIIRS biomass-burning exposure in Patiala (1.20x index) driven by southern Malwa/Ghaggar belt paddy residue fires and grain-mandi transport.',
+      'Highest VIIRS biomass-burning exposure in Patiala (1.20× index) driven by southern Malwa/Ghaggar belt paddy residue fires and grain-mandi transport.',
     aiActionSummary:
       'AI prescribes 85% intensive southern Malwa stubble-fire interception, 50% cracker restriction, 30% mandi tractor/truck scheduling, and wet deposition.',
   },
@@ -255,6 +344,7 @@ export function WhatIfSimulator({
 }: Props) {
   const [aiResult, setAiResult] = useState<SimulationResult | null>(result);
   const [analyzing, setAnalyzing] = useState(false);
+  const [activeDatasetId, setActiveDatasetId] = useState<string>('cpcb');
 
   const selectedForecast = forecasts.find((f) => f.neighborhood.id === selectedId) ?? forecasts[0];
   const area = selectedForecast.neighborhood;
@@ -265,6 +355,7 @@ export function WhatIfSimulator({
   const profile = HOTSPOT_PROFILES[area.id] ?? HOTSPOT_PROFILES['thapar-prem-nagar'];
   const metrics = buildPollutantMetrics(area, point);
   const ventilationCoeff = Math.round(point.weather.windSpeed * point.weather.mixingHeightM);
+  const activeDatasetSpec = DATASET_SPECS.find((d) => d.id === activeDatasetId) ?? DATASET_SPECS[0];
 
   const isAppliedToGlobalMap =
     scenario.fireworksReductionPct === profile.aiScenario.fireworksReductionPct &&
@@ -272,7 +363,6 @@ export function WhatIfSimulator({
     scenario.stubbleReductionPct === profile.aiScenario.stubbleReductionPct &&
     scenario.artificialRain === profile.aiScenario.artificialRain;
 
-  // Automatically gather datasets & run AI simulation for the selected hotspot—no manual slider dragging required
   useEffect(() => {
     let cancelled = false;
     setAnalyzing(true);
@@ -301,12 +391,12 @@ export function WhatIfSimulator({
         <div>
           <div className="ai-engine-kicker">
             <span className="gate-dot" />
-            AUTONOMOUS MULTI-DATASET AI SYNTHESIS · ZERO MANUAL TUNING REQUIRED
+            AUTONOMOUS MULTI-DATASET AI SYNTHESIS · 5 LIVE ENVIRONMENTAL STREAMS
           </div>
           <h3>AI Multi-Dataset Hotspot Analyzer · {area.name}</h3>
           <p className="muted small">
-            Select any Patiala hotspot below. VaayuVision AI automatically ingests 5 environmental &amp; emission
-            datasets for that area and computes the optimal mitigation outcome.
+            Select any Patiala area below to inspect its 5 ingested pollution datasets, feature engineering pipeline,
+            and AI-computed mitigation outcome.
           </p>
         </div>
         <div className="preset-row">
@@ -321,7 +411,7 @@ export function WhatIfSimulator({
       </div>
 
       {/* 12-Hotspot Selector Bar */}
-      <div className="hotspot-pill-bar" role="tablist" aria-label="Patiala Hotspots">
+      <div className="hotspot-pill-bar" role="tablist" aria-label="Patiala Areas">
         {forecasts.map((f) => {
           const p = f.points[dayIndex] ?? f.points[0];
           const active = f.neighborhood.id === area.id;
@@ -342,81 +432,142 @@ export function WhatIfSimulator({
         })}
       </div>
 
-      {/* 5 Multi-Variable Datasets Gathered by AI */}
+      {/* 5 Multi-Variable Datasets Gathered by AI (Click any card to inspect deep technical schema) */}
       <div className="dataset-section-title">
-        <span>INGESTED POLLUTION DATASETS FOR {area.name.toUpperCase()} ({formatDate(point.date, true).toUpperCase()})</span>
-        <span className="muted small">Station: {profile.stationCode}</span>
+        <span>
+          INGESTED POLLUTION DATASETS FOR {area.name.toUpperCase()} ({formatDate(point.date, true).toUpperCase()}) —
+          CLICK ANY DATASET FOR DEEP SCHEMA
+        </span>
+        <span className="muted small">Receptor Node: {profile.stationCode}</span>
       </div>
 
       <div className="dataset-grid">
-        <div className="dataset-card">
-          <div className="dataset-tag">DATASET 01 // CPCB &amp; PPCB PARTICULATE FEED</div>
+        <div
+          className={`dataset-card clickable ${activeDatasetId === 'cpcb' ? 'active-dataset' : ''}`}
+          onClick={() => setActiveDatasetId('cpcb')}
+        >
+          <div className="dataset-tag">DATASET 01 // CPCB &amp; PPCB PARTICULATE</div>
           <strong>
-            PM2.5 {metrics.pm25} µg/m³ · PM10 {metrics.pm10} µg/m³
+            PM2.5 {metrics.pm25} · PM10 {metrics.pm10} µg/m³
           </strong>
           <span className="small muted">
-            Current AQI: <strong style={{ color: aqiColor(point.aqi) }}>{point.aqi} ({point.category})</strong> · Diwali Peak:{' '}
-            <strong>{diwaliPoint.pm25} µg/m³</strong>
-          </span>
-          <span className="small muted">SO₂ Baseline: {profile.so2Baseline} µg/m³ · 80% CI: {point.pm25Low}–{point.pm25High} µg/m³</span>
-        </div>
-
-        <div className="dataset-card">
-          <div className="dataset-tag">DATASET 02 // NASA FIRMS VIIRS STUBBLE FEED</div>
-          <strong>
-            {point.fireCount} Upwind Fires · {profile.stubbleExposureIndex.toFixed(2)}× Plume Index
-          </strong>
-          <span className="small muted">
-            Malwa / Sangrur paddy-residue smoke trajectory into {area.zone} Patiala
+            Current AQI: <strong style={{ color: aqiColor(point.aqi) }}>{point.aqi} ({point.category})</strong> ·
+            Diwali Peak: <strong>{diwaliPoint.pm25} µg/m³</strong>
           </span>
           <span className="small muted">
-            AI-prescribed regional interception: <strong>−{profile.aiScenario.stubbleReductionPct}% biomass smoke</strong>
+            SO₂: {profile.so2Baseline} µg/m³ · 80% CI: {point.pm25Low}–{point.pm25High} µg/m³
           </span>
         </div>
 
-        <div className="dataset-card">
-          <div className="dataset-tag">DATASET 03 // IMD &amp; OPEN-METEO BOUNDARY LAYER</div>
+        <div
+          className={`dataset-card clickable ${activeDatasetId === 'viirs' ? 'active-dataset' : ''}`}
+          onClick={() => setActiveDatasetId('viirs')}
+        >
+          <div className="dataset-tag">DATASET 02 // NASA FIRMS VIIRS STUBBLE</div>
           <strong>
-            PBL {Math.round(point.weather.mixingHeightM)} m · Wind {point.weather.windSpeed.toFixed(1)} m/s
+            {point.fireCount} Fires · {profile.stubbleExposureIndex.toFixed(2)}× Plume
           </strong>
           <span className="small muted">
-            Ventilation Coefficient: <strong>{ventilationCoeff} m²/s</strong> ({ventilationCoeff < 1000 ? 'Inversion Trapping' : 'Active Mixing'})
+            Upwind Malwa / Sangrur 375m thermal anomalies into {area.zone} Patiala
           </span>
           <span className="small muted">
-            Humidity: {Math.round(point.weather.humidity)}% RH · Temp: {point.weather.tempC.toFixed(1)} °C
+            AI target: <strong>−{profile.aiScenario.stubbleReductionPct}% biomass plume</strong>
           </span>
         </div>
 
-        <div className="dataset-card">
-          <div className="dataset-tag">DATASET 04 // PATIALA TRAFFIC &amp; NO₂ SENSOR GRID</div>
+        <div
+          className={`dataset-card clickable ${activeDatasetId === 'meteo' ? 'active-dataset' : ''}`}
+          onClick={() => setActiveDatasetId('meteo')}
+        >
+          <div className="dataset-tag">DATASET 03 // IMD &amp; ERA5 BOUNDARY LAYER</div>
+          <strong>
+            PBL {Math.round(point.weather.mixingHeightM)} m · {point.weather.windSpeed.toFixed(1)} m/s
+          </strong>
+          <span className="small muted">
+            Ventilation: <strong>{ventilationCoeff} m²/s</strong> (
+            {ventilationCoeff < 1000 ? 'Inversion Trap' : 'Dispersive'})
+          </span>
+          <span className="small muted">
+            RH: {Math.round(point.weather.humidity)}% · Temp: {point.weather.tempC.toFixed(1)} °C
+          </span>
+        </div>
+
+        <div
+          className={`dataset-card clickable ${activeDatasetId === 'traffic' ? 'active-dataset' : ''}`}
+          onClick={() => setActiveDatasetId('traffic')}
+        >
+          <div className="dataset-tag">DATASET 04 // CORRIDOR TRAFFIC &amp; NO₂</div>
           <strong>
             Traffic {point.trafficIndex.toFixed(2)}× · NO₂ {metrics.no2} µg/m³
           </strong>
-          <span className="small muted">Corridor: {profile.corridorType}</span>
+          <span className="small muted">{profile.corridorType}</span>
           <span className="small muted">
-            AI-prescribed corridor throttling: <strong>−{profile.aiScenario.trafficReductionPct}% vehicular load</strong>
+            AI target: <strong>−{profile.aiScenario.trafficReductionPct}% vehicular load</strong>
           </span>
         </div>
 
-        <div className="dataset-card">
+        <div
+          className={`dataset-card clickable ${activeDatasetId === 'diwali' ? 'active-dataset' : ''}`}
+          onClick={() => setActiveDatasetId('diwali')}
+        >
           <div className="dataset-tag">DATASET 05 // DIWALI PYROTECHNIC ARCHIVE</div>
           <strong>
-            {profile.crackerMultiplier.toFixed(2)}× Cracker Intensity · {diwaliPoint.aqi} Peak AQI
+            {profile.crackerMultiplier.toFixed(2)}× Cracker · {diwaliPoint.aqi} Peak AQI
           </strong>
           <span className="small muted">
-            Primary Driver: {point.drivers[0]?.label ?? 'Boundary-Layer Stagnation'} ({point.drivers[0]?.impactPct >= 0 ? '+' : ''}
+            Top Driver: {point.drivers[0]?.label ?? 'Stagnation'} (
+            {point.drivers[0]?.impactPct >= 0 ? '+' : ''}
             {point.drivers[0]?.impactPct.toFixed(0) ?? 0}%)
           </span>
           <span className="small muted">
-            AI-prescribed pyrotechnic curb: <strong>−{profile.aiScenario.fireworksReductionPct}% + {profile.aiScenario.artificialRain ? 'Smog-Gun Washout' : 'Canopy Buffer'}</strong>
+            AI target: <strong>−{profile.aiScenario.fireworksReductionPct}% + {profile.aiScenario.artificialRain ? 'Washout' : 'Canopy'}</strong>
           </span>
         </div>
+      </div>
+
+      {/* Deep-Dive Dataset Inspector Drawer */}
+      <div className="dataset-deep-dive">
+        <div className="dataset-deep-header">
+          <div>
+            <span className="dataset-tag">{activeDatasetSpec.code} // TECHNICAL PROVENANCE &amp; ML FEATURE MAPPING</span>
+            <h4>{activeDatasetSpec.title}</h4>
+          </div>
+          <span className="dataset-provider-pill">{activeDatasetSpec.provider}</span>
+        </div>
+        <div className="dataset-deep-grid">
+          <div className="dataset-deep-col">
+            <span className="muted small">SAMPLING CADENCE &amp; RESOLUTION</span>
+            <strong>{activeDatasetSpec.cadence}</strong>
+            <span className="small muted">{activeDatasetSpec.spatialResolution}</span>
+          </div>
+          <div className="dataset-deep-col">
+            <span className="muted small">PHYSICAL VARIABLES INGESTED</span>
+            <div className="inline-badge-list">
+              {activeDatasetSpec.variables.map((v) => (
+                <span key={v} className="schema-chip">
+                  {v}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="dataset-deep-col">
+            <span className="muted small">ENGINEERED MODEL FEATURES (RIDGE VECTOR x_t)</span>
+            <div className="inline-badge-list">
+              {activeDatasetSpec.modelFeatures.map((f) => (
+                <code key={f} className="feature-code-chip">
+                  {f}
+                </code>
+              ))}
+            </div>
+          </div>
+        </div>
+        <p className="dataset-methodology small">{activeDatasetSpec.methodology}</p>
       </div>
 
       {/* AI Autonomous Synthesis & Output */}
       <div className="ai-synthesis-box">
         <div className="ai-synthesis-left">
-          <div className="dataset-tag">AI HOTSPOT DIAGNOSIS &amp; AUTOMATED INTERVENTION PLAN</div>
+          <div className="dataset-tag">AI HOTSPOT DIAGNOSIS &amp; AUTOMATED INTERVENTION PLAN · {area.name.toUpperCase()}</div>
           <p className="ai-diagnosis-text">{profile.aiDiagnosis}</p>
           <p className="small muted" style={{ margin: 0 }}>
             <strong>AI Computed Prescription:</strong> {profile.aiActionSummary}
