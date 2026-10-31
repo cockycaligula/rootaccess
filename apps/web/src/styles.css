@@ -53,7 +53,20 @@ code { background: #222a38; padding: 2px 6px; border-radius: 4px; }
 .sim-slider input[type="range"] { width: 100%; accent-color: #4fb38a; }
 .sim-impact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
 .map-card { display: flex; flex-direction: column; gap: 12px; }
-.map { height: 560px; border-radius: 8px; }
+.map-wrapper { position: relative; border-radius: 8px; overflow: hidden; }
+.map { height: 560px; border-radius: 8px; z-index: 1; }
+.map-controls-overlay { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 8px; flex-wrap: wrap; }
+.map-style-switcher { display: flex; background: rgba(13, 17, 23, 0.88); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.map-chip { background: rgba(13, 17, 23, 0.88); color: var(--muted); border: 1px solid var(--border); padding: 5px 10px; font-size: 0.76rem; font-weight: 600; cursor: pointer; }
+.map-style-switcher .map-chip { border: none; border-right: 1px solid var(--border); border-radius: 0; }
+.map-style-switcher .map-chip:last-child { border-right: none; }
+.map-chip.active { background: #222b3b; color: #fff; }
+.aqi-pin-wrapper { background: transparent; border: none; }
+.aqi-pin { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 0.76rem; color: #111; border: 2px solid rgba(17, 17, 17, 0.55); transition: transform 0.15s ease; }
+.aqi-pin.selected { width: 38px; height: 38px; border: 2.5px solid #ffffff; transform: scale(1.1); }
+.map-legend { position: absolute; bottom: 10px; left: 10px; z-index: 500; display: flex; flex-wrap: wrap; gap: 6px 10px; background: rgba(13, 17, 23, 0.9); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 0.72rem; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
 .day-slider-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .day-slider input { width: 100%; accent-color: var(--diwali); }
