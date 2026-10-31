@@ -1,4 +1,4 @@
-# VaayuSense: Neighborhood-Level Diwali Air Quality Prediction for Patiala
+# VaayuVision: Neighborhood-Level Diwali Air Quality Prediction for Patiala
 
 > **root access hackathon — Problem statement:** *AI-Powered Neighborhood-Level Air Pollution Prediction System.*  
 > Predict neighborhood-level air pollution **before, during and after Diwali** using historical air-quality data,
