@@ -177,7 +177,38 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         <span className="why-cta">Click to see why →</span>
       </button>
 
-      {/* 4 Clean Clickable Section Tiles — No Long Text on Main Page */}
+      {/* 21-Day Timelapse Graph Directly on the Homescreen */}
+      <div className="homescreen-chart-section" style={{ marginTop: 14 }}>
+        <div className="chart-tabs" style={{ marginBottom: 8 }}>
+          <button
+            type="button"
+            className={`tab-btn ${chartTab === 'trend' ? 'active' : ''}`}
+            onClick={() => setChartTab('trend')}
+          >
+            21-Day AQI Timelapse Graph
+          </button>
+          <button
+            type="button"
+            className={`tab-btn ${chartTab === 'hourly' ? 'active' : ''}`}
+            onClick={() => setChartTab('hourly')}
+          >
+            24-Hour Profile ({formatDate(activeP.date)})
+          </button>
+        </div>
+        {chartTab === 'trend' ? (
+          <TrendChart
+            history={history}
+            points={points}
+            simulatedPoints={simulatedPoints}
+            selectedDate={activeP.date}
+            diwaliDate={diwaliDate}
+          />
+        ) : (
+          <HourlyChart point={baseP} simulatedPoint={simP} />
+        )}
+      </div>
+
+      {/* 3 Clean Clickable Section Tiles — No Long Text on Main Page */}
       <div className="clickable-cards-grid" style={{ marginTop: 12 }}>
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('demo-data')}>
           <span className="dataset-tag">SECTION A · DEMO DATA</span>
@@ -191,14 +222,8 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
           <span className="muted small">Click to open →</span>
         </button>
 
-        <button type="button" className="hub-action-card" onClick={() => setActiveDialog('charts')}>
-          <span className="dataset-tag">SECTION C · CHARTS</span>
-          <strong>21-Day &amp; 24-Hour Graphs</strong>
-          <span className="muted small">Click to open →</span>
-        </button>
-
         <button type="button" className="hub-action-card" onClick={() => setActiveDialog('health')}>
-          <span className="dataset-tag">SECTION D · HEALTH GUIDE</span>
+          <span className="dataset-tag">SECTION C · HEALTH GUIDE</span>
           <strong>{userName ? `${userName}’s Health Advice` : 'Personal Health Advice'}</strong>
           <span className="muted small">Click to open →</span>
         </button>
