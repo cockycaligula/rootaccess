@@ -873,15 +873,179 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
   gap: 8px;
   transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
-.surface-action-pill.primary-insight {
+.surface-action-pill.primary-insight,
+.surface-action-pill.inspect-drawer-btn {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.34), rgba(29, 78, 216, 0.24));
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #ffffff;
+}
+.surface-action-pill.active-accordion {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(29, 78, 216, 0.2));
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  color: var(--text);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #ffffff;
 }
 .surface-action-pill:hover {
   background: var(--surface-hover);
   color: #fff;
   transform: translateY(-1px);
+}
+.inline-accordion-drawer {
+  background: rgba(11, 23, 52, 0.52);
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+
+/* AI Hotspot & Demo Data Inspector — Carousel Switcher & Progressive Disclosure Tabs */
+.inspector-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.inspector-heading {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 2px 0 3px;
+  color: #ffffff;
+}
+.inspector-switcher-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.carousel-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dock-btn.icon-only {
+  width: 36px;
+  padding: 0;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.area-dropdown-trigger {
+  min-width: 170px;
+}
+.area-carousel-drawer {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: rgba(8, 17, 38, 0.65);
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 16px;
+}
+.area-carousel-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.area-carousel-track .hotspot-pill {
+  flex-shrink: 0;
+}
+
+.active-area-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+@media (max-width: 760px) {
+  .active-area-summary-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.summary-stat {
+  background: var(--card-inner);
+  border-radius: 14px;
+  padding: 12px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.summary-stat strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.inspector-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 5px;
+  background: rgba(7, 14, 32, 0.6);
+  border: 1px solid rgba(147, 197, 253, 0.1);
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+.inspector-tab-btn {
+  flex: 1;
+  min-width: 150px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.inspector-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(96, 165, 250, 0.1);
+}
+.inspector-tab-btn.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.42), rgba(29, 78, 216, 0.3));
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(2, 8, 24, 0.35), inset 0 0 0 1px rgba(96, 165, 250, 0.48);
+}
+.inspector-tab-panel {
+  min-height: 180px;
+}
+.table-scroll-wrap {
+  max-height: 360px;
+  overflow-y: auto;
+  border-radius: 14px;
+}
+
+/* Slide-Out Deep Dive Drawer (Right Side Sheet) */
+.deep-dive-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9400;
+  background: rgba(3, 8, 22, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: flex-end;
+}
+.deep-dive-drawer {
+  width: min(680px, 94vw);
+  height: 100vh;
+  overflow-y: auto;
+  background: linear-gradient(160deg, #0f1f44 0%, #081229 55%, #050b1a 100%);
+  border-left: 1px solid rgba(96, 165, 250, 0.35);
+  padding: 28px 30px 44px;
+  box-shadow: -24px 0 64px rgba(2, 6, 20, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  animation: drawerSlideIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes drawerSlideIn {
+  0% { transform: translateX(100%); opacity: 0.4; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.drawer-secondary-section {
+  padding-top: 22px;
+  border-top: 1px solid rgba(147, 197, 253, 0.14);
 }
 .status-dot {
   width: 8px;

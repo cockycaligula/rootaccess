@@ -7,7 +7,6 @@ import {
 } from '@vaayuvision/shared';
 import { api } from '../api';
 import { buildPollutantMetrics, useUserPreferences } from '../context/UserPreferencesContext';
-import { formatDate } from '../format';
 
 interface Props {
   forecasts: NeighborhoodForecast[];
@@ -17,6 +16,7 @@ interface Props {
   scenario: InterventionScenario;
   onChange: (next: InterventionScenario) => void;
   result: SimulationResult | null;
+  onCloseDrawer?: () => void;
 }
 
 interface HotspotDatasetProfile {
@@ -29,7 +29,7 @@ interface HotspotDatasetProfile {
   aiActionSummary: string;
 }
 
-type SimulatorDialog = 'demo' | 'prediction' | 'all-areas' | null;
+type InspectorTab = 'overview' | 'insights' | 'comparison';
 
 const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
   'thapar-prem-nagar': {
@@ -118,51 +118,51 @@ const HOTSPOT_PROFILES: Record<string, HotspotDatasetProfile> = {
     aiDiagnosis:
       'According to Urban Estate Phase-2 demo data, eastern agricultural smoke combines with residential festival fireworks.',
     aiActionSummary:
-      '65% eastern agricultural smoke control, 65% residential cracker reduction, and 35% bypass traffic smoothing.',
+      '65% eastern perimeter crop-smoke & firework reduction, 35% bypass traffic management, and misting.',
   },
   'ranjit-nagar': {
-    corridorType: 'North-West Residential Belt',
+    corridorType: 'NW Residential Perimeter',
     trafficVehiclesPerHr: 1600,
     crackerIndex: '1.10× (High Residential Fireworks)',
-    stubbleIndex: '1.05× (Direct NW Field Edge)',
-    aiScenario: { fireworksReductionPct: 60, trafficReductionPct: 40, stubbleReductionPct: 75, artificialRain: true },
+    stubbleIndex: '1.05× (Direct NW Crop Smoke Inflow)',
+    aiScenario: { fireworksReductionPct: 60, trafficReductionPct: 40, stubbleReductionPct: 70, artificialRain: true },
     aiDiagnosis:
-      'According to Ranjit Nagar demo data, direct proximity to NW agricultural fields brings high paddy-stubble smoke and road dust.',
+      'According to Ranjit Nagar demo data, direct proximity to NW fields brings strong crop-smoke plumes alongside residential fireworks.',
     aiActionSummary:
-      '75% north-west crop-residue management, 60% firework control, and 40% Bhadson Rd heavy-vehicle curb.',
+      '70% NW crop-residue smoke abatement, 60% firework reduction, and 40% Bhadson Rd outer traffic control.',
   },
   'sanaur-road': {
     corridorType: 'Southern Agricultural & Mandi Belt',
     trafficVehiclesPerHr: 1250,
-    crackerIndex: '0.95× (Peri-Urban Belt)',
-    stubbleIndex: '1.20× (Peak Southern Malwa Plume)',
-    aiScenario: { fireworksReductionPct: 50, trafficReductionPct: 30, stubbleReductionPct: 85, artificialRain: true },
+    crackerIndex: '0.95× (Moderate Peri-Urban Fireworks)',
+    stubbleIndex: '1.20× (Peak Southern Crop Smoke Exposure)',
+    aiScenario: { fireworksReductionPct: 45, trafficReductionPct: 35, stubbleReductionPct: 80, artificialRain: true },
     aiDiagnosis:
-      'According to Sanaur Road demo data, southern Malwa paddy-stubble smoke (1.20× index) is the primary pollution driver.',
+      'According to Sanaur Road belt demo data, regional crop-residue smoke (1.20× exposure) is the #1 pollution driver here.',
     aiActionSummary:
-      '85% southern Malwa stubble-fire control, 50% cracker restriction, and 30% mandi transport scheduling.',
+      '80% regional crop-smoke intervention, 45% firework reduction, and 35% mandi freight dust control.',
   },
   'punjabi-uni': {
-    corridorType: 'Green University Campus',
+    corridorType: 'Institutional Green Campus',
     trafficVehiclesPerHr: 980,
-    crackerIndex: '0.75× (Low Campus Activity)',
+    crackerIndex: '0.75× (Low Campus Fireworks)',
     stubbleIndex: '0.90× (Regional Drift)',
-    aiScenario: { fireworksReductionPct: 50, trafficReductionPct: 30, stubbleReductionPct: 65, artificialRain: false },
+    aiScenario: { fireworksReductionPct: 45, trafficReductionPct: 30, stubbleReductionPct: 60, artificialRain: false },
     aiDiagnosis:
-      'According to Punjabi University demo data, dense campus tree cover keeps local air cleaner, with regional crop smoke as the main external factor.',
+      'According to Punjabi University demo data, dense campus tree cover filters local dust, so pollution mainly drifts in from highway traffic and regional smoke.',
     aiActionSummary:
-      '65% regional crop-smoke reduction, 50% firework-free campus buffer, and 30% highway perimeter smoothing.',
+      '60% regional crop-smoke control, 45% perimeter firework curb, and 30% Rajpura highway traffic smoothing.',
   },
   'baradari-gardens': {
-    corridorType: 'Heritage Urban Green Buffer',
+    corridorType: 'Heritage Urban Forest & Green Buffer',
     trafficVehiclesPerHr: 820,
-    crackerIndex: '0.70× (Protected Green Zone)',
-    stubbleIndex: '0.80× (Canopy Filtered)',
-    aiScenario: { fireworksReductionPct: 55, trafficReductionPct: 35, stubbleReductionPct: 60, artificialRain: false },
+    crackerIndex: '0.70× (Lowest Firecracker Zone)',
+    stubbleIndex: '0.80× (Canopy-Filtered Zone)',
+    aiScenario: { fireworksReductionPct: 50, trafficReductionPct: 30, stubbleReductionPct: 55, artificialRain: false },
     aiDiagnosis:
-      'According to Baradari Gardens demo data, this is Patiala’s cleanest green refuge, affected mainly when calm night air traps drifting city smoke.',
+      'According to Baradari Gardens demo data, this is Patiala’s cleanest area thanks to dense botanical canopy, experiencing only mild drifting smoke on Diwali night.',
     aiActionSummary:
-      '60% regional crop-smoke control, 55% buffer-zone firework restriction, and 35% perimeter traffic calming.',
+      '50% surrounding buffer firework restriction, 55% regional smoke control, and 30% perimeter traffic calming.',
   },
 };
 
@@ -173,12 +173,15 @@ export function WhatIfSimulator({
   onSelectArea,
   onChange,
   result,
+  onCloseDrawer,
 }: Props) {
   const [aiResult, setAiResult] = useState<SimulationResult | null>(result);
-  const [dialog, setDialog] = useState<SimulatorDialog>(null);
+  const [activeTab, setActiveTab] = useState<InspectorTab>('overview');
+  const [pickerOpen, setPickerOpen] = useState(false);
   const { profile: userProfile } = useUserPreferences();
 
-  const selectedForecast = forecasts.find((f) => f.neighborhood.id === selectedId) ?? forecasts[0];
+  const currentIdx = Math.max(0, forecasts.findIndex((f) => f.neighborhood.id === selectedId));
+  const selectedForecast = forecasts[currentIdx] ?? forecasts[0];
   const area = selectedForecast.neighborhood;
   const point = selectedForecast.points[dayIndex] ?? selectedForecast.points[0];
   const profile = HOTSPOT_PROFILES[area.id] ?? HOTSPOT_PROFILES['thapar-prem-nagar'];
@@ -201,195 +204,284 @@ export function WhatIfSimulator({
   const activeSim = result ?? aiResult;
   const userName = userProfile.name.trim();
 
+  const stepArea = (delta: number) => {
+    const nextIdx = (currentIdx + delta + forecasts.length) % forecasts.length;
+    onSelectArea(forecasts[nextIdx].neighborhood.id);
+  };
+
   return (
     <div className="simulator ai-analyzer">
-      <div className="sim-header">
+      {/* Header + Active Area Summary Switcher (No 12-Pill Clutter) */}
+      <div className="inspector-top-bar">
         <div>
-          <span className="section-kicker">SECTION 03 · AI HOTSPOT &amp; DEMO DATA INSPECTOR</span>
-          <h3>{area.name} · AI Insights</h3>
+          <span className="section-kicker">AI HOTSPOT &amp; DEMO DATA INSPECTOR</span>
+          <h3 className="inspector-heading">{area.name}</h3>
+          <span className="muted small">{profile.corridorType}</span>
+        </div>
+
+        <div className="inspector-switcher-controls">
+          <div className="carousel-stepper">
+            <button
+              type="button"
+              className="dock-btn icon-only"
+              onClick={() => stepArea(-1)}
+              title="Previous Area"
+              aria-label="Previous Area"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              className="dock-btn area-dropdown-trigger"
+              onClick={() => setPickerOpen((v) => !v)}
+              aria-expanded={pickerOpen}
+            >
+              <span className="status-dot" style={{ background: aqiColor(point.aqi) }} />
+              <span>
+                {currentIdx + 1}/{forecasts.length} · Switch Area
+              </span>
+              <span>{pickerOpen ? '▴' : '▾'}</span>
+            </button>
+            <button
+              type="button"
+              className="dock-btn icon-only"
+              onClick={() => stepArea(1)}
+              title="Next Area"
+              aria-label="Next Area"
+            >
+              ›
+            </button>
+          </div>
+
+          {onCloseDrawer && (
+            <button type="button" className="dock-btn" onClick={onCloseDrawer}>
+              Close ✕
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Clean Area Selector Bar */}
-      <div className="hotspot-pill-bar" role="tablist" aria-label="Patiala Areas">
-        {forecasts.map((f) => {
-          const p = f.points[dayIndex] ?? f.points[0];
-          const active = f.neighborhood.id === area.id;
-          return (
-            <button
-              key={f.neighborhood.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              className={`hotspot-pill ${active ? 'active' : ''}`}
-              onClick={() => onSelectArea(f.neighborhood.id)}
-            >
-              <span className="dot" style={{ background: aqiColor(p.aqi) }} />
-              <span>{f.neighborhood.name}</span>
-              <span className="hotspot-pill-aqi">AQI {p.aqi}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Collapsible Horizontal Carousel / Dropdown Selector — Only Visible When Toggled */}
+      {pickerOpen && (
+        <div className="area-carousel-drawer" role="listbox" aria-label="Switch Patiala Area">
+          <div className="area-carousel-track">
+            {forecasts.map((f) => {
+              const p = f.points[dayIndex] ?? f.points[0];
+              const active = f.neighborhood.id === area.id;
+              return (
+                <button
+                  key={f.neighborhood.id}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  className={`hotspot-pill ${active ? 'active' : ''}`}
+                  onClick={() => {
+                    onSelectArea(f.neighborhood.id);
+                    setPickerOpen(false);
+                  }}
+                >
+                  <span className="status-dot" style={{ background: aqiColor(p.aqi) }} />
+                  <span>{f.neighborhood.name}</span>
+                  <span className="hotspot-pill-aqi">AQI {p.aqi}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-      {/* 3 Clickable Cards that open Dialog Boxes — No Long Descriptions on Main Page */}
-      <div className="clickable-cards-grid three-col">
-        <button type="button" className="hub-action-card" onClick={() => setDialog('demo')}>
-          <span className="dataset-tag">1. NEIGHBORHOOD DEMO DATA</span>
-          <strong>Traffic ({profile.trafficVehiclesPerHr}/hr) &amp; Firecrackers</strong>
-          <span className="muted small">Click to open →</span>
-        </button>
-
-        <button type="button" className="hub-action-card" onClick={() => setDialog('prediction')}>
-          <span className="dataset-tag">2. WHY &amp; AI ACTION PLAN</span>
-          <strong>
-            {activeSim
-              ? `AQI ${activeSim.diwaliPeakBaselineAqi} → ${activeSim.diwaliPeakSimulatedAqi}`
-              : `Current AQI ${point.aqi}`}
+      {/* Currently Active Area Summary Strip */}
+      <div className="active-area-summary-strip">
+        <div className="summary-stat">
+          <span className="ambient-metric-label">CURRENT AQI</span>
+          <strong style={{ color: aqiColor(point.aqi) }}>
+            {point.aqi} ({point.category})
           </strong>
-          <span className="muted small">Click to open →</span>
-        </button>
+        </div>
+        <div className="summary-stat">
+          <span className="ambient-metric-label">TRAFFIC FLOW</span>
+          <strong>~{profile.trafficVehiclesPerHr.toLocaleString()}/hr</strong>
+        </div>
+        <div className="summary-stat">
+          <span className="ambient-metric-label">FIRECRACKER INDEX</span>
+          <strong>{profile.crackerIndex.split(' ')[0]}</strong>
+        </div>
+        <div className="summary-stat">
+          <span className="ambient-metric-label">DIWALI PEAK MITIGATION</span>
+          <strong className="down-text">
+            {activeSim
+              ? `${activeSim.diwaliPeakBaselineAqi} → ${activeSim.diwaliPeakSimulatedAqi} AQI`
+              : `−${profile.aiScenario.fireworksReductionPct}% plan`}
+          </strong>
+        </div>
+      </div>
 
-        <button type="button" className="hub-action-card" onClick={() => setDialog('all-areas')}>
-          <span className="dataset-tag">3. ALL 12 AREAS COMPARISON</span>
-          <strong>Compare Traffic &amp; AQI</strong>
-          <span className="muted small">Click to open →</span>
+      {/* Progressive Disclosure Tabs — Only One Section Expands at a Time */}
+      <div className="inspector-tabs" role="tablist" aria-label="Hotspot Inspector Views">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'overview'}
+          className={`inspector-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          Overview · Demo Data
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'insights'}
+          className={`inspector-tab-btn ${activeTab === 'insights' ? 'active' : ''}`}
+          onClick={() => setActiveTab('insights')}
+        >
+          AI Insights &amp; Action Plan
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'comparison'}
+          className={`inspector-tab-btn ${activeTab === 'comparison' ? 'active' : ''}`}
+          onClick={() => setActiveTab('comparison')}
+        >
+          All 12 Areas Comparison
         </button>
       </div>
 
-      {/* Dialog Box for Demo Data / AI Prediction / 12-Area Table */}
-      {dialog && (
-        <div className="pref-modal-backdrop" onClick={() => setDialog(null)} role="dialog" aria-modal="true">
-          <div className="pref-modal detail-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="pref-modal-header">
-              <div>
-                <span className="pref-kicker">{area.name.toUpperCase()} · {formatDate(point.date, true).toUpperCase()}</span>
-                <h2>
-                  {dialog === 'demo' && `Demo Datasets for ${area.name}`}
-                  {dialog === 'prediction' && `AI Predictions for ${area.name}`}
-                  {dialog === 'all-areas' && `Patiala 12-Neighborhood Demo Data & AI Predictions`}
-                </h2>
-              </div>
-              <button type="button" className="btn-secondary" onClick={() => setDialog(null)}>
-                Close ✕
-              </button>
+      {/* Tab 1: Overview (Neighborhood Demo Data) */}
+      {activeTab === 'overview' && (
+        <div className="inspector-tab-panel stage-transition">
+          <div className="dialog-grid-2">
+            <div className="dialog-stat-card">
+              <span className="dataset-tag">TRAFFIC DEMO DATA</span>
+              <strong>
+                ~{profile.trafficVehiclesPerHr.toLocaleString()} vehicles/hr ({point.trafficIndex.toFixed(2)}×)
+              </strong>
+              <span className="small muted">
+                Corridor: {profile.corridorType} · Exhaust NO₂: {metrics.no2} µg/m³
+              </span>
             </div>
+            <div className="dialog-stat-card">
+              <span className="dataset-tag">FIRECRACKER DEMO DATA</span>
+              <strong>{profile.crackerIndex}</strong>
+              <span className="small muted">Historical Diwali evening barium/sulfur smoke intensity</span>
+            </div>
+            <div className="dialog-stat-card">
+              <span className="dataset-tag">CROP SMOKE DEMO DATA (NASA VIIRS)</span>
+              <strong>
+                {point.fireCount} Upwind Fires · {profile.stubbleIndex}
+              </strong>
+              <span className="small muted">Malwa paddy-stubble plume transport into {area.name}</span>
+            </div>
+            <div className="dialog-stat-card">
+              <span className="dataset-tag">WEATHER &amp; SENSORS DEMO DATA</span>
+              <strong>
+                PM2.5 {metrics.pm25} µg/m³ · Wind {point.weather.windSpeed.toFixed(1)} m/s
+              </strong>
+              <span className="small muted">
+                PM10 {metrics.pm10} µg/m³ · Humidity {Math.round(point.weather.humidity)}% · Temp{' '}
+                {point.weather.tempC.toFixed(1)} °C
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
-            {dialog === 'demo' && (
-              <div className="dialog-body">
-                <p className="muted small">
-                  Our AI gathered the following neighborhood demo data for <strong>{area.name}</strong>:
-                </p>
-                <div className="dialog-grid-2">
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">TRAFFIC DEMO DATA</span>
-                    <strong>~{profile.trafficVehiclesPerHr.toLocaleString()} vehicles/hr ({point.trafficIndex.toFixed(2)}×)</strong>
-                    <span className="small muted">
-                      Corridor: {profile.corridorType} · Exhaust NO₂: {metrics.no2} µg/m³
-                    </span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">FIRECRACKER DEMO DATA</span>
-                    <strong>{profile.crackerIndex}</strong>
-                    <span className="small muted">Historical Diwali evening barium/sulfur smoke intensity</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">CROP SMOKE DEMO DATA</span>
-                    <strong>{point.fireCount} Upwind Fires · {profile.stubbleIndex}</strong>
-                    <span className="small muted">NASA VIIRS Malwa paddy-stubble smoke transport</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">WEATHER &amp; SENSORS DEMO DATA</span>
-                    <strong>
-                      PM2.5 {metrics.pm25} µg/m³ · Wind {point.weather.windSpeed.toFixed(1)} m/s
-                    </strong>
-                    <span className="small muted">
-                      PM10 {metrics.pm10} µg/m³ · Humidity {Math.round(point.weather.humidity)}% · Temp{' '}
-                      {point.weather.tempC.toFixed(1)} °C
-                    </span>
-                  </div>
-                </div>
+      {/* Tab 2: AI Insights & Action Plan */}
+      {activeTab === 'insights' && (
+        <div className="inspector-tab-panel stage-transition">
+          <div className="personal-advice-card">
+            <span className="dataset-tag">AI CAUSE DIAGNOSIS FOR {area.name.toUpperCase()}</span>
+            <p className="verdict-lead" style={{ margin: '4px 0 0' }}>
+              {userName ? `${userName}, ` : ''}
+              {profile.aiDiagnosis}
+            </p>
+          </div>
+
+          {activeSim && (
+            <div className="sim-impact">
+              <div className="metric">
+                <span className="muted small">Predicted Diwali Peak AQI</span>
+                <strong>
+                  <span style={{ color: aqiColor(activeSim.diwaliPeakBaselineAqi) }}>
+                    {activeSim.diwaliPeakBaselineAqi}
+                  </span>
+                  {' → '}
+                  <span style={{ color: aqiColor(activeSim.diwaliPeakSimulatedAqi) }}>
+                    {activeSim.diwaliPeakSimulatedAqi}
+                  </span>
+                </strong>
+                <span className="small down-text">Before vs. After AI Plan</span>
               </div>
-            )}
-
-            {dialog === 'prediction' && activeSim && (
-              <div className="dialog-body">
-                <p className="verdict-lead">
-                  {userName ? `${userName}, ` : ''}
-                  {profile.aiDiagnosis}
-                </p>
-                <div className="sim-impact">
-                  <div className="metric">
-                    <span className="muted small">Predicted Diwali Peak AQI</span>
-                    <strong>
-                      <span style={{ color: aqiColor(activeSim.diwaliPeakBaselineAqi) }}>
-                        {activeSim.diwaliPeakBaselineAqi}
-                      </span>
-                      {' → '}
-                      <span style={{ color: aqiColor(activeSim.diwaliPeakSimulatedAqi) }}>
-                        {activeSim.diwaliPeakSimulatedAqi}
-                      </span>
-                    </strong>
-                    <span className="small down-text">Before vs. After AI Plan</span>
-                  </div>
-                  <div className="metric">
-                    <span className="muted small">Peak PM2.5 Reduced</span>
-                    <strong className="down-text">−{activeSim.diwaliPeakPm25Saved} µg/m³</strong>
-                    <span className="small muted">Cleaner air on Diwali night</span>
-                  </div>
-                  <div className="metric">
-                    <span className="muted small">21-Day Avg Improvement</span>
-                    <strong className="down-text">−{activeSim.avgPm25SavedPct}%</strong>
-                    <span className="small muted">Across the 21-day forecast</span>
-                  </div>
-                </div>
-                <div className="personal-advice-card" style={{ marginTop: 14, marginBottom: 0 }}>
-                  <strong>AI Action Plan for {area.name}:</strong>
-                  <span className="small muted">{profile.aiActionSummary}</span>
-                </div>
+              <div className="metric">
+                <span className="muted small">Peak PM2.5 Reduced</span>
+                <strong className="down-text">−{activeSim.diwaliPeakPm25Saved} µg/m³</strong>
+                <span className="small muted">Cleaner air on Diwali night</span>
               </div>
-            )}
+              <div className="metric">
+                <span className="muted small">21-Day Avg Improvement</span>
+                <strong className="down-text">−{activeSim.avgPm25SavedPct}%</strong>
+                <span className="small muted">Across the 21-day forecast</span>
+              </div>
+            </div>
+          )}
 
-            {dialog === 'all-areas' && (
-              <div className="dialog-body">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Neighborhood</th>
-                      <th>Traffic Demo</th>
-                      <th>Firecracker Index</th>
-                      <th>Predicted AQI</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {forecasts.map((f) => {
-                      const p = f.points[dayIndex] ?? f.points[0];
-                      const hp = HOTSPOT_PROFILES[f.neighborhood.id] ?? HOTSPOT_PROFILES['thapar-prem-nagar'];
-                      return (
-                        <tr
-                          key={f.neighborhood.id}
-                          className={f.neighborhood.id === area.id ? 'selected' : ''}
-                          onClick={() => {
-                            onSelectArea(f.neighborhood.id);
-                            setDialog('prediction');
+          <div className="personal-advice-card" style={{ marginTop: 14, marginBottom: 0 }}>
+            <span className="dataset-tag">RECOMMENDED MITIGATION PROTOCOL</span>
+            <span className="small">{profile.aiActionSummary}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 3: All 12 Areas Comparison */}
+      {activeTab === 'comparison' && (
+        <div className="inspector-tab-panel stage-transition">
+          <div className="table-scroll-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Neighborhood</th>
+                  <th>Traffic Demo</th>
+                  <th>Firecracker Index</th>
+                  <th>Current AQI</th>
+                </tr>
+              </thead>
+              <tbody>
+                {forecasts.map((f) => {
+                  const p = f.points[dayIndex] ?? f.points[0];
+                  const hp = HOTSPOT_PROFILES[f.neighborhood.id] ?? HOTSPOT_PROFILES['thapar-prem-nagar'];
+                  return (
+                    <tr
+                      key={f.neighborhood.id}
+                      className={f.neighborhood.id === area.id ? 'selected' : ''}
+                      onClick={() => {
+                        onSelectArea(f.neighborhood.id);
+                        setActiveTab('overview');
+                      }}
+                    >
+                      <td>
+                        <strong>{f.neighborhood.name}</strong>
+                      </td>
+                      <td>~{hp.trafficVehiclesPerHr}/hr</td>
+                      <td>{hp.crackerIndex.split(' ')[0]}</td>
+                      <td>
+                        <span
+                          className="soft-aqi-badge compact"
+                          style={{
+                            background: `${aqiColor(p.aqi)}20`,
+                            borderColor: `${aqiColor(p.aqi)}55`,
                           }}
                         >
-                          <td>
-                            <strong>{f.neighborhood.name}</strong>
-                          </td>
-                          <td>~{hp.trafficVehiclesPerHr}/hr</td>
-                          <td>{hp.crackerIndex.split(' ')[0]}</td>
-                          <td>
-                            <span className="dot" style={{ background: aqiColor(p.aqi) }} />
-                            <strong>AQI {p.aqi}</strong> ({p.pm25} µg/m³)
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                          <span className="status-dot" style={{ background: aqiColor(p.aqi) }} />
+                          <span>
+                            {p.aqi} · {p.category}
+                          </span>
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

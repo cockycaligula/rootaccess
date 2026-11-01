@@ -19,9 +19,10 @@ interface Props {
   outlook: DiwaliOutlook | null;
   dayIndex: number;
   diwaliDate: string;
+  onInspectArea?: () => void;
 }
 
-type DialogType = 'why-area' | 'demo-data' | 'ai-predictions' | 'charts' | 'health' | null;
+type AccordionSection = 'why-area' | 'ai-predictions' | 'health' | null;
 
 const PHASE_TITLES = {
   before: 'Before Diwali (7 Days Prior)',
@@ -125,8 +126,16 @@ const AREA_DEMO_PROFILE: Record<
   },
 };
 
-export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook, dayIndex, diwaliDate }: Props) {
-  const [activeDialog, setActiveDialog] = useState<DialogType>(null);
+export function NeighborhoodPanel({
+  forecast,
+  simulatedPoints,
+  history,
+  outlook,
+  dayIndex,
+  diwaliDate,
+  onInspectArea,
+}: Props) {
+  const [expandedTab, setExpandedTab] = useState<AccordionSection>(null);
   const [chartTab, setChartTab] = useState<'trend' | 'hourly'>('trend');
   const { profile, openModal } = useUserPreferences();
 
@@ -140,6 +149,10 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
   const metrics = buildPollutantMetrics(n, activeP);
   const userName = profile.name.trim();
   const isGoodAqi = activeP.aqi <= 180;
+
+  const toggleSection = (sec: AccordionSection) => {
+    setExpandedTab((prev) => (prev === sec ? null : sec));
+  };
 
   return (
     <div className="panel">
@@ -240,225 +253,124 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         )}
       </div>
 
-      {/* Clean Secondary Action Pills — No Heavy Nested Boxes */}
+      {/* Progressive Disclosure Accordion Strip + Slide-Out Deep Dive Trigger */}
       <div className="secondary-actions-strip">
+        {onInspectArea && (
+          <button
+            type="button"
+            className="surface-action-pill inspect-drawer-btn"
+            onClick={onInspectArea}
+          >
+            <span className="status-dot" style={{ background: '#60a5fa', boxShadow: '0 0 8px #60a5fa' }} />
+            <span>Inspect Area · Deep Dive</span>
+            <span className="pill-arrow">▸</span>
+          </button>
+        )}
+
         <button
           type="button"
-          className="surface-action-pill primary-insight"
-          onClick={() => setActiveDialog('why-area')}
+          className={`surface-action-pill ${expandedTab === 'why-area' ? 'active-accordion' : ''}`}
+          onClick={() => toggleSection('why-area')}
+          aria-expanded={expandedTab === 'why-area'}
         >
           <span className="status-dot" style={{ background: isGoodAqi ? '#74c69d' : '#e76f51' }} />
-          <span>Why {n.name} is {activeP.category}</span>
-          <span className="pill-arrow">→</span>
+          <span>Why {activeP.category}</span>
+          <span className="pill-arrow">{expandedTab === 'why-area' ? '▴' : '▾'}</span>
         </button>
 
-        <button type="button" className="surface-action-pill" onClick={() => setActiveDialog('demo-data')}>
-          <span>Traffic &amp; Fireworks</span>
-          <span className="pill-arrow">→</span>
-        </button>
-
-        <button type="button" className="surface-action-pill" onClick={() => setActiveDialog('ai-predictions')}>
+        <button
+          type="button"
+          className={`surface-action-pill ${expandedTab === 'ai-predictions' ? 'active-accordion' : ''}`}
+          onClick={() => toggleSection('ai-predictions')}
+          aria-expanded={expandedTab === 'ai-predictions'}
+        >
           <span>Diwali Phases</span>
-          <span className="pill-arrow">→</span>
+          <span className="pill-arrow">{expandedTab === 'ai-predictions' ? '▴' : '▾'}</span>
         </button>
 
-        <button type="button" className="surface-action-pill" onClick={() => setActiveDialog('health')}>
+        <button
+          type="button"
+          className={`surface-action-pill ${expandedTab === 'health' ? 'active-accordion' : ''}`}
+          onClick={() => toggleSection('health')}
+          aria-expanded={expandedTab === 'health'}
+        >
           <span>{userName ? `${userName}’s Health Guide` : 'Health Guide'}</span>
-          <span className="pill-arrow">→</span>
+          <span className="pill-arrow">{expandedTab === 'health' ? '▴' : '▾'}</span>
         </button>
       </div>
 
-      {/* Modal Dialog Box for whichever card the user clicked */}
-      {activeDialog && (
-        <div
-          className="pref-modal-backdrop"
-          onClick={() => setActiveDialog(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="pref-modal detail-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="pref-modal-header">
-              <div>
-                <span className="pref-kicker">{n.name.toUpperCase()} · {formatDate(activeP.date, true).toUpperCase()}</span>
-                <h2>
-                  {activeDialog === 'why-area' && `Why ${n.name} Has AQI ${activeP.aqi} (${activeP.category})`}
-                  {activeDialog === 'demo-data' && `Neighborhood Demo Data · ${n.name}`}
-                  {activeDialog === 'ai-predictions' && `AI Predictions · ${n.name}`}
-                  {activeDialog === 'charts' && `21-Day & 24-Hour Forecast Charts · ${n.name}`}
-                  {activeDialog === 'health' && `Personalized Health Guidance · ${n.name}`}
-                </h2>
+      {/* Single Active Progressive-Disclosure Drawer Panel */}
+      {expandedTab === 'why-area' && (
+        <div className="inline-accordion-drawer stage-transition">
+          <div className="personal-advice-card" style={{ marginBottom: 10 }}>
+            <strong>Why {n.name} Has AQI {activeP.aqi} Today:</strong>
+            <span className="small muted">{demo.corridorNote}</span>
+          </div>
+          <ul className="drivers">
+            {activeP.drivers.slice(0, 4).map((d) => (
+              <li key={d.key}>
+                <span>{d.label}</span>
+                <span className="bar-wrap">
+                  <span
+                    className={`bar ${d.impactPct >= 0 ? 'up' : 'down'}`}
+                    style={{ width: `${Math.min(100, Math.abs(d.impactPct) / 2)}%` }}
+                  />
+                </span>
+                <span className={d.impactPct >= 0 ? 'up-text' : 'down-text'}>
+                  {d.impactPct >= 0 ? '+' : ''}
+                  {d.impactPct.toFixed(0)}%
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {expandedTab === 'ai-predictions' && outlook && (
+        <div className="inline-accordion-drawer stage-transition">
+          <div className="outlook" style={{ marginTop: 0 }}>
+            {outlook.phases.map((ph) => (
+              <div key={ph.phase} className="outlook-card" style={{ borderColor: aqiColor(ph.avgAqi) }}>
+                <span className="muted small">{PHASE_TITLES[ph.phase]}</span>
+                <strong style={{ color: aqiColor(ph.avgAqi), fontSize: '1.25rem' }}>AQI {ph.avgAqi}</strong>
+                <span className="small">
+                  {ph.category} · Peak {ph.peakAqi}
+                </span>
               </div>
-              <button type="button" className="btn-secondary" onClick={() => setActiveDialog(null)}>
-                Close ✕
+            ))}
+          </div>
+        </div>
+      )}
+
+      {expandedTab === 'health' && (
+        <div className="inline-accordion-drawer stage-transition">
+          <div className="personal-advice-card" style={{ marginBottom: 10 }}>
+            <div className="personal-advice-top">
+              <strong>
+                {userName ? `Profile: ${userName}` : 'Profile: Guest'}
+                {profile.conditions.length > 0
+                  ? ` · ${profile.conditions.join(', ')}`
+                  : ' · General Safe Mode'}
+              </strong>
+              <button
+                type="button"
+                className="inline-link-btn"
+                onClick={openModal}
+              >
+                Edit Profile
               </button>
             </div>
-
-            {activeDialog === 'why-area' && (
-              <div className="dialog-body">
-                <div className="personal-advice-card">
-                  <strong>AI Explanation for {n.name}:</strong>
-                  <span className="small muted">{demo.corridorNote}</span>
-                </div>
-                <div className="dialog-grid-2">
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">POLLUTANT BREAKDOWN</span>
-                    <strong>
-                      PM2.5: {metrics.pm25} · PM10: {metrics.pm10} · NO₂: {metrics.no2} µg/m³
-                    </strong>
-                    <span className="small muted">Indian CPCB Category: {activeP.category}</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">SAFEST OUTDOOR WINDOW</span>
-                    <strong style={{ color: '#74c69d' }}>1:00 PM – 4:00 PM IST</strong>
-                    <span className="small muted">Afternoon sunlight lifts the boundary layer</span>
-                  </div>
-                </div>
-                <h3>Top Factors Driving AQI in {n.name}</h3>
-                <ul className="drivers">
-                  {activeP.drivers.slice(0, 5).map((d) => (
-                    <li key={d.key}>
-                      <span>{d.label}</span>
-                      <span className="bar-wrap">
-                        <span
-                          className={`bar ${d.impactPct >= 0 ? 'up' : 'down'}`}
-                          style={{ width: `${Math.min(100, Math.abs(d.impactPct) / 2)}%` }}
-                        />
-                      </span>
-                      <span className={d.impactPct >= 0 ? 'up-text' : 'down-text'}>
-                        {d.impactPct >= 0 ? '+' : ''}
-                        {d.impactPct.toFixed(0)}%
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {activeDialog === 'demo-data' && (
-              <div className="dialog-body">
-                <div className="dialog-grid-2">
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">1. TRAFFIC &amp; CORRIDOR DEMO DATA</span>
-                    <strong>{demo.trafficFlow}</strong>
-                    <span className="small muted">
-                      Traffic Multiplier: <strong>{activeP.trafficIndex.toFixed(2)}×</strong> · Exhaust NO₂:{' '}
-                      <strong>{metrics.no2} µg/m³</strong>
-                    </span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">2. FIRECRACKER DEMO DATA</span>
-                    <strong>{demo.crackerIntensity}</strong>
-                    <span className="small muted">Expected Effect: {demo.crackerPct}</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">3. CROP SMOKE DEMO DATA (NASA VIIRS)</span>
-                    <strong>{activeP.fireCount} Upwind Fires Detected</strong>
-                    <span className="small muted">{demo.stubbleSmoke}</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">4. WEATHER &amp; WIND DEMO DATA (IMD)</span>
-                    <strong>
-                      Wind {activeP.weather.windSpeed.toFixed(1)} m/s · Humidity {Math.round(activeP.weather.humidity)}%
-                    </strong>
-                    <span className="small muted">
-                      Temp {activeP.weather.tempC.toFixed(1)} °C · Mixing Height {Math.round(activeP.weather.mixingHeightM)} m
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeDialog === 'ai-predictions' && (
-              <div className="dialog-body">
-                {outlook && (
-                  <div className="outlook">
-                    {outlook.phases.map((ph) => (
-                      <div key={ph.phase} className="outlook-card" style={{ borderColor: aqiColor(ph.avgAqi) }}>
-                        <span className="muted small">{PHASE_TITLES[ph.phase]}</span>
-                        <strong style={{ color: aqiColor(ph.avgAqi), fontSize: '1.35rem' }}>AQI {ph.avgAqi}</strong>
-                        <span className="small">
-                          {ph.category} · Peak AQI {ph.peakAqi}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeDialog === 'charts' && (
-              <div className="dialog-body">
-                <div className="chart-tabs" style={{ marginBottom: 10 }}>
-                  <button
-                    type="button"
-                    className={`tab-btn ${chartTab === 'trend' ? 'active' : ''}`}
-                    onClick={() => setChartTab('trend')}
-                  >
-                    21-Day AQI Forecast
-                  </button>
-                  <button
-                    type="button"
-                    className={`tab-btn ${chartTab === 'hourly' ? 'active' : ''}`}
-                    onClick={() => setChartTab('hourly')}
-                  >
-                    24-Hour Intraday Profile ({formatDate(activeP.date)})
-                  </button>
-                </div>
-                {chartTab === 'trend' ? (
-                  <TrendChart
-                    history={history}
-                    points={points}
-                    simulatedPoints={simulatedPoints}
-                    selectedDate={activeP.date}
-                    diwaliDate={diwaliDate}
-                  />
-                ) : (
-                  <HourlyChart point={baseP} simulatedPoint={simP} />
-                )}
-              </div>
-            )}
-
-            {activeDialog === 'health' && (
-              <div className="dialog-body">
-                <div className="personal-advice-card">
-                  <div className="personal-advice-top">
-                    <strong>
-                      {userName ? `Profile: ${userName}` : 'Profile: Guest'}
-                      {profile.conditions.length > 0
-                        ? ` · Conditions: ${profile.conditions.join(', ')}`
-                        : ' · General Safe Mode'}
-                    </strong>
-                    <button
-                      type="button"
-                      className="inline-link-btn"
-                      onClick={() => {
-                        setActiveDialog(null);
-                        openModal();
-                      }}
-                    >
-                      Edit Name / Medical Info
-                    </button>
-                  </div>
-                  <p className="advice" style={{ margin: 0 }}>
-                    In <strong>{n.name}</strong>, AQI is <strong>{activeP.aqi} ({activeP.category})</strong> with{' '}
-                    <strong>PM2.5 {metrics.pm25} µg/m³</strong>, <strong>PM10 {metrics.pm10} µg/m³</strong>, and{' '}
-                    <strong>NO₂ {metrics.no2} µg/m³</strong>.
-                  </p>
-                </div>
-                <div className="dialog-grid-2">
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">MASK RECOMMENDATION</span>
-                    <strong>{activeP.aqi > 120 ? 'Wear N95 / KN95 Outdoors' : 'Optional for Short Trips'}</strong>
-                    <span className="small muted">{AQI_ADVICE[activeP.category]}</span>
-                  </div>
-                  <div className="dialog-stat-card">
-                    <span className="dataset-tag">BEST OUTDOOR &amp; VENTILATION HOURS</span>
-                    <strong>1:00 PM – 4:00 PM IST</strong>
-                    <span className="small muted">Avoid heavy outdoor exercise between 7:00 PM – 1:00 AM.</span>
-                  </div>
-                </div>
-              </div>
-            )}
+            <span className="small muted">{AQI_ADVICE[activeP.category]}</span>
+          </div>
+          <div className="dialog-grid-2">
+            <div className="dialog-stat-card">
+              <span className="dataset-tag">MASK RECOMMENDATION</span>
+              <strong>{activeP.aqi > 120 ? 'Wear N95 / KN95 Outdoors' : 'Optional for Short Trips'}</strong>
+            </div>
+            <div className="dialog-stat-card">
+              <span className="dataset-tag">SAFEST OUTDOOR WINDOW</span>
+              <strong style={{ color: '#6ee7b7' }}>1:00 PM – 4:00 PM IST</strong>
+            </div>
           </div>
         </div>
       )}
