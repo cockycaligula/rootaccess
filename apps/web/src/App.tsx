@@ -9,10 +9,9 @@ import type {
   SimulationResult,
 } from '@vaayuvision/shared';
 import { api } from './api';
-import { Header } from './components/Header';
+import { Header, type ViewStage } from './components/Header';
 import { CityKpiBar } from './components/CityKpiBar';
 import { AqiMap } from './components/AqiMap';
-import { DaySlider } from './components/DaySlider';
 import { NeighborhoodPanel } from './components/NeighborhoodPanel';
 import { RankingTable } from './components/RankingTable';
 import { ModelCard } from './components/ModelCard';
@@ -22,15 +21,6 @@ import { IntroGate } from './components/IntroGate';
 import { HealthPreferenceModal } from './components/HealthPreferenceModal';
 import { AQIAssistant } from './components/AQIAssistant';
 import { useUserPreferences } from './context/UserPreferencesContext';
-
-type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
-
-const STAGES: Array<{ id: ViewStage; code: string; label: string; sub: string }> = [
-  { id: 'radar', code: '01', label: 'Map & Forecast', sub: 'Live Map & Daily Air Quality' },
-  { id: 'simulator', code: '02', label: 'AI Hotspot Insights', sub: 'Area Analysis & Expected Improvement' },
-  { id: 'matrix', code: '03', label: 'Area Comparison & AI', sub: '12-Area Ranking & How AI Works' },
-  { id: 'community', code: '04', label: 'Community Alerts', sub: 'Local Reports & Alert Signup' },
-];
 
 export function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -51,7 +41,6 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
   const [stage, setStage] = useState<ViewStage>('radar');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; live: boolean }>({
     lat: 30.354,
     lng: 76.3685,
@@ -171,50 +160,22 @@ export function App() {
         />
       )}
 
-      <div className={`app-shell ${gateOpen ? 'app-revealed' : 'app-gated'} ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}>
-        <aside className={`app-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`} aria-label="Navigation Sidebar">
-          <div className="sidebar-top">
-            {!sidebarCollapsed && <span className="section-kicker">NAVIGATION</span>}
-            <button
-              type="button"
-              className="sidebar-collapse-btn"
-              onClick={() => setSidebarCollapsed((v) => !v)}
-              title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-              aria-label={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            >
-              {sidebarCollapsed ? '»' : '« Collapse'}
-            </button>
-          </div>
+      <div className={`app ${gateOpen ? 'app-revealed' : 'app-gated'}`}>
+        <Header
+          meta={meta}
+          stage={stage}
+          onStageChange={setStage}
+          dates={dates}
+          points={activeForecasts[0].points}
+          dayIndex={dayIndex}
+          onDayChange={setDayIndex}
+          onLockGate={() => setGateOpen(false)}
+        />
 
-          <nav className="sidebar-nav" aria-label="Command Center Sections">
-            {STAGES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                className={`sidebar-pill ${stage === s.id ? 'active' : ''}`}
-                onClick={() => setStage(s.id)}
-                title={`${s.code} · ${s.label} — ${s.sub}`}
-              >
-                <span className="stage-code">{s.code}</span>
-                {!sidebarCollapsed && (
-                  <div className="sidebar-pill-text">
-                    <span className="sidebar-pill-title">{s.label}</span>
-                    <span className="stage-sub">{s.sub}</span>
-                  </div>
-                )}
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        <div className="app">
-          <Header meta={meta} onLockGate={() => setGateOpen(false)} />
-
-          <main key={stage} className="grid stage-transition">
+        <main key={stage} className="grid stage-transition">
           {(stage === 'radar' || stage === 'all') && (
             <>
               <section className="card map-card hero-surface">
-                <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
                 <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
               </section>
               <section className="card detail-card hero-surface">
@@ -247,11 +208,10 @@ export function App() {
               </section>
               {stage === 'simulator' && (
                 <>
-                  <section className="card map-card">
-                    <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
+                  <section className="card map-card hero-surface">
                     <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
                   </section>
-                  <section className="card detail-card">
+                  <section className="card detail-card hero-surface">
                     <NeighborhoodPanel
                       forecast={selected}
                       simulatedPoints={simResult?.simulated ?? null}
@@ -293,18 +253,17 @@ export function App() {
           )}
         </main>
 
-          <CityKpiBar
-            baselineForecasts={forecasts}
-            activeForecasts={activeForecasts}
-            dayIndex={dayIndex}
-            gpsCoords={gpsCoords}
-            onSelectWard={setSelectedId}
-          />
+        <CityKpiBar
+          baselineForecasts={forecasts}
+          activeForecasts={activeForecasts}
+          dayIndex={dayIndex}
+          gpsCoords={gpsCoords}
+          onSelectWard={setSelectedId}
+        />
 
-          <footer className="footer">
-            VaayuVision · Patiala Air Quality &amp; Health Guide
-          </footer>
-        </div>
+        <footer className="footer">
+          VaayuVision · Patiala Air Quality &amp; Health Guide
+        </footer>
       </div>
     </>
   );

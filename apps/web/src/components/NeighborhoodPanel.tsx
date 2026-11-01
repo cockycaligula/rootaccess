@@ -143,7 +143,7 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
 
   return (
     <div className="panel">
-      {/* Center-Stage Area Header */}
+      {/* Center-Stage Area Header with Apple Weather-Style Crisp AQI Readout */}
       <div className="panel-head">
         <div className="panel-title-group">
           <span className="section-kicker">SELECTED AREA</span>
@@ -152,16 +152,29 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
             {n.zone} · {formatDate(activeP.date, true)}
           </span>
         </div>
-        <div className="panel-head-right">
-          <div
-            className="aqi-big"
+        <div className="aqi-hero-readout">
+          <span
+            className="aqi-hero-number"
+            style={{ textShadow: `0 8px 34px ${aqiColor(activeP.aqi)}44` }}
+          >
+            {activeP.aqi}
+          </span>
+          <span
+            className="soft-aqi-badge"
             style={{
-              background: `linear-gradient(135deg, ${aqiColor(activeP.aqi)}, ${aqiColor(activeP.aqi)}dd)`,
+              background: `${aqiColor(activeP.aqi)}20`,
+              borderColor: `${aqiColor(activeP.aqi)}55`,
             }}
           >
-            <span className="aqi-value">{activeP.aqi}</span>
-            <span className="aqi-cat">{activeP.category}</span>
-          </div>
+            <span
+              className="status-dot"
+              style={{
+                background: aqiColor(activeP.aqi),
+                boxShadow: `0 0 8px ${aqiColor(activeP.aqi)}`,
+              }}
+            />
+            <span>AQI · {activeP.category}</span>
+          </span>
         </div>
       </div>
 
@@ -169,19 +182,27 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
       <div className="ambient-metrics-row">
         <div className="ambient-metric">
           <span className="ambient-metric-label">PM2.5</span>
-          <strong>{metrics.pm25} <small>µg/m³</small></strong>
+          <strong>
+            {metrics.pm25} <small>µg/m³</small>
+          </strong>
         </div>
         <div className="ambient-metric">
           <span className="ambient-metric-label">PM10</span>
-          <strong>{metrics.pm10} <small>µg/m³</small></strong>
+          <strong>
+            {metrics.pm10} <small>µg/m³</small>
+          </strong>
         </div>
         <div className="ambient-metric">
           <span className="ambient-metric-label">NO₂</span>
-          <strong>{metrics.no2} <small>µg/m³</small></strong>
+          <strong>
+            {metrics.no2} <small>µg/m³</small>
+          </strong>
         </div>
         <div className="ambient-metric">
-          <span className="ambient-metric-label">Wind</span>
-          <strong>{activeP.weather.windSpeed.toFixed(1)} <small>m/s</small></strong>
+          <span className="ambient-metric-label">WIND</span>
+          <strong>
+            {activeP.weather.windSpeed.toFixed(1)} <small>m/s</small>
+          </strong>
         </div>
       </div>
 
