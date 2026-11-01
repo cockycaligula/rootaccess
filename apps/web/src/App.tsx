@@ -210,22 +210,14 @@ export function App() {
         <div className="app">
           <Header meta={meta} onLockGate={() => setGateOpen(false)} />
 
-          <CityKpiBar
-            baselineForecasts={forecasts}
-            activeForecasts={activeForecasts}
-            dayIndex={dayIndex}
-            gpsCoords={gpsCoords}
-            onSelectWard={setSelectedId}
-          />
-
           <main key={stage} className="grid stage-transition">
           {(stage === 'radar' || stage === 'all') && (
             <>
-              <section className="card map-card">
+              <section className="card map-card hero-surface">
                 <DaySlider dates={dates} points={activeForecasts[0].points} index={dayIndex} onChange={setDayIndex} />
                 <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
               </section>
-              <section className="card detail-card">
+              <section className="card detail-card hero-surface">
                 {selected && (
                   <NeighborhoodPanel
                     forecast={selected}
@@ -300,6 +292,14 @@ export function App() {
             </section>
           )}
         </main>
+
+          <CityKpiBar
+            baselineForecasts={forecasts}
+            activeForecasts={activeForecasts}
+            dayIndex={dayIndex}
+            gpsCoords={gpsCoords}
+            onSelectWard={setSelectedId}
+          />
 
           <footer className="footer">
             VaayuVision · Patiala Air Quality &amp; Health Guide

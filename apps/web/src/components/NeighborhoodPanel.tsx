@@ -143,57 +143,68 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
 
   return (
     <div className="panel">
-      {/* Clean Area Header — Zero Paragraph Clutter on Main Page */}
+      {/* Center-Stage Area Header */}
       <div className="panel-head">
-        <div>
+        <div className="panel-title-group">
           <span className="section-kicker">SELECTED AREA</span>
-          <h2>{n.name}</h2>
+          <h2 className="panel-area-title">{n.name}</h2>
           <span className="muted small">
             {n.zone} · {formatDate(activeP.date, true)}
           </span>
         </div>
         <div className="panel-head-right">
-          <div className="aqi-big" style={{ background: aqiColor(activeP.aqi) }}>
+          <div
+            className="aqi-big"
+            style={{
+              background: `linear-gradient(135deg, ${aqiColor(activeP.aqi)}, ${aqiColor(activeP.aqi)}dd)`,
+            }}
+          >
             <span className="aqi-value">{activeP.aqi}</span>
             <span className="aqi-cat">{activeP.category}</span>
           </div>
         </div>
       </div>
 
-      {/* Primary Clickable Banner: Why is this area Good / Bad? */}
-      <button
-        type="button"
-        className={`why-trigger-card ${isGoodAqi ? 'good-border' : 'bad-border'}`}
-        onClick={() => setActiveDialog('why-area')}
-      >
-        <div>
-          <span className="dataset-tag">
-            {isGoodAqi ? 'CLEANER ZONE ANALYSIS' : 'POLLUTION CAUSE ANALYSIS'}
-          </span>
-          <strong>
-            Why {n.name} is {activeP.category} (AQI {activeP.aqi}) Today
-          </strong>
+      {/* Clean Borderless Secondary Metrics Strip */}
+      <div className="ambient-metrics-row">
+        <div className="ambient-metric">
+          <span className="ambient-metric-label">PM2.5</span>
+          <strong>{metrics.pm25} <small>µg/m³</small></strong>
         </div>
-        <span className="why-cta">Click to see why →</span>
-      </button>
+        <div className="ambient-metric">
+          <span className="ambient-metric-label">PM10</span>
+          <strong>{metrics.pm10} <small>µg/m³</small></strong>
+        </div>
+        <div className="ambient-metric">
+          <span className="ambient-metric-label">NO₂</span>
+          <strong>{metrics.no2} <small>µg/m³</small></strong>
+        </div>
+        <div className="ambient-metric">
+          <span className="ambient-metric-label">Wind</span>
+          <strong>{activeP.weather.windSpeed.toFixed(1)} <small>m/s</small></strong>
+        </div>
+      </div>
 
-      {/* 21-Day Timelapse Graph Directly on the Homescreen */}
-      <div className="homescreen-chart-section" style={{ marginTop: 14 }}>
-        <div className="chart-tabs" style={{ marginBottom: 8 }}>
-          <button
-            type="button"
-            className={`tab-btn ${chartTab === 'trend' ? 'active' : ''}`}
-            onClick={() => setChartTab('trend')}
-          >
-            21-Day AQI Timelapse Graph
-          </button>
-          <button
-            type="button"
-            className={`tab-btn ${chartTab === 'hourly' ? 'active' : ''}`}
-            onClick={() => setChartTab('hourly')}
-          >
-            24-Hour Profile ({formatDate(activeP.date)})
-          </button>
+      {/* Primary Centerpiece: 21-Day Timelapse Graph */}
+      <div className="homescreen-chart-surface">
+        <div className="chart-surface-header">
+          <span className="chart-surface-title">21-Day AQI Timelapse</span>
+          <div className="chart-tabs">
+            <button
+              type="button"
+              className={`tab-btn ${chartTab === 'trend' ? 'active' : ''}`}
+              onClick={() => setChartTab('trend')}
+            >
+              21d Trend
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${chartTab === 'hourly' ? 'active' : ''}`}
+              onClick={() => setChartTab('hourly')}
+            >
+              24h Intraday
+            </button>
+          </div>
         </div>
         {chartTab === 'trend' ? (
           <TrendChart
@@ -208,24 +219,31 @@ export function NeighborhoodPanel({ forecast, simulatedPoints, history, outlook,
         )}
       </div>
 
-      {/* 3 Clean Clickable Section Tiles — No Long Text on Main Page */}
-      <div className="clickable-cards-grid" style={{ marginTop: 12 }}>
-        <button type="button" className="hub-action-card" onClick={() => setActiveDialog('demo-data')}>
-          <span className="dataset-tag">SECTION A · DEMO DATA</span>
-          <strong>Traffic &amp; Firecracker Data</strong>
-          <span className="muted small">Click to open →</span>
+      {/* Clean Secondary Action Pills — No Heavy Nested Boxes */}
+      <div className="secondary-actions-strip">
+        <button
+          type="button"
+          className="surface-action-pill primary-insight"
+          onClick={() => setActiveDialog('why-area')}
+        >
+          <span className="status-dot" style={{ background: isGoodAqi ? '#74c69d' : '#e76f51' }} />
+          <span>Why {n.name} is {activeP.category}</span>
+          <span className="pill-arrow">→</span>
         </button>
 
-        <button type="button" className="hub-action-card" onClick={() => setActiveDialog('ai-predictions')}>
-          <span className="dataset-tag">SECTION B · DIWALI PHASES</span>
-          <strong>Before, During &amp; After Diwali</strong>
-          <span className="muted small">Click to open →</span>
+        <button type="button" className="surface-action-pill" onClick={() => setActiveDialog('demo-data')}>
+          <span>Traffic &amp; Fireworks</span>
+          <span className="pill-arrow">→</span>
         </button>
 
-        <button type="button" className="hub-action-card" onClick={() => setActiveDialog('health')}>
-          <span className="dataset-tag">SECTION C · HEALTH GUIDE</span>
-          <strong>{userName ? `${userName}’s Health Advice` : 'Personal Health Advice'}</strong>
-          <span className="muted small">Click to open →</span>
+        <button type="button" className="surface-action-pill" onClick={() => setActiveDialog('ai-predictions')}>
+          <span>Diwali Phases</span>
+          <span className="pill-arrow">→</span>
+        </button>
+
+        <button type="button" className="surface-action-pill" onClick={() => setActiveDialog('health')}>
+          <span>{userName ? `${userName}’s Health Guide` : 'Health Guide'}</span>
+          <span className="pill-arrow">→</span>
         </button>
       </div>
 

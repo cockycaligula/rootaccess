@@ -106,14 +106,7 @@ export function CityKpiBar({
 
   return (
     <div className="kpi-section">
-      <div className="section-label-row">
-        <span className="section-kicker">SECTION 01 · 50 KM GPS RADIUS SCAN</span>
-        <span className="muted small">
-          Your GPS: {gpsCoords.lat.toFixed(3)}°N, {gpsCoords.lng.toFixed(3)}°E · Click either card to see why
-        </span>
-      </div>
-
-      {/* Only Best and Worst Area Cards — Clean & Clickable */}
+      {/* Clean Borderless Surface Elevation for Secondary 50 km GPS Metrics */}
       <section className="kpi-bar two-col">
         <button
           type="button"
@@ -124,17 +117,20 @@ export function CityKpiBar({
           }}
         >
           <div className="kpi-top">
-            <span className="dataset-tag" style={{ color: '#74c69d' }}>
-              BEST AQI WITHIN 50 KM ({best.distKm.toFixed(1)} KM AWAY)
+            <span className="kpi-label-inline">
+              <span className="status-dot" style={{ background: '#74c69d' }} />
+              <span className="dataset-tag" style={{ color: '#74c69d' }}>
+                BEST AQI WITHIN 50 KM · {best.distKm.toFixed(1)} KM AWAY
+              </span>
             </span>
             <span className="kpi-pill" style={{ background: aqiColor(best.p.aqi), color: '#18100c' }}>
               AQI {best.p.aqi} · {best.p.category}
             </span>
           </div>
-          <div className="kpi-main">
+          <div className="kpi-bottom-row">
             <strong>{best.n.name}</strong>
+            <span className="small muted">Why it’s good →</span>
           </div>
-          <span className="small muted">Click to see why it is good →</span>
         </button>
 
         <button
@@ -146,17 +142,20 @@ export function CityKpiBar({
           }}
         >
           <div className="kpi-top">
-            <span className="dataset-tag" style={{ color: '#ff9b80' }}>
-              WORST AQI WITHIN 50 KM ({worst.distKm.toFixed(1)} KM AWAY)
+            <span className="kpi-label-inline">
+              <span className="status-dot" style={{ background: '#e76f51' }} />
+              <span className="dataset-tag" style={{ color: '#ff9b80' }}>
+                WORST AQI WITHIN 50 KM · {worst.distKm.toFixed(1)} KM AWAY
+              </span>
             </span>
             <span className="kpi-pill" style={{ background: aqiColor(worst.p.aqi), color: '#18100c' }}>
               AQI {worst.p.aqi} · {worst.p.category}
             </span>
           </div>
-          <div className="kpi-main">
+          <div className="kpi-bottom-row">
             <strong>{worst.n.name}</strong>
+            <span className="small muted">Why it’s bad →</span>
           </div>
-          <span className="small muted">Click to see why it is bad →</span>
         </button>
       </section>
 
