@@ -41,6 +41,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
   const [stage, setStage] = useState<ViewStage>('radar');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; live: boolean }>({
     lat: 30.354,
     lng: 76.3685,
@@ -170,6 +171,8 @@ export function App() {
           dayIndex={dayIndex}
           onDayChange={setDayIndex}
           onLockGate={() => setGateOpen(false)}
+          drawerOpen={drawerOpen}
+          onToggleDrawer={() => setDrawerOpen((v) => !v)}
         />
 
         <main key={stage} className="grid stage-transition">
@@ -187,6 +190,7 @@ export function App() {
                     outlook={outlook}
                     dayIndex={dayIndex}
                     diwaliDate={meta.diwaliDate}
+                    onInspectArea={() => setDrawerOpen(true)}
                   />
                 )}
               </section>
@@ -194,36 +198,17 @@ export function App() {
           )}
 
           {(stage === 'simulator' || stage === 'all') && selected && (
-            <>
-              <section className="card full-span">
-                <WhatIfSimulator
-                  forecasts={forecasts}
-                  selectedId={selected.neighborhood.id}
-                  dayIndex={dayIndex}
-                  onSelectArea={setSelectedId}
-                  scenario={scenario}
-                  onChange={setScenario}
-                  result={simResult}
-                />
-              </section>
-              {stage === 'simulator' && (
-                <>
-                  <section className="card map-card hero-surface">
-                    <AqiMap forecasts={activeForecasts} dayIndex={dayIndex} selectedId={selectedId} onSelect={setSelectedId} />
-                  </section>
-                  <section className="card detail-card hero-surface">
-                    <NeighborhoodPanel
-                      forecast={selected}
-                      simulatedPoints={simResult?.simulated ?? null}
-                      history={history}
-                      outlook={outlook}
-                      dayIndex={dayIndex}
-                      diwaliDate={meta.diwaliDate}
-                    />
-                  </section>
-                </>
-              )}
-            </>
+            <section className="card full-span">
+              <WhatIfSimulator
+                forecasts={forecasts}
+                selectedId={selected.neighborhood.id}
+                dayIndex={dayIndex}
+                onSelectArea={setSelectedId}
+                scenario={scenario}
+                onChange={setScenario}
+                result={simResult}
+              />
+            </section>
           )}
 
           {(stage === 'matrix' || stage === 'all') && (
@@ -252,6 +237,35 @@ export function App() {
             </section>
           )}
         </main>
+
+        {/* Toggleable Slide-Out Deep Dive Drawer for AI Diagnostic Tools & Neighborhood Inspector */}
+        {drawerOpen && selected && (
+          <div
+            className="deep-dive-backdrop"
+            onClick={() => setDrawerOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Inspect Area Deep Dive Drawer"
+          >
+            <aside className="deep-dive-drawer" onClick={(e) => e.stopPropagation()}>
+              <WhatIfSimulator
+                forecasts={forecasts}
+                selectedId={selected.neighborhood.id}
+                dayIndex={dayIndex}
+                onSelectArea={setSelectedId}
+                scenario={scenario}
+                onChange={setScenario}
+                result={simResult}
+                onCloseDrawer={() => setDrawerOpen(false)}
+              />
+              {model && (
+                <div className="drawer-secondary-section">
+                  <ModelCard model={model} />
+                </div>
+              )}
+            </aside>
+          </div>
+        )}
 
         <CityKpiBar
           baselineForecasts={forecasts}

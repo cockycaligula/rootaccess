@@ -28,6 +28,8 @@ interface Props {
   dayIndex: number;
   onDayChange: (index: number) => void;
   onLockGate?: () => void;
+  drawerOpen?: boolean;
+  onToggleDrawer?: () => void;
 }
 
 export function Header({
@@ -39,6 +41,8 @@ export function Header({
   dayIndex,
   onDayChange,
   onLockGate,
+  drawerOpen,
+  onToggleDrawer,
 }: Props) {
   const { profile, openModal } = useUserPreferences();
   const [playing, setPlaying] = useState(false);
@@ -101,6 +105,15 @@ export function Header({
         </nav>
 
         <div className="dock-actions">
+          {onToggleDrawer && (
+            <button
+              type="button"
+              className={`dock-btn accent ${drawerOpen ? 'active' : ''}`}
+              onClick={onToggleDrawer}
+            >
+              {drawerOpen ? 'Close Deep Dive ✕' : 'Inspect Area ▸'}
+            </button>
+          )}
           <button type="button" className="dock-btn" onClick={openModal}>
             {profileLabel}
           </button>
