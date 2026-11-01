@@ -48,34 +48,38 @@ export function TrendChart({ history, points, simulatedPoints, selectedDate, diw
     <div className="chart">
       <ResponsiveContainer width="100%" height={235}>
         <ComposedChart data={data} margin={{ top: 10, right: 12, bottom: 0, left: -12 }}>
-          <CartesianGrid stroke="rgba(244, 162, 97, 0.14)" strokeDasharray="3 3" />
-          <XAxis dataKey="date" tickFormatter={(d: string) => formatDate(d)} stroke="#d4beb0" fontSize={11} minTickGap={24} />
-          <YAxis stroke="#d4beb0" fontSize={11} domain={[0, 500]} />
+          <CartesianGrid stroke="rgba(147, 197, 253, 0.14)" strokeDasharray="3 3" />
+          <XAxis dataKey="date" tickFormatter={(d: string) => formatDate(d)} stroke="#b6ccf0" fontSize={11} minTickGap={24} />
+          <YAxis stroke="#b6ccf0" fontSize={11} domain={[0, 500]} />
           <Tooltip
-            contentStyle={{ background: '#211814', border: '1px solid rgba(244, 162, 97, 0.35)', borderRadius: 10 }}
+            contentStyle={{
+              background: 'linear-gradient(145deg, #0d1b3a, #081024)',
+              border: '1px solid rgba(96, 165, 250, 0.4)',
+              borderRadius: 12,
+            }}
             labelFormatter={(d) => formatDate(String(d), true)}
             formatter={(v, name) => [Array.isArray(v) ? `${v[0]}–${v[1]}` : v, name]}
           />
           {[100, 200, 300, 400].map((y) => (
-            <ReferenceLine key={y} y={y} stroke="rgba(244, 162, 97, 0.18)" strokeDasharray="2 4" />
+            <ReferenceLine key={y} y={y} stroke="rgba(147, 197, 253, 0.16)" strokeDasharray="2 4" />
           ))}
           <ReferenceLine
             x={diwaliDate}
-            stroke="#e76f51"
+            stroke="#f59e0b"
             strokeDasharray="3 3"
-            label={{ value: 'Diwali', fill: '#f4a261', fontSize: 11, position: 'top' }}
+            label={{ value: 'Diwali', fill: '#fbbf24', fontSize: 11, position: 'top' }}
           />
           <ReferenceLine
             x={selectedDate}
-            stroke="#f8d49d"
+            stroke="#93c5fd"
             strokeWidth={2}
-            label={{ value: 'Active Day', fill: '#f8d49d', fontSize: 10, position: 'insideTopRight' }}
+            label={{ value: 'Active Day', fill: '#93c5fd', fontSize: 10, position: 'insideTopRight' }}
           />
-          <Area dataKey="band" name="80% range" stroke="none" fill="#f4a261" fillOpacity={0.18} />
-          <Line dataKey="observed" name="Past 30d Observed AQI" stroke="#faf3ec" dot={false} strokeWidth={2} />
-          <Line dataKey="forecast" name="21d Timelapse Forecast" stroke="#f4a261" dot={false} strokeWidth={2.5} strokeDasharray="5 3" />
+          <Area dataKey="band" name="80% range" stroke="none" fill="#3b82f6" fillOpacity={0.22} />
+          <Line dataKey="observed" name="Past 30d Observed AQI" stroke="#e2e8f0" dot={false} strokeWidth={2} />
+          <Line dataKey="forecast" name="21d Timelapse Forecast" stroke="#60a5fa" dot={false} strokeWidth={2.5} strokeDasharray="5 3" />
           {simulatedPoints?.length ? (
-            <Line dataKey="simulated" name="After AI Action Plan" stroke="#74c69d" dot={false} strokeWidth={2.5} />
+            <Line dataKey="simulated" name="After AI Action Plan" stroke="#34d399" dot={false} strokeWidth={2.5} />
           ) : null}
         </ComposedChart>
       </ResponsiveContainer>
