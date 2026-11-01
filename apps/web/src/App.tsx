@@ -51,6 +51,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
   const [stage, setStage] = useState<ViewStage>('radar');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; live: boolean }>({
     lat: 30.354,
     lng: 76.3685,
@@ -170,35 +171,54 @@ export function App() {
         />
       )}
 
-      <div className={`app ${gateOpen ? 'app-revealed' : 'app-gated'}`}>
-        <Header meta={meta} onLockGate={() => setGateOpen(false)} />
-
-        <CityKpiBar
-          baselineForecasts={forecasts}
-          activeForecasts={activeForecasts}
-          dayIndex={dayIndex}
-          gpsCoords={gpsCoords}
-          onSelectWard={setSelectedId}
-        />
-
-        <nav className="stage-dock" aria-label="Command Center Sections">
-          {STAGES.map((s) => (
+      <div className={`app-shell ${gateOpen ? 'app-revealed' : 'app-gated'} ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}>
+        <aside className={`app-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`} aria-label="Navigation Sidebar">
+          <div className="sidebar-top">
+            {!sidebarCollapsed && <span className="section-kicker">NAVIGATION</span>}
             <button
-              key={s.id}
               type="button"
-              className={`stage-pill ${stage === s.id ? 'active' : ''}`}
-              onClick={() => setStage(s.id)}
+              className="sidebar-collapse-btn"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              aria-label={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
-              <div className="stage-pill-top">
-                <span className="stage-code">{s.code}</span>
-                <span>{s.label}</span>
-              </div>
-              <span className="stage-sub">{s.sub}</span>
+              {sidebarCollapsed ? '»' : '« Collapse'}
             </button>
-          ))}
-        </nav>
+          </div>
 
-        <main key={stage} className="grid stage-transition">
+          <nav className="sidebar-nav" aria-label="Command Center Sections">
+            {STAGES.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`sidebar-pill ${stage === s.id ? 'active' : ''}`}
+                onClick={() => setStage(s.id)}
+                title={`${s.code} · ${s.label} — ${s.sub}`}
+              >
+                <span className="stage-code">{s.code}</span>
+                {!sidebarCollapsed && (
+                  <div className="sidebar-pill-text">
+                    <span className="sidebar-pill-title">{s.label}</span>
+                    <span className="stage-sub">{s.sub}</span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <div className="app">
+          <Header meta={meta} onLockGate={() => setGateOpen(false)} />
+
+          <CityKpiBar
+            baselineForecasts={forecasts}
+            activeForecasts={activeForecasts}
+            dayIndex={dayIndex}
+            gpsCoords={gpsCoords}
+            onSelectWard={setSelectedId}
+          />
+
+          <main key={stage} className="grid stage-transition">
           {(stage === 'radar' || stage === 'all') && (
             <>
               <section className="card map-card">
@@ -281,9 +301,10 @@ export function App() {
           )}
         </main>
 
-        <footer className="footer">
-          VaayuVision · Patiala Air Quality &amp; Health Guide
-        </footer>
+          <footer className="footer">
+            VaayuVision · Patiala Air Quality &amp; Health Guide
+          </footer>
+        </div>
       </div>
     </>
   );
