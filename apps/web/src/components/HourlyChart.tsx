@@ -81,21 +81,25 @@ export function HourlyChart({ point, simulatedPoint }: Props) {
       </div>
       <ResponsiveContainer width="100%" height={215}>
         <ComposedChart data={rows} margin={{ top: 10, right: 12, bottom: 0, left: -12 }}>
-          <CartesianGrid stroke="#2a3140" strokeDasharray="3 3" />
-          <XAxis dataKey="hour" stroke="#8b95a7" fontSize={11} interval={2} />
-          <YAxis stroke="#8b95a7" fontSize={11} domain={[0, 500]} />
+          <CartesianGrid stroke="rgba(147, 197, 253, 0.14)" strokeDasharray="3 3" />
+          <XAxis dataKey="hour" stroke="#b6ccf0" fontSize={11} interval={2} />
+          <YAxis stroke="#b6ccf0" fontSize={11} domain={[0, 500]} />
           <Tooltip
-            contentStyle={{ background: '#151a23', border: '1px solid #2a3140' }}
+            contentStyle={{
+              background: 'linear-gradient(145deg, #0d1b3a, #081024)',
+              border: '1px solid rgba(96, 165, 250, 0.4)',
+              borderRadius: 12,
+            }}
             formatter={(v, name) => [v, name]}
           />
-          <ReferenceArea x1="13:00" x2="16:00" fill="#4fb38a" fillOpacity={0.09} />
-          <ReferenceArea x1="19:00" x2="23:00" fill="#e93f33" fillOpacity={0.09} />
+          <ReferenceArea x1="13:00" x2="16:00" fill="#34d399" fillOpacity={0.1} />
+          <ReferenceArea x1="19:00" x2="23:00" fill="#f87171" fillOpacity={0.1} />
           {[100, 200, 300, 400].map((y) => (
-            <ReferenceLine key={y} y={y} stroke="#3a4252" strokeDasharray="2 4" />
+            <ReferenceLine key={y} y={y} stroke="rgba(147, 197, 253, 0.16)" strokeDasharray="2 4" />
           ))}
-          <Area dataKey="aqi" name="Hourly AQI" stroke="#ffb347" fill="#ffb347" fillOpacity={0.18} strokeWidth={2} />
+          <Area dataKey="aqi" name="Hourly AQI" stroke="#60a5fa" fill="#3b82f6" fillOpacity={0.24} strokeWidth={2.2} />
           {simulatedPoint ? (
-            <Line dataKey="simAqi" name="With Policy Intervention" stroke="#4fb38a" dot={false} strokeWidth={2.5} />
+            <Line dataKey="simAqi" name="After AI Action Plan" stroke="#34d399" dot={false} strokeWidth={2.5} />
           ) : null}
         </ComposedChart>
       </ResponsiveContainer>

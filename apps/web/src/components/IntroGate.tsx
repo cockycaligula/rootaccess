@@ -50,7 +50,7 @@ export function IntroGate({ gpsForecast, gpsCoords, onEnter }: Props) {
       <div
         className="gate-spotlight"
         style={{
-          background: `radial-gradient(620px circle at ${mouse.x}% ${mouse.y}%, rgba(244, 162, 97, 0.18), rgba(231, 111, 81, 0.08) 45%, transparent 72%)`,
+          background: `radial-gradient(720px circle at ${mouse.x}% ${mouse.y}%, rgba(96, 165, 250, 0.28), rgba(37, 99, 235, 0.14) 45%, transparent 72%)`,
         }}
       />
 
@@ -64,31 +64,31 @@ export function IntroGate({ gpsForecast, gpsCoords, onEnter }: Props) {
         </div>
 
         <div className="gate-center">
-          {/* Clean Warm Geometric Emblem + Refined Brand Mark */}
+          {/* Clean Blue Geometric Emblem + Refined Brand Mark */}
           <div className="brand-hero">
             <div className="brand-emblem" aria-hidden="true">
               <svg viewBox="0 0 64 64" width="58" height="58" fill="none">
-                <circle cx="32" cy="32" r="28" stroke="url(#warmGrad)" strokeWidth="2" strokeOpacity="0.45" />
-                <circle cx="32" cy="32" r="20" stroke="url(#warmGrad)" strokeWidth="2" strokeOpacity="0.75" />
+                <circle cx="32" cy="32" r="28" stroke="url(#blueGrad)" strokeWidth="2" strokeOpacity="0.45" />
+                <circle cx="32" cy="32" r="20" stroke="url(#blueGrad)" strokeWidth="2" strokeOpacity="0.75" />
                 <path
                   d="M16 34C22 26 28 26 32 32C36 38 42 38 48 30"
-                  stroke="url(#warmGrad)"
+                  stroke="url(#blueGrad)"
                   strokeWidth="3.2"
                   strokeLinecap="round"
                 />
                 <path
                   d="M20 41C25 35 30 35 34 39C38 43 42 42 46 37"
-                  stroke="#f4a261"
+                  stroke="#60a5fa"
                   strokeWidth="2.2"
                   strokeLinecap="round"
-                  strokeOpacity="0.8"
+                  strokeOpacity="0.85"
                 />
-                <circle cx="32" cy="21" r="4" fill="#f4a261" />
+                <circle cx="32" cy="21" r="4" fill="#60a5fa" />
                 <defs>
-                  <linearGradient id="warmGrad" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#f8d49d" />
-                    <stop offset="0.5" stopColor="#f4a261" />
-                    <stop offset="1" stopColor="#e76f51" />
+                  <linearGradient id="blueGrad" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#bfdbfe" />
+                    <stop offset="0.5" stopColor="#60a5fa" />
+                    <stop offset="1" stopColor="#2563eb" />
                   </linearGradient>
                 </defs>
               </svg>
