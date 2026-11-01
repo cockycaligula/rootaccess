@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice" width="100%" height="100%">
+  <defs>
+    <!-- Primary Dusk Sky Vertical Gradient: Deep Navy -> Muted Indigo -> Slate Blue-Grey -> Subtle Sunset Horizon -->
+    <linearGradient id="duskSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#050b1a" />
+      <stop offset="22%" stop-color="#0a152e" />
+      <stop offset="44%" stop-color="#132347" />
+      <stop offset="60%" stop-color="#1f3158" />
+      <stop offset="71%" stop-color="#314166" />
+      <stop offset="79%" stop-color="#4d4c6b" />
+      <stop offset="85%" stop-color="#7c5969" />
+      <stop offset="90%" stop-color="#b46c60" />
+      <stop offset="94%" stop-color="#cf7f5f" />
+      <stop offset="97%" stop-color="#5d404f" />
+      <stop offset="100%" stop-color="#070c1a" />
+    </linearGradient>
+
+    <!-- Warm Horizon Sunset Glow (Soft Orange / Coral / Pink) -->
+    <radialGradient id="sunsetHorizonGlow" cx="56%" cy="88%" r="54%" fx="56%" fy="88%">
+      <stop offset="0%" stop-color="#f49d6e" stop-opacity="0.58" />
+      <stop offset="26%" stop-color="#d97564" stop-opacity="0.40" />
+      <stop offset="54%" stop-color="#8c5468" stop-opacity="0.22" />
+      <stop offset="80%" stop-color="#2c3a61" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#0b152e" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Secondary Soft Pink/Amber Western Horizon Glow -->
+    <radialGradient id="westHorizonGlow" cx="28%" cy="86%" r="42%">
+      <stop offset="0%" stop-color="#e58767" stop-opacity="0.34" />
+      <stop offset="45%" stop-color="#8b596c" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#142347" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Ambient Upper Sky Indigo Illumination -->
+    <radialGradient id="zenithAmbient" cx="50%" cy="18%" r="60%">
+      <stop offset="0%" stop-color="#2b4c8c" stop-opacity="0.22" />
+      <stop offset="55%" stop-color="#162952" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#060c1d" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Mountain Layer Gradients -->
+    <linearGradient id="farMountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#243152" stop-opacity="0.88" />
+      <stop offset="45%" stop-color="#1b2644" stop-opacity="0.94" />
+      <stop offset="100%" stop-color="#10182e" stop-opacity="0.98" />
+    </linearGradient>
+
+    <linearGradient id="midMountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#16213d" />
+      <stop offset="55%" stop-color="#0f172e" />
+      <stop offset="100%" stop-color="#090f20" />
+    </linearGradient>
+
+    <linearGradient id="nearMountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0d152a" />
+      <stop offset="100%" stop-color="#060b17" />
+    </linearGradient>
+
+    <linearGradient id="valleyMist" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9e6d6c" stop-opacity="0.18" />
+      <stop offset="50%" stop-color="#384768" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="#0c1428" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Gaussian Blur Filters for Realistic Atmospheric Clouds -->
+    <filter id="cloudBlurHeavy" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="36" />
+    </filter>
+    <filter id="cloudBlurMedium" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="20" />
+    </filter>
+    <filter id="cloudBlurSoft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="11" />
+    </filter>
+  </defs>
+
+  <!-- 1. Base Dusk Sky -->
+  <rect width="1920" height="1080" fill="url(#duskSky)" />
+  <rect width="1920" height="1080" fill="url(#zenithAmbient)" />
+  <rect width="1920" height="1080" fill="url(#sunsetHorizonGlow)" />
+  <rect width="1920" height="1080" fill="url(#westHorizonGlow)" />
+
+  <!-- 2. High-Altitude Soft Blue-Grey Atmospheric Clouds -->
+  <g filter="url(#cloudBlurHeavy)" opacity="0.62">
+    <ellipse cx="310" cy="430" rx="420" ry="64" fill="#2b3d66" />
+    <ellipse cx="820" cy="390" rx="510" ry="72" fill="#25375e" />
+    <ellipse cx="1460" cy="420" rx="480" ry="68" fill="#2a3c63" />
+    <ellipse cx="580" cy="540" rx="460" ry="58" fill="#36486e" />
+    <ellipse cx="1220" cy="530" rx="520" ry="62" fill="#34466c" />
+  </g>
+
+  <!-- 3. Mid-Level Dusk Cloud Bands with Subtle Warm Sunset Underlighting -->
+  <g filter="url(#cloudBlurMedium)" opacity="0.58">
+    <!-- Warm underlit cloud rims near horizon -->
+    <ellipse cx="420" cy="715" rx="340" ry="26" fill="#c77463" opacity="0.45" />
+    <ellipse cx="1050" cy="700" rx="460" ry="30" fill="#de8665" opacity="0.50" />
+    <ellipse cx="1540" cy="725" rx="360" ry="24" fill="#b36864" opacity="0.42" />
+
+    <!-- Blue-grey dusk cloud bodies -->
+    <ellipse cx="380" cy="695" rx="370" ry="34" fill="#324164" />
+    <ellipse cx="740" cy="650" rx="330" ry="38" fill="#2c3b5e" />
+    <ellipse cx="1090" cy="680" rx="440" ry="36" fill="#354366" />
+    <ellipse cx="1510" cy="705" rx="390" ry="32" fill="#2f3d60" />
+    <ellipse cx="190" cy="620" rx="290" ry="30" fill="#28385a" />
+    <ellipse cx="1720" cy="615" rx="310" ry="34" fill="#263657" />
+  </g>
+
+  <!-- 4. Delicate Lower Horizon Cloud Wisps -->
+  <g filter="url(#cloudBlurSoft)" opacity="0.48">
+    <path d="M80 770 Q340 742 620 768 T1180 758 T1780 772 L1920 785 L0 785 Z" fill="#dda17c" opacity="0.32" />
+    <ellipse cx="640" cy="755" rx="280" ry="15" fill="#464968" />
+    <ellipse cx="1290" cy="748" rx="320" ry="16" fill="#434766" />
+  </g>
+
+  <!-- 5. Distant Mountain Range Silhouette (Farthest Foothills) -->
+  <path
+    d="M0 895
+       L0 818
+       L68 804
+       L145 782
+       L232 796
+       L318 764
+       L395 748
+       L472 772
+       L558 742
+       L642 758
+       L736 726
+       L815 744
+       L904 718
+       L992 738
+       L1085 756
+       L1178 732
+       L1264 712
+       L1352 736
+       L1445 758
+       L1538 728
+       L1630 746
+       L1724 768
+       L1818 752
+       L1920 776
+       L1920 920 Z"
+    fill="url(#farMountainGrad)"
+  />
+
+  <!-- Soft Atmospheric Mist in Mountain Valleys -->
+  <rect x="0" y="745" width="1920" height="125" fill="url(#valleyMist)" filter="url(#cloudBlurSoft)" />
+
+  <!-- 6. Mid-Distance Mountain Ridges -->
+  <path
+    d="M0 950
+       L0 846
+       L92 832
+       L184 808
+       L276 824
+       L364 842
+       L458 804
+       L546 786
+       L638 812
+       L724 830
+       L822 794
+       L918 774
+       L1012 802
+       L1104 822
+       L1196 792
+       L1292 814
+       L1388 784
+       L1482 806
+       L1576 828
+       L1674 796
+       L1768 816
+       L1854 834
+       L1920 822
+       L1920 960 Z"
+    fill="url(#midMountainGrad)"
+  />
+
+  <!-- 7. Closer Foothill Ridge -->
+  <path
+    d="M0 1010
+       L0 888
+       L110 872
+       L225 894
+       L340 864
+       L465 882
+       L590 854
+       L710 876
+       L835 858
+       L960 884
+       L1080 862
+       L1210 848
+       L1335 874
+       L1460 856
+       L1590 882
+       L1715 866
+       L1830 886
+       L1920 874
+       L1920 1020 Z"
+    fill="url(#nearMountainGrad)"
+  />
+
+  <!-- 8. Foreground Natural Landscape & Subtle Pine / Forest Tree-Line Silhouette -->
+  <path
+    d="M0 1080
+       L0 936
+       L18 924 L26 935 L36 918 L46 934 L58 922 L70 936
+       L95 930 L106 914 L116 931 L128 912 L140 930 L154 920 L166 935
+       L210 938 L224 922 L236 938 L248 918 L260 936 L274 925 L288 940
+       L345 944 L358 926 L370 942 L384 920 L398 938 L412 924 L426 942
+       L490 946 L504 928 L516 944 L530 922 L544 940
+       L610 948 L624 930 L638 946 L652 924 L666 942 L680 928 L694 944
+       L765 950 L780 932 L792 948 L806 926 L820 944
+       L895 952 L910 934 L924 950 L938 928 L952 946 L966 932 L980 948
+       L1055 950 L1070 932 L1084 948 L1098 924 L1112 944 L1126 930 L1140 946
+       L1215 944 L1230 926 L1244 942 L1258 918 L1272 938 L1286 924 L1300 942
+       L1375 946 L1390 928 L1404 944 L1418 922 L1432 940
+       L1505 940 L1520 920 L1534 938 L1548 914 L1562 934 L1576 920 L1590 938
+       L1665 942 L1680 924 L1694 940 L1708 918 L1722 936
+       L1790 938 L1804 920 L1818 936 L1832 914 L1846 934 L1860 922 L1874 938
+       L1920 934
+       L1920 1080 Z"
+    fill="#050914"
+  />
+  <rect x="0" y="948" width="1920" height="132" fill="#040812" />
+</svg>

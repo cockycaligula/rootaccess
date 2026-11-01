@@ -1,11 +1,11 @@
 :root {
   --bg: #050a18;
-  --card: linear-gradient(145deg, rgba(19, 36, 74, 0.72) 0%, rgba(10, 20, 44, 0.78) 100%);
-  --card-inner: linear-gradient(145deg, rgba(30, 56, 112, 0.48) 0%, rgba(15, 29, 62, 0.58) 100%);
-  --surface-hover: linear-gradient(145deg, rgba(46, 86, 168, 0.65) 0%, rgba(24, 48, 98, 0.75) 100%);
-  --border: rgba(147, 197, 253, 0.14);
+  --card: linear-gradient(155deg, rgba(13, 25, 52, 0.62) 0%, rgba(8, 16, 36, 0.72) 100%);
+  --card-inner: linear-gradient(155deg, rgba(22, 41, 82, 0.42) 0%, rgba(12, 23, 49, 0.52) 100%);
+  --surface-hover: linear-gradient(155deg, rgba(34, 62, 122, 0.56) 0%, rgba(18, 35, 74, 0.68) 100%);
+  --border: rgba(186, 214, 255, 0.13);
   --text: #ffffff;
-  --muted: #bdd0f0;
+  --muted: #c2d3ee;
   --accent: #3b82f6;
   --diwali: #60a5fa;
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -34,11 +34,44 @@ body::before {
   pointer-events: none;
   z-index: -1;
   transform: translateZ(0);
-  background:
-    radial-gradient(ellipse 68% 58% at 50% 46%, rgba(56, 139, 255, 0.36) 0%, rgba(29, 78, 216, 0.25) 38%, rgba(12, 26, 66, 0.14) 68%, transparent 100%),
-    radial-gradient(950px 540px at 18% 6%, rgba(96, 165, 250, 0.22), transparent 65%),
-    radial-gradient(920px 520px at 84% 12%, rgba(59, 130, 246, 0.20), transparent 64%),
-    linear-gradient(180deg, #0b1631 0%, #071024 48%, #040814 100%);
+  background-image:
+    /* 1. Gentle edge vignette */
+    radial-gradient(ellipse 118% 108% at 50% 46%, rgba(5, 10, 24, 0.08) 0%, rgba(5, 10, 24, 0.38) 66%, rgba(2, 5, 14, 0.76) 100%),
+    /* 2. 45-50% atmospheric dark navy overlay for effortless UI readability */
+    linear-gradient(180deg, rgba(6, 12, 28, 0.50) 0%, rgba(9, 17, 38, 0.42) 48%, rgba(14, 21, 42, 0.46) 78%, rgba(4, 8, 18, 0.68) 100%),
+    /* 3. Subtle ambient blue zenith lighting & soft dusk horizon warmth */
+    radial-gradient(960px 520px at 50% 10%, rgba(76, 134, 224, 0.13), transparent 70%),
+    radial-gradient(1100px 380px at 56% 85%, rgba(236, 136, 98, 0.12), transparent 68%),
+    /* 4. Realistic dusk/sunset sky + cloud + mountain/treeline landscape */
+    url('/dusk-atmosphere.svg'),
+    /* 5. Primary dark navy-to-indigo base gradient */
+    linear-gradient(180deg, #050b1a 0%, #0d1834 46%, #1c2c52 78%, #050914 100%);
+  background-position:
+    center center,
+    center center,
+    center top,
+    center bottom,
+    center bottom,
+    center center;
+  background-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    cover,
+    100% 100%;
+  background-repeat: no-repeat;
+}
+@media (max-width: 768px) {
+  body::before {
+    background-position:
+      center center,
+      center center,
+      center top,
+      center bottom,
+      56% bottom,
+      center center;
+  }
 }
 h1, h2, h3, h4 { margin: 0; letter-spacing: -0.015em; }
 h3 { font-size: 1.05rem; margin: 14px 0 8px; font-weight: 700; }
@@ -48,7 +81,7 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
 
 .center-message { display: grid; place-items: center; min-height: 100vh; text-align: center; color: var(--muted); }
 
-/* Light-Blue to Dark-Blue Gatekeep Intro Screen & Shutter Transition */
+/* Cinematic Dusk Landscape Intro Screen & Shutter Transition */
 .intro-gate {
   position: fixed;
   inset: 0;
@@ -57,9 +90,14 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 66% 56% at 50% 48%, rgba(56, 139, 255, 0.38) 0%, rgba(29, 78, 216, 0.24) 40%, rgba(10, 22, 56, 0.15) 70%, transparent 100%),
-    linear-gradient(180deg, #0a1530 0%, #060d20 55%, #030712 100%);
+  background-image:
+    radial-gradient(ellipse 118% 108% at 50% 46%, rgba(5, 10, 24, 0.10) 0%, rgba(5, 10, 24, 0.42) 66%, rgba(2, 5, 14, 0.78) 100%),
+    linear-gradient(180deg, rgba(6, 12, 28, 0.48) 0%, rgba(10, 18, 40, 0.40) 52%, rgba(14, 21, 42, 0.45) 80%, rgba(4, 8, 18, 0.68) 100%),
+    url('/dusk-atmosphere.svg'),
+    linear-gradient(180deg, #050b1a 0%, #0d1834 48%, #1c2c52 80%, #050914 100%);
+  background-position: center center, center center, center bottom, center center;
+  background-size: 100% 100%, 100% 100%, cover, 100% 100%;
+  background-repeat: no-repeat;
   user-select: none;
 }
 .shutter {
@@ -248,14 +286,14 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
   position: sticky;
   top: 14px;
   z-index: 900;
-  background: linear-gradient(135deg, rgba(16, 32, 68, 0.84) 0%, rgba(9, 19, 44, 0.88) 100%);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border: 1px solid rgba(147, 197, 253, 0.16);
+  background: linear-gradient(145deg, rgba(13, 25, 52, 0.72) 0%, rgba(8, 16, 36, 0.78) 100%);
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  border: 1px solid rgba(186, 214, 255, 0.15);
   border-radius: 22px;
   padding: 12px 18px;
   margin-bottom: 26px;
-  box-shadow: 0 20px 50px rgba(2, 6, 20, 0.55);
+  box-shadow: 0 20px 50px rgba(2, 6, 20, 0.50);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -480,12 +518,12 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
 .full-span { grid-column: 1 / -1; }
 .card {
   background: var(--card);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(147, 197, 253, 0.12);
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  border: 1px solid rgba(186, 214, 255, 0.14);
   border-radius: 24px;
   padding: 28px 30px;
-  box-shadow: 0 24px 60px rgba(2, 8, 24, 0.45);
+  box-shadow: 0 24px 60px rgba(2, 8, 24, 0.44);
 }
 .card.hero-surface {
   padding: 30px 32px;
@@ -684,10 +722,10 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
 .kpi-card {
   text-align: left;
   background: var(--card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
   color: var(--text);
-  border: 1px solid rgba(147, 197, 253, 0.14);
+  border: 1px solid rgba(186, 214, 255, 0.14);
   border-radius: 22px;
   padding: 22px 28px;
   display: flex;
@@ -1030,10 +1068,12 @@ code { background: rgba(30, 58, 118, 0.55); padding: 2px 6px; border-radius: 5px
   width: min(680px, 94vw);
   height: 100vh;
   overflow-y: auto;
-  background: linear-gradient(160deg, #0f1f44 0%, #081229 55%, #050b1a 100%);
-  border-left: 1px solid rgba(96, 165, 250, 0.35);
+  background: linear-gradient(160deg, rgba(13, 26, 56, 0.84) 0%, rgba(8, 16, 36, 0.88) 55%, rgba(5, 11, 26, 0.92) 100%);
+  backdrop-filter: blur(26px) saturate(135%);
+  -webkit-backdrop-filter: blur(26px) saturate(135%);
+  border-left: 1px solid rgba(186, 214, 255, 0.18);
   padding: 28px 30px 44px;
-  box-shadow: -24px 0 64px rgba(2, 6, 20, 0.75);
+  box-shadow: -24px 0 64px rgba(2, 6, 20, 0.72);
   display: flex;
   flex-direction: column;
   gap: 28px;
