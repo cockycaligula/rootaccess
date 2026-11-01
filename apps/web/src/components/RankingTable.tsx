@@ -98,14 +98,24 @@ export function RankingTable({
                   {n.name} <span className="muted small">({n.zone})</span>
                 </td>
                 <td>
-                  <span className="dot" style={{ background: aqiColor(p.aqi) }} />
-                  {p.aqi}
+                  <strong className="table-aqi-num">{p.aqi}</strong>
                 </td>
                 <td>
                   {p.pm25}{' '}
                   {isSimActive && saved > 0 ? <span className="down-text small">(−{saved})</span> : null}
                 </td>
-                <td>{p.category}</td>
+                <td>
+                  <span
+                    className="soft-aqi-badge compact"
+                    style={{
+                      background: `${aqiColor(p.aqi)}20`,
+                      borderColor: `${aqiColor(p.aqi)}55`,
+                    }}
+                  >
+                    <span className="status-dot" style={{ background: aqiColor(p.aqi) }} />
+                    <span>{p.category}</span>
+                  </span>
+                </td>
               </tr>
             );
           })}

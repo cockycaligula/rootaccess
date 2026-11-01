@@ -116,20 +116,38 @@ export function CityKpiBar({
             setModal('best');
           }}
         >
-          <div className="kpi-top">
-            <span className="kpi-label-inline">
-              <span className="status-dot" style={{ background: '#74c69d' }} />
-              <span className="dataset-tag" style={{ color: '#74c69d' }}>
-                BEST AQI WITHIN 50 KM · {best.distKm.toFixed(1)} KM AWAY
+          <div className="kpi-card-row">
+            <div className="kpi-card-left">
+              <span className="kpi-label-inline">
+                <span className="status-dot" style={{ background: '#74c69d', boxShadow: '0 0 8px #74c69d' }} />
+                <span className="dataset-tag" style={{ color: '#95e2b9' }}>
+                  BEST AIR WITHIN 50 KM · {best.distKm.toFixed(1)} KM AWAY
+                </span>
               </span>
-            </span>
-            <span className="kpi-pill" style={{ background: aqiColor(best.p.aqi), color: '#18100c' }}>
-              AQI {best.p.aqi} · {best.p.category}
-            </span>
-          </div>
-          <div className="kpi-bottom-row">
-            <strong>{best.n.name}</strong>
-            <span className="small muted">Why it’s good →</span>
+              <strong className="kpi-area-name">{best.n.name}</strong>
+              <span className="small muted">
+                PM2.5 {bestMetrics.pm25} µg/m³ · Wind {best.p.weather.windSpeed.toFixed(1)} m/s · See why it’s good →
+              </span>
+            </div>
+
+            <div className="kpi-card-right">
+              <span
+                className="kpi-aqi-number"
+                style={{ textShadow: `0 6px 24px ${aqiColor(best.p.aqi)}40` }}
+              >
+                {best.p.aqi}
+              </span>
+              <span
+                className="soft-aqi-badge"
+                style={{
+                  background: `${aqiColor(best.p.aqi)}20`,
+                  borderColor: `${aqiColor(best.p.aqi)}55`,
+                }}
+              >
+                <span className="status-dot" style={{ background: aqiColor(best.p.aqi) }} />
+                <span>{best.p.category}</span>
+              </span>
+            </div>
           </div>
         </button>
 
@@ -141,20 +159,38 @@ export function CityKpiBar({
             setModal('worst');
           }}
         >
-          <div className="kpi-top">
-            <span className="kpi-label-inline">
-              <span className="status-dot" style={{ background: '#e76f51' }} />
-              <span className="dataset-tag" style={{ color: '#ff9b80' }}>
-                WORST AQI WITHIN 50 KM · {worst.distKm.toFixed(1)} KM AWAY
+          <div className="kpi-card-row">
+            <div className="kpi-card-left">
+              <span className="kpi-label-inline">
+                <span className="status-dot" style={{ background: '#ff8a6b', boxShadow: '0 0 8px #ff8a6b' }} />
+                <span className="dataset-tag" style={{ color: '#ffb39e' }}>
+                  HIGHEST EXPOSURE WITHIN 50 KM · {worst.distKm.toFixed(1)} KM AWAY
+                </span>
               </span>
-            </span>
-            <span className="kpi-pill" style={{ background: aqiColor(worst.p.aqi), color: '#18100c' }}>
-              AQI {worst.p.aqi} · {worst.p.category}
-            </span>
-          </div>
-          <div className="kpi-bottom-row">
-            <strong>{worst.n.name}</strong>
-            <span className="small muted">Why it’s bad →</span>
+              <strong className="kpi-area-name">{worst.n.name}</strong>
+              <span className="small muted">
+                PM2.5 {worstMetrics.pm25} µg/m³ · Traffic {worst.p.trafficIndex.toFixed(2)}× · See why it’s bad →
+              </span>
+            </div>
+
+            <div className="kpi-card-right">
+              <span
+                className="kpi-aqi-number"
+                style={{ textShadow: `0 6px 24px ${aqiColor(worst.p.aqi)}40` }}
+              >
+                {worst.p.aqi}
+              </span>
+              <span
+                className="soft-aqi-badge"
+                style={{
+                  background: `${aqiColor(worst.p.aqi)}20`,
+                  borderColor: `${aqiColor(worst.p.aqi)}55`,
+                }}
+              >
+                <span className="status-dot" style={{ background: aqiColor(worst.p.aqi) }} />
+                <span>{worst.p.category}</span>
+              </span>
+            </div>
           </div>
         </button>
       </section>

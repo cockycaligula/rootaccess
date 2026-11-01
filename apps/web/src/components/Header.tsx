@@ -1,27 +1,66 @@
-import type { Meta } from '@vaayuvision/shared';
-import { formatDate } from '../format';
+import { useEffect, useState } from 'react';
+import type { ForecastPoint, Meta } from '@vaayuvision/shared';
+import { formatDate, phaseLabel } from '../format';
 import { useUserPreferences } from '../context/UserPreferencesContext';
+
+export type ViewStage = 'radar' | 'simulator' | 'matrix' | 'community' | 'all';
+
+const STAGES: Array<{ id: ViewStage; code: string; label: string }> = [
+  { id: 'radar', code: '01', label: 'Map & Forecast' },
+  { id: 'simulator', code: '02', label: 'AI Hotspot Insights' },
+  { id: 'matrix', code: '03', label: 'Area Comparison & AI' },
+  { id: 'community', code: '04', label: 'Community Alerts' },
+];
 
 const PHASE_TEXT: Record<Meta['phase'], string> = {
   normal: 'Regular season',
   before: 'Pre-Diwali build-up',
-  during: 'Diwali',
+  during: 'Diwali Peak',
   after: 'Post-Diwali recovery',
 };
 
 interface Props {
   meta: Meta;
+  stage: ViewStage;
+  onStageChange: (stage: ViewStage) => void;
+  dates: string[];
+  points: ForecastPoint[];
+  dayIndex: number;
+  onDayChange: (index: number) => void;
   onLockGate?: () => void;
 }
 
-export function Header({ meta, onLockGate }: Props) {
+export function Header({
+  meta,
+  stage,
+  onStageChange,
+  dates,
+  points,
+  dayIndex,
+  onDayChange,
+  onLockGate,
+}: Props) {
   const { profile, openModal } = useUserPreferences();
+  const [playing, setPlaying] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(true);
+
+  const p = points[dayIndex];
+  const diwaliIdx = points.findIndex((pt) => pt.daysFromDiwali === 0);
+
+  useEffect(() => {
+    if (!playing || !dates.length) return;
+    const timer = window.setInterval(() => {
+      onDayChange((dayIndex + 1) % dates.length);
+    }, 650);
+    return () => window.clearInterval(timer);
+  }, [playing, dayIndex, dates.length, onDayChange]);
+
   const countdown =
     meta.daysToDiwali > 0
-      ? `Diwali in ${meta.daysToDiwali} day${meta.daysToDiwali === 1 ? '' : 's'}`
+      ? `Diwali in ${meta.daysToDiwali}d`
       : meta.daysToDiwali === 0
-        ? 'Diwali is today'
-        : `${-meta.daysToDiwali} days since Diwali`;
+        ? 'Diwali Today'
+        : `${-meta.daysToDiwali}d post-Diwali`;
 
   const profileLabel = profile.name
     ? `${profile.name}${profile.conditions.length ? ` (${profile.conditions.length})` : ''}`
@@ -30,28 +69,122 @@ export function Header({ meta, onLockGate }: Props) {
       : 'Health Profile';
 
   return (
-    <header className="header">
-      <div>
-        <h1>
-          VaayuVision <span className="muted">· Patiala Diwali Air Quality Forecast</span>
-        </h1>
-        <p className="muted">AI-powered, neighborhood-level PM2.5 / AQI prediction for Patiala, Punjab</p>
-      </div>
-      <div className="header-right">
-        <button type="button" className="btn-secondary" onClick={openModal}>
-          {profileLabel}
-        </button>
-        {onLockGate && (
-          <button type="button" className="btn-secondary" onClick={onLockGate}>
-            Intro Screen
+    <header className="command-dock" aria-label="Unified Command Dock">
+      {/* Top Row: Brand + Numbered Section Segmented Bar + Status & Profile Pills */}
+      <div className="dock-row-main">
+        <div className="dock-brand">
+          <div className="dock-brand-mark" aria-hidden="true">
+            <span className="dock-brand-dot" />
+          </div>
+          <div className="dock-brand-text">
+            <span className="dock-brand-title">VaayuVision</span>
+            <span className="dock-brand-sub">Patiala Air Intelligence</span>
+          </div>
+          <span className={`dock-status-pill phase-${meta.phase}`}>
+            <span className="status-dot-mini" />
+            {PHASE_TEXT[meta.phase]} · {countdown}
+          </span>
+        </div>
+
+        <nav className="dock-nav-segments" aria-label="Dashboard Sections">
+          {STAGES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`dock-segment-btn ${stage === s.id ? 'active' : ''}`}
+              onClick={() => onStageChange(s.id)}
+            >
+              <span className="dock-segment-code">{s.code}</span>
+              <span>{s.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="dock-actions">
+          <button type="button" className="dock-btn" onClick={openModal}>
+            {profileLabel}
           </button>
-        )}
-        <span className={`phase-badge phase-${meta.phase}`}>{PHASE_TEXT[meta.phase]}</span>
-        <div className="countdown">
-          <strong>{countdown}</strong>
-          <span className="muted">{formatDate(meta.diwaliDate, true)}</span>
+          {onLockGate && (
+            <button type="button" className="dock-btn" onClick={onLockGate}>
+              Intro
+            </button>
+          )}
+          <button
+            type="button"
+            className={`dock-btn icon-toggle ${timelineExpanded ? 'active' : ''}`}
+            onClick={() => setTimelineExpanded((v) => !v)}
+            title={timelineExpanded ? 'Collapse Timeline Controls' : 'Expand Timeline Controls'}
+          >
+            {timelineExpanded ? 'Hide Timeline ▲' : '21d Timeline ▼'}
+          </button>
         </div>
       </div>
+
+      {/* Bottom Row: Integrated 21-Day Timeline Scrubber & Playback Controls */}
+      {timelineExpanded && dates.length > 0 && (
+        <div className="dock-row-timeline">
+          <div className="timeline-date-readout">
+            <strong className="timeline-date-text">{formatDate(dates[dayIndex], true)}</strong>
+            <span className="timeline-offset-tag">
+              {dayIndex === 0 ? 'Live Today' : `+${dayIndex}d Forecast`}
+            </span>
+            {p && phaseLabel(p.daysFromDiwali) && (
+              <span className={`dock-status-pill phase-${p.phase}`}>
+                {phaseLabel(p.daysFromDiwali)}
+              </span>
+            )}
+          </div>
+
+          <div className="timeline-scrubber-wrap">
+            <input
+              type="range"
+              className="dock-range-slider"
+              min={0}
+              max={dates.length - 1}
+              value={dayIndex}
+              onChange={(e) => {
+                setPlaying(false);
+                onDayChange(Number(e.target.value));
+              }}
+              aria-label="21-day forecast timeline"
+            />
+          </div>
+
+          <div className="timeline-btn-cluster">
+            <button
+              type="button"
+              className={`dock-btn ${playing ? 'active-play' : ''}`}
+              onClick={() => setPlaying((v) => !v)}
+            >
+              {playing ? '⏸ Pause Timelapse' : '▶ Play 21d Timelapse'}
+            </button>
+            {dayIndex !== 0 && (
+              <button
+                type="button"
+                className="dock-btn"
+                onClick={() => {
+                  setPlaying(false);
+                  onDayChange(0);
+                }}
+              >
+                Today
+              </button>
+            )}
+            {diwaliIdx >= 0 && (
+              <button
+                type="button"
+                className={`dock-btn accent ${dayIndex === diwaliIdx ? 'active' : ''}`}
+                onClick={() => {
+                  setPlaying(false);
+                  onDayChange(diwaliIdx);
+                }}
+              >
+                Jump to Diwali Night
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
